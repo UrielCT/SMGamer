@@ -2,7 +2,7 @@
 
 Esta es un aplicación realizada en el lenguaje Kotlin. Tiene como objetivo mostrar los conocimientos que he adquirido a lo largo de este último año.
 
-###En ella utilizo :
+## En ella utilizo :
 
 1. Android X
 2. Recycler View
