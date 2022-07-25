@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center">
+
+        <FrameLayout
+            android:id="@+id/fl_imageProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:background="@drawable/corner_user_image">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/im_comment"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                app:riv_corner_radius="75dp"
+                app:riv_border_width="2dp"
+                app:riv_border_color="#C8C8C8"
+                app:riv_mutate_background="true"
+                android:layout_height="55dp"
+                android:layout_width="55dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="-75dp"
+                android:src="@drawable/cover_image" />
+        </FrameLayout>
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#DFDFDF"
+            app:cardCornerRadius="10dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="20dp"
+            app:contentPaddingLeft="10dp"
+            app:contentPaddingRight="10dp"
+            app:contentPaddingBottom="5dp"
+            app:contentPaddingTop="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    android:id="@+id/txt_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre de usuario"
+                    android:textStyle="italic"
+                    android:textColor="@color/blueDark"
+                    android:layout_marginBottom="5dp"/>
+                <TextView
+                    android:id="@+id/txt_comentario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="comentario"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

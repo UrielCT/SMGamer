@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="15dp"
+    android:layout_marginVertical="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:background="@drawable/corner_user_image">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/im_circle_my_post"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                app:riv_corner_radius="75dp"
+                app:riv_border_width="2dp"
+                app:riv_border_color="#C8C8C8"
+                app:riv_mutate_background="true"
+                android:layout_height="45dp"
+                android:layout_width="45dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="-75dp"
+                android:src="@drawable/cover_image" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="15dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/txt_title_my_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Titulo de la publicacion"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textSize="16dp"/>
+
+            <TextView
+                android:id="@+id/txt_title_relative_time_my_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hace 0 min"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textSize="14dp"
+                android:layout_marginTop="3dp"/>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/im_delete_my_post"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/ic_cancel"/>
+
+    </LinearLayout>
+
+
+</FrameLayout>

@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.activities.PostDetailActivity"
+    android:background="@color/gris">
+
+
+
+    <!-- APP BAR -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/white">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:contentScrim="@color/white">
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="235dp"
+                android:transitionName="@string/transitionname_picture"
+                app:layout_collapseMode="parallax">
+
+                <com.smarteist.autoimageslider.SliderView
+                    android:id="@+id/imageSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:sliderAnimationDuration="600"
+                    app:sliderAutoCycleDirection="back_and_forth"
+                    app:sliderAutoCycleEnabled="true"
+                    app:sliderIndicatorAnimationDuration="600"
+                    app:sliderIndicatorGravity="center_horizontal|bottom"
+                    app:sliderIndicatorMargin="15dp"
+                    app:sliderIndicatorOrientation="horizontal"
+                    app:sliderIndicatorPadding="3dp"
+                    app:sliderIndicatorRadius="2dp"
+                    app:sliderIndicatorSelectedColor="#5A5A5A"
+                    app:sliderIndicatorUnselectedColor="#FFF"
+                    app:sliderScrollTimeInSec="1"
+                    app:sliderStartAutoCycle="true"
+                    tools:layout_editor_absoluteX="0dp" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_chat"
+                    android:layout_gravity="end|bottom"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"/>
+
+
+                <!-- ME GUSTAS -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_gravity="bottom|left"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/imageSlider">
+                    <TextView
+                        android:id="@+id/txt_relativeTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hace 0 min"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/txt_likes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Likes"
+                        android:layout_marginTop="5dp"
+                        android:textColor="@color/white"
+                        android:textStyle="italic"/>
+                </LinearLayout>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                />
+
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+
+
+
+
+
+    <!--SCROLLVIEW-->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:elevation="3dp"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_marginHorizontal="10dp">
+
+                    <FrameLayout
+                        android:id="@+id/fl_imageProfile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="55dp"
+                        android:background="@drawable/corner_user_image">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/im_circle_profile"
+                            app:riv_corner_radius="75dp"
+                            app:riv_border_width="2dp"
+                            app:riv_border_color="#C8C8C8"
+                            app:riv_mutate_background="true"
+                            android:layout_height="55dp"
+                            android:layout_width="55dp"
+                            android:scaleType="centerCrop"
+                            android:layout_marginBottom="-75dp"
+                            android:src="@drawable/cover_image" />
+
+                    </FrameLayout>
+
+
+                    <LinearLayout
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_marginStart="15dp"
+                        android:gravity="center">
+                        <TextView
+                            android:id="@+id/txt_username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Nombre de usuario"
+                            android:textColor="@color/black"/>
+                        <TextView
+                            android:id="@+id/txt_phone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="96854612"/>
+                    </LinearLayout>
+
+
+                    <Button
+                        android:id="@+id/btn_show_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Perfil"
+                        android:layout_marginStart="10dp"
+                        style="?attr/materialButtonOutlinedStyle"
+                        app:strokeColor="@color/purple_500"
+                        />
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/txt_titulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Titulo del juego"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="25dp"
+                android:textColor="@color/blue"
+                android:layout_marginTop="10dp"/>
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/consola"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/blueDark"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="10dp"
+                android:paddingHorizontal="50dp"
+                app:cardCornerRadius="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingVertical="6dp"
+
+                    >
+                    <ImageView
+                        android:id="@+id/im_category"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/icon_ps4"/>
+                    <TextView
+                        android:id="@+id/txt_category"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PS4"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="17sp"
+                        android:layout_marginStart="10dp"/>
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="25dp"
+                android:layout_marginTop="20dp"
+                android:background="#B8B8B8"
+                tools:layout_editor_absoluteX="25dp" />
+
+            <TextView
+
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="25dp"
+                android:layout_marginTop="15dp"
+                android:text="DESCRIPCION"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txt_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="25dp"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="10dp"/>
+
+            <TextView
+
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="25dp"
+                android:layout_marginTop="15dp"
+                android:text="COMENTARIOS"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+
+                />
+
+
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+
+
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

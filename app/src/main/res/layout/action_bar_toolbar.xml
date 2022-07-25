@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.AppBarLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:theme="@style/ToolBarName"
+            android:layout_gravity="center"
+            android:gravity="center"
+            >
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <TextView
+            android:id="@+id/titulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Hola"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:layout_gravity="center"/>
+
+    </FrameLayout>
+
+
+</com.google.android.material.appbar.AppBarLayout>
