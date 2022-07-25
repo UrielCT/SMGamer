@@ -12,7 +12,7 @@ Esta es un aplicación realizada en el lenguaje Kotlin. Tiene como objetivo most
 6. CardView
 7. Sistema de likes
 8. Un buscador local
-9. Seccion de comentarios
+9. Sección de comentarios
 10. Pantalla de chat
 
 ###   Firebase:
