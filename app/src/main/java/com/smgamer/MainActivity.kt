@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.smgamer.ui.screens.login.LoginScreen
+import com.smgamer.ui.screens.register.RegisterScreen
 import com.smgamer.ui.theme.SMGamerTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SMGamerTheme {
-                LoginScreen({},{},{})
+                //LoginScreen({},{},{})
+                RegisterScreen({},{})
             }
         }
     }
