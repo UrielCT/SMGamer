@@ -30,11 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smgamer.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
-    onRegisterClick: () -> Unit,
-    onBackClick: () -> Unit
+    navToHome:()-> Unit,
+    navBack: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val username = remember { mutableStateOf("") }
@@ -44,6 +43,7 @@ fun RegisterScreen(
     val confirmPassword = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     val confirmPasswordVisible = remember { mutableStateOf(false) }
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -67,7 +67,7 @@ fun RegisterScreen(
 
             // Botón de retroceso flotante
             IconButton(
-                onClick = onBackClick,
+                onClick = navBack,
                 modifier = Modifier
                     .size(56.dp)
                     .padding(16.dp)
@@ -184,7 +184,7 @@ fun RegisterScreen(
 
                         // Botón de registro
                         Button(
-                            onClick = onRegisterClick,
+                            onClick = navToHome,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
