@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "3404573985",
+    "project_id": "smgamer-ec87b",
+    "storage_bucket": "smgamer-ec87b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3404573985:android:e510eed26b1fa392012260",
+        "android_client_info": {
+          "package_name": "com.smgamer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARV0fcpM-H2Qdo5P8HdQjuXLedE-76Yj0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

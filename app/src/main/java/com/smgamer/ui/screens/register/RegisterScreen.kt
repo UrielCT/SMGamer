@@ -1,5 +1,6 @@
 package com.smgamer.ui.screens.register
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,14 +14,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -28,13 +33,25 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import com.smgamer.R
+import com.smgamer.ui.models.User
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.Date
+import java.util.regex.Pattern
 
 @Composable
 fun RegisterScreen(
     navToHome:()-> Unit,
     navBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val auth = Firebase.auth
+
     val scrollState = rememberScrollState()
     val username = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
@@ -43,6 +60,77 @@ fun RegisterScreen(
     val confirmPassword = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     val confirmPasswordVisible = remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+
+
+    val db = Firebase.firestore
+    val usersCollection = db.collection("Users")
+
+    fun isEmailValid(email: String): Boolean {
+        val pattern = Pattern.compile(
+            "^[\\w.-]+@([\\w-]+\\.)+[A-Z]{2,4}$",
+            Pattern.CASE_INSENSITIVE
+        )
+        return pattern.matcher(email).matches()
+    }
+
+
+
+    fun register() {
+        // Validación de campos vacíos
+        if (username.value.isEmpty() || email.value.isEmpty() || password.value.isEmpty() || confirmPassword.value.isEmpty() || phone.value.isEmpty()) {
+            Toast.makeText(context, "Para continuar inserta todos los campos", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Validación de email
+        if (!isEmailValid(email.value)) {
+            Toast.makeText(context, "El correo electrónico no es válido", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        // Validación de contraseñas
+        if (password.value != confirmPassword.value) {
+            Toast.makeText(context, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Validación de longitud de contraseña
+        if (password.value.length < 6) {
+            Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Si pasa todas las validaciones
+        coroutineScope.launch {
+            try {
+                isLoading = true
+                val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
+
+                if (authResult.user != null) {
+                    val userId = authResult.user!!.uid
+
+                    val user = User(
+                        id = userId,
+                        email = email.value,
+                        username = username.value,
+                        phone = phone.value,
+                        timestamp = Date().time
+                    )
+
+                    usersCollection.document(userId).set(user).await()
+
+                    Toast.makeText(context, "Registro exitoso!", Toast.LENGTH_SHORT).show()
+                    navToHome()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al registrar: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
 
 
     Surface(
@@ -184,7 +272,7 @@ fun RegisterScreen(
 
                         // Botón de registro
                         Button(
-                            onClick = navToHome,
+                            onClick = { register() },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
@@ -243,6 +331,40 @@ fun RegisterScreen(
         }
     }
 }
+
+//
+//suspend fun createUser() {
+//    try {
+//        val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
+//
+//        if (authResult.user != null) {
+//            val userId = authResult.user!!.uid
+//
+////                val user = User(
+////                    id = userId,
+////                    email = email,
+////                    username = username,
+////                    phone = phone,
+////                    timestamp = Date().time
+////                )
+//
+//            //usersCollection.document(userId).set(user).await()
+//
+//            Toast.makeText(
+//                context,
+//                "Registro exitoso!",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//
+//            navToHome()
+//        }
+//    } catch (e: Exception) {
+//        throw e
+//    } finally {
+//        isLoading = false
+//    }
+//}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
