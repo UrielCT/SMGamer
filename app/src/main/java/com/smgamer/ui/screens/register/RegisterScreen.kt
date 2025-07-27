@@ -1,5 +1,6 @@
 package com.smgamer.ui.screens.register
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +39,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.smgamer.R
 import com.smgamer.ui.models.User
+import com.smgamer.ui.screens.login.LoginViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Date
@@ -45,6 +47,7 @@ import java.util.regex.Pattern
 
 @Composable
 fun RegisterScreen(
+    loginViewModel: LoginViewModel,
     navToHome:()-> Unit,
     navBack: () -> Unit
 ) {
@@ -102,33 +105,41 @@ fun RegisterScreen(
         }
 
         // Si pasa todas las validaciones
-        coroutineScope.launch {
-            try {
-                isLoading = true
-                val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
 
-                if (authResult.user != null) {
-                    val userId = authResult.user!!.uid
-
-                    val user = User(
-                        id = userId,
-                        email = email.value,
-                        username = username.value,
-                        phone = phone.value,
-                        timestamp = Date().time
-                    )
-
-                    usersCollection.document(userId).set(user).await()
-
-                    Toast.makeText(context, "Registro exitoso!", Toast.LENGTH_SHORT).show()
-                    navToHome()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(context, "Error al registrar: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                isLoading = false
-            }
-        }
+        loginViewModel.createUserWithEmailAndPassword(
+            email.value, password.value,
+            userName = username.value,
+            navToHome = navToHome,
+            phone = phone.value
+        )
+//        coroutineScope.launch {
+//            try {
+//                isLoading = true
+//                val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
+//
+//                if (authResult.user != null) {
+//                    val userId = authResult.user!!.uid
+//
+//                    val user = User(
+//                        id = userId,
+//                        email = email.value,
+//                        username = username.value,
+//                        phone = phone.value,
+//                        timestamp = Date().time
+//                    )
+//
+//                    usersCollection.document(userId).set(user).await()
+//
+//                    Toast.makeText(context, "Registro exitoso!", Toast.LENGTH_SHORT).show()
+//                    navToHome()
+//                }
+//            } catch (e: Exception) {
+//                Toast.makeText(context, "Error al registrar: ${e.message}", Toast.LENGTH_SHORT).show()
+//                Log.d("login","Error al registrarse: ${e.message}")
+//            } finally {
+//                isLoading = false
+//            }
+//        }
     }
 
 

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SMGamer</string>
+
+    <string name="default_web_client_id">3404573985-sjrajgig8bhvajm0tgaps1sj4cvtml0p.apps.googleusercontent.com</string>
 </resources>

@@ -1,6 +1,9 @@
 package com.smgamer.ui.screens.login
 
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,8 +35,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +47,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,29 +56,125 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.Firebase
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 import com.smgamer.R
-
-// Paleta de colores mejorada
+import com.smgamer.ui.models.User
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.Date
+import java.util.regex.Pattern
 
 @Composable
 fun LoginScreen(
+    loginViewModel: LoginViewModel,
+    navToHome: () -> Unit,
     navToRegister: () -> Unit
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val auth = Firebase.auth
+
     var email = remember { mutableStateOf("") }
     var password = remember { mutableStateOf("") }
     var passwordVisible = remember { mutableStateOf(false) }
 
+    var isLoading by remember { mutableStateOf(false) }
 
-    fun isEmailValid():Boolean{
-        if (email.value != ""){
-            return true
-        }else{
-            return false
+//    fun firebaseAuthWithGoogle(idToken: String, onSuccess: () -> Unit) {
+//        coroutineScope.launch {
+//            try {
+//                isLoading = true
+//                val credential = GoogleAuthProvider.getCredential(idToken, null)
+//                auth.signInWithCredential(credential).await()
+//                Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+//                onSuccess()
+//            } catch (e: Exception) {
+//                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+//            } finally {
+//                isLoading = false
+//            }
+//        }
+//    }
+
+    // Configuración del login con Google
+    val googleSignInClient = remember {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, gso)
+    }
+//
+//    val googleSignInLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.StartActivityForResult()
+//    ) { result ->
+//        try {
+//            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+//            val account = task.getResult(ApiException::class.java)!!
+//            firebaseAuthWithGoogle(account.idToken!!, navToHome)
+//        } catch (e: ApiException) {
+//            Log.w("GoogleSignIn", "Google sign in failed", e)
+//            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            val account = task.getResult(ApiException::class.java)!!
+
+            // Crea la credencial y pasa al ViewModel
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            loginViewModel.signInWithGoogleCredential(credential, navToHome)
+
+        } catch (e: ApiException) {
+            Log.w("GoogleSignIn", "Google sign in failed", e)
+            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
         }
     }
 
+
+    fun isEmailValid(email: String): Boolean {
+        val pattern = Pattern.compile(
+            "^[\\w.-]+@([\\w-]+\\.)+[A-Z]{2,4}$",
+            Pattern.CASE_INSENSITIVE
+        )
+        return pattern.matcher(email).matches()
+    }
+
     fun login(){
-        if (password.value != "" && isEmailValid() ){
+        if (password.value != "" && isEmailValid(email.value) ){
+
+            loginViewModel.signInWithEmailAndPassword(email.value, password.value, navToHome)
+
+//            coroutineScope.launch {
+//
+//                try {
+//                    isLoading = true
+//
+//                    val mAuth = auth.signInWithEmailAndPassword(email.value, password.value).await()
+//
+//                    if (mAuth.user != null) {
+//                        //val userId = mAuth.user!!.uid
+//
+//                        Toast.makeText(context, "Login exitoso!", Toast.LENGTH_SHORT).show()
+//                        navToHome()
+//
+//                    }
+//                } catch (e: Exception) {
+//                    Toast.makeText(context, "Error al logearse: ${e.message}", Toast.LENGTH_SHORT).show()
+//                } finally {
+//                    isLoading = false
+//                }
+//            }
+
+
             Log.d("login","email: $email")
             Log.d("login","password: $password")
         }else{
@@ -88,7 +192,7 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height( dimensionResource(R.dimen.login_cover_height) )
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
@@ -111,12 +215,12 @@ fun LoginScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
+                        .padding(horizontal = dimensionResource(R.dimen.common_padding_middle)),
                     elevation = CardDefaults.cardElevation(
-                        defaultElevation = 8.dp,
+                        defaultElevation = dimensionResource(R.dimen.common_padding_min),
                         pressedElevation = 4.dp
                     ),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.common_padding_default)),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
                     )
@@ -182,9 +286,12 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-
+                        // Login google button
                         OutlinedButton(
-                            onClick = /*onGoogleLoginClick*/{},
+                            onClick = {
+                                val signInIntent = googleSignInClient.signInIntent
+                                googleSignInLauncher.launch(signInIntent)
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),

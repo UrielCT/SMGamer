@@ -12,7 +12,20 @@
           "package_name": "com.smgamer"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "3404573985-lljpolql7bdbq0ntio92hfi8u9jpvhrm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smgamer",
+            "certificate_hash": "1b6aaa9977661fe5393ed04f3de8241e27bb7843"
+          }
+        },
+        {
+          "client_id": "3404573985-sjrajgig8bhvajm0tgaps1sj4cvtml0p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyARV0fcpM-H2Qdo5P8HdQjuXLedE-76Yj0"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3404573985-sjrajgig8bhvajm0tgaps1sj4cvtml0p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
