@@ -11,4 +11,6 @@
 
     <dimen name="login_cover_height">220dp</dimen>
 
+    <dimen name="font_size_title_post_card">20sp</dimen>
+
 </resources>

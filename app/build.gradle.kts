@@ -73,6 +73,8 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation ("com.google.android.gms:play-services-auth:20.7.")
 
+    implementation("androidx.compose.foundation:foundation:1.6.1")
+
     // hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

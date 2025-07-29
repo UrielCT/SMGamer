@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.smgamer.ui.navigation.NavigationWrapper
+import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
 import com.smgamer.ui.theme.SMGamerTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,7 +32,9 @@ class MainActivity : ComponentActivity() {
                 //PostDetailScreen()
                 //CreatePostScreen()
                 //UserProfileScreen
-                NavigationWrapper(loginViewModel)
+                //NavigationWrapper(loginViewModel)
+                //NavigationWrapper()
+                NavigationBarScreen()
             }
         }
     }
