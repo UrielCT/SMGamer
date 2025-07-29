@@ -2,6 +2,7 @@
 <resources>
 
     <dimen name="common_padding_none">0dp</dimen>
+    <dimen name="common_padding_mini">4dp</dimen>
     <dimen name="common_padding_min">8dp</dimen>
     <dimen name="common_padding_default">16dp</dimen>
     <dimen name="common_padding_middle">24dp</dimen>
