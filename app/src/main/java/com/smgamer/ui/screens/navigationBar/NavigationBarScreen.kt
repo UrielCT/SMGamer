@@ -64,7 +64,7 @@ fun NavigationBarScreen(){
 
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        //modifier = Modifier.fillMaxSize(),
         topBar = {
             if(currentRoute != Destination.FILTERS.route && currentRoute != Destination.PROFILE.route){
                 TopAppBar(
@@ -132,7 +132,10 @@ fun NavigationBarScreen(){
             )
 
         }) { innerPadding ->
-        NavigationWrapper(navController, startDestination, Modifier.padding(innerPadding) )
+        NavigationWrapper(navController, startDestination,modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+        )
 
     }
 }

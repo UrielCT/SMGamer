@@ -75,6 +75,9 @@ dependencies {
 
     implementation("androidx.compose.foundation:foundation:1.6.1")
 
+    //constraint layout
+    implementation (libs.androidx.constraintlayout.compose)
+
     // hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

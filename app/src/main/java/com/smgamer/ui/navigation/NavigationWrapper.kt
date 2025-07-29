@@ -21,7 +21,7 @@ fun  NavigationWrapper(
     //loginViewModel: LoginViewModel,
     navController: NavHostController,
     startDestination: Destination,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ){
 
     //val navController = rememberNavController()
