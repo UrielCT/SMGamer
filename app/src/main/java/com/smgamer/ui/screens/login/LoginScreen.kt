@@ -71,7 +71,7 @@ import java.util.regex.Pattern
 
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel,
+    //loginViewModel: LoginViewModel,
     navToHome: () -> Unit,
     navToRegister: () -> Unit
 ) {
@@ -122,22 +122,27 @@ fun LoginScreen(
 //            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
 //        }
 //    }
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        try {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            val account = task.getResult(ApiException::class.java)!!
 
-            // Crea la credencial y pasa al ViewModel
-            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            loginViewModel.signInWithGoogleCredential(credential, navToHome)
 
-        } catch (e: ApiException) {
-            Log.w("GoogleSignIn", "Google sign in failed", e)
-            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
-        }
-    }
+
+    // DESCOMENTAR
+
+//    val googleSignInLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.StartActivityForResult()
+//    ) { result ->
+//        try {
+//            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+//            val account = task.getResult(ApiException::class.java)!!
+//
+//            // Crea la credencial y pasa al ViewModel
+//            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+//            loginViewModel.signInWithGoogleCredential(credential, navToHome)
+//
+//        } catch (e: ApiException) {
+//            Log.w("GoogleSignIn", "Google sign in failed", e)
+//            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 
 
     fun isEmailValid(email: String): Boolean {
@@ -148,39 +153,39 @@ fun LoginScreen(
         return pattern.matcher(email).matches()
     }
 
-    fun login(){
-        if (password.value != "" && isEmailValid(email.value) ){
-
-            loginViewModel.signInWithEmailAndPassword(email.value, password.value, navToHome)
-
-//            coroutineScope.launch {
+//    fun login(){
+//        if (password.value != "" && isEmailValid(email.value) ){
 //
-//                try {
-//                    isLoading = true
+//            loginViewModel.signInWithEmailAndPassword(email.value, password.value, navToHome)
 //
-//                    val mAuth = auth.signInWithEmailAndPassword(email.value, password.value).await()
+////            coroutineScope.launch {
+////
+////                try {
+////                    isLoading = true
+////
+////                    val mAuth = auth.signInWithEmailAndPassword(email.value, password.value).await()
+////
+////                    if (mAuth.user != null) {
+////                        //val userId = mAuth.user!!.uid
+////
+////                        Toast.makeText(context, "Login exitoso!", Toast.LENGTH_SHORT).show()
+////                        navToHome()
+////
+////                    }
+////                } catch (e: Exception) {
+////                    Toast.makeText(context, "Error al logearse: ${e.message}", Toast.LENGTH_SHORT).show()
+////                } finally {
+////                    isLoading = false
+////                }
+////            }
 //
-//                    if (mAuth.user != null) {
-//                        //val userId = mAuth.user!!.uid
 //
-//                        Toast.makeText(context, "Login exitoso!", Toast.LENGTH_SHORT).show()
-//                        navToHome()
-//
-//                    }
-//                } catch (e: Exception) {
-//                    Toast.makeText(context, "Error al logearse: ${e.message}", Toast.LENGTH_SHORT).show()
-//                } finally {
-//                    isLoading = false
-//                }
-//            }
-
-
-            Log.d("login","email: $email")
-            Log.d("login","password: $password")
-        }else{
-            Log.d("login","el email o la contraseña son incorrectos")
-        }
-    }
+//            Log.d("login","email: $email")
+//            Log.d("login","password: $password")
+//        }else{
+//            Log.d("login","el email o la contraseña son incorrectos")
+//        }
+//    }
 
 
     Surface(
@@ -268,7 +273,7 @@ fun LoginScreen(
 
                         // Botón de login
                         Button(
-                            onClick = { login() },
+                            onClick = { /*login()*/ },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),
@@ -290,7 +295,7 @@ fun LoginScreen(
                         OutlinedButton(
                             onClick = {
                                 val signInIntent = googleSignInClient.signInIntent
-                                googleSignInLauncher.launch(signInIntent)
+                                //googleSignInLauncher.launch(signInIntent)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()

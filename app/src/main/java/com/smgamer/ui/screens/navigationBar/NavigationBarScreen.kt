@@ -1,12 +1,7 @@
 package com.smgamer.ui.screens.navigationBar
 
-
 import android.annotation.SuppressLint
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,21 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.smgamer.ui.navigation.Destination
@@ -51,22 +38,40 @@ import com.smgamer.ui.navigation.NavigationWrapper
 @Composable
 fun NavigationBarScreen(){
     val navController = rememberNavController()
-    val startDestination = Destination.HOME
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = Destination.fromRoute(backStackEntry?.destination?.route)
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    // 👇 Rutas que NO deben mostrar ninguna barra
+    val noBarsRoutes = listOf(Destination.Login, Destination.Register, Destination.EditProfile)
 
-    val destinations = remember { Destination.entries }
+    // 👇 Solo muestra BottomNav en ciertas pantallas
+    val showBottomBar = currentDestination in listOf(
+        Destination.Home,
+        Destination.Filters,
+        Destination.Profile,
+        Destination.Chats
+    )
+
+    val showTopBar = currentDestination in listOf(
+        Destination.Home,
+        Destination.Chats
+    )
+
+    // 👇 Solo muestra TopBar en una pantalla específica (ej: ChatDetail)
+    //val showTopBar = currentDestination == Destination.ChatDetail
+
+    val showFab = currentDestination == Destination.Home
+
 
     // Estado para modo búsqueda
     var isSearching by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
 
+
     Scaffold(
-        //modifier = Modifier.fillMaxSize(),
         topBar = {
-            if(currentRoute != Destination.FILTERS.route && currentRoute != Destination.PROFILE.route){
+            if(showTopBar){
                 TopAppBar(
                     title = {
                         if(isSearching){
@@ -86,12 +91,12 @@ fun NavigationBarScreen(){
                                 }
                             )
                         }
-                        if(currentRoute == Destination.CHATS.route){
+                        if(currentDestination == Destination.Chats){
                             Text("Chats")
                         }
                     },
                     actions = {
-                        if (currentRoute == Destination.HOME.route){
+                        if (currentDestination == Destination.Home){
                             if (isSearching) {
                                 IconButton(onClick = {
                                     // Al cerrar búsqueda
@@ -117,7 +122,7 @@ fun NavigationBarScreen(){
         },
 
         floatingActionButton = {
-            if(currentRoute == Destination.HOME.route){
+            if(showFab){
                 FloatingActionButton(onClick = {}) {
                     Icon(Icons.Default.Add, contentDescription = null)
                 }
@@ -126,13 +131,18 @@ fun NavigationBarScreen(){
 
 
         bottomBar = {
-            BottomBar(
-                navController = navController,
-                destinations = destinations
-            )
+            if (showBottomBar) {
+                if (currentDestination != null) {
+                    BottomBar(navController = navController,currentDestination = currentDestination /*, destinations = destinations*/)
+                }
+            }
+        }
 
-        }) { innerPadding ->
-        NavigationWrapper(navController, startDestination,modifier = Modifier
+    ) { innerPadding ->
+        NavigationWrapper(
+            navController= navController,
+            //startDestination = startDestination,
+            modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
         )
@@ -145,38 +155,38 @@ fun NavigationBarScreen(){
 @Composable
 fun BottomBar(
     navController: NavHostController,
-    destinations: List<Destination>
+    currentDestination: Destination
+    //destinations: List<Destination>
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    //val currentRoute = navBackStackEntry?.destination?.route
     val NoRippleInteractionSource = MutableInteractionSource()
 
     NavigationBar {
-        destinations.forEach { destination ->
-            val selected = currentRoute == destination.route
+        Destination.bottomBarItems.forEach { destination ->
+            //val selected = currentRoute == destination.route
 
             NavigationBarItem(
-                selected = selected,
+                selected = currentDestination?.route == destination.route,
                 modifier = Modifier.clickable(
                     interactionSource = NoRippleInteractionSource,
                     indication = null
                 ){},
                 onClick = {
-                    if (!selected) {
-                        navController.navigate(destination.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+
+                    navController.navigate(destination.route) {
+                        launchSingleTop = true
+                        popUpTo(Destination.Home.route)
                     }
+
                 },
                 icon = {
-                    Icon(destination.icon, contentDescription = destination.contentDescription)
+                    destination.icon?.let {
+                        Icon(it, contentDescription = destination.contentDescription)
+                    }
                 },
                 label = {
-                    Text(destination.label)
+                    destination.label?.let { Text(it) }
                 },
                 alwaysShowLabel = false,
 
@@ -187,9 +197,11 @@ fun BottomBar(
 
 
 
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun NavigationBarScreenPreview(){
-
     NavigationBarScreen()
 }

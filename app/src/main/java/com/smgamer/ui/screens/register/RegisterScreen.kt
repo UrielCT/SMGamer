@@ -47,7 +47,7 @@ import java.util.regex.Pattern
 
 @Composable
 fun RegisterScreen(
-    loginViewModel: LoginViewModel,
+    //loginViewModel: LoginViewModel,
     navToHome:()-> Unit,
     navBack: () -> Unit
 ) {
@@ -106,12 +106,14 @@ fun RegisterScreen(
 
         // Si pasa todas las validaciones
 
-        loginViewModel.createUserWithEmailAndPassword(
-            email.value, password.value,
-            userName = username.value,
-            navToHome = navToHome,
-            phone = phone.value
-        )
+        //DESCOMENTAR
+
+//        loginViewModel.createUserWithEmailAndPassword(
+//            email.value, password.value,
+//            userName = username.value,
+//            navToHome = navToHome,
+//            phone = phone.value
+//        )
 //        coroutineScope.launch {
 //            try {
 //                isLoading = true

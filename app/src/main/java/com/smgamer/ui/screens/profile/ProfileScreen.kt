@@ -3,6 +3,7 @@ package com.smgamer.ui.screens.profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +33,10 @@ import com.smgamer.ui.components.ProfilePostCard
 import com.smgamer.ui.theme.Blue100
 
 @Composable
-fun ProfileScreen(modifier: Modifier){
+fun ProfileScreen(
+    modifier: Modifier,
+    navToEditProfile: () -> Unit
+    ){
     val context = LocalContext.current
 
     ConstraintLayout(
@@ -57,10 +62,14 @@ fun ProfileScreen(modifier: Modifier){
             )
         }
 
+
         Text("EDITAR PERFIL",
             color = Color.White,
             fontSize = 20.sp,
             modifier=Modifier
+                .clickable{
+                    navToEditProfile()
+                }
                 .constrainAs(txtEdit){
                     top.linkTo(parent.top)
                     end.linkTo(parent.end)
@@ -164,5 +173,5 @@ fun ProfileScreen(modifier: Modifier){
 @Preview(showBackground = true)
 @Composable
 private fun ProfileScreenPreview(){
-    ProfileScreen(Modifier)
+    ProfileScreen(Modifier,{})
 }

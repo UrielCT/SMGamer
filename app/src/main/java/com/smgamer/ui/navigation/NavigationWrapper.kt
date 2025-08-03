@@ -2,13 +2,11 @@ package com.smgamer.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.smgamer.ui.screens.chats.ChatsScreen
+import com.smgamer.ui.screens.editprofile.EditProfileScreen
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
@@ -20,7 +18,7 @@ import com.smgamer.ui.screens.register.RegisterScreen
 fun  NavigationWrapper(
     //loginViewModel: LoginViewModel,
     navController: NavHostController,
-    startDestination: Destination,
+    //startDestination: Destination,
     modifier: Modifier
 ){
 
@@ -28,47 +26,57 @@ fun  NavigationWrapper(
 
     //var startDestination: Destination
 
-    NavHost(navController = navController, startDestination= startDestination.route){
+    NavHost(
+        navController = navController,
+        startDestination= Destination.Home.route
+    ){
 
-//        composable(route= Destination.HOME.route){
-//            HomeScreen()
-//        }
-//        composable(route= Destination.FILTERS.route){
-//            HomeScreen()
-//        }
-//        composable(route= Destination.CHATS.route){
-//            HomeScreen()
-//        }
-//        composable(route= Destination.PROFILE.route){
-//            HomeScreen()
-//        }
-
-        Destination.entries.forEach{ destination ->
-            composable(destination.route) {
-                when(destination){
-                    Destination.HOME -> HomeScreen(modifier)
-                    Destination.FILTERS -> FiltersScreen(modifier)
-                    Destination.CHATS -> ChatsScreen(modifier)
-                    Destination.PROFILE -> ProfileScreen(modifier)
+        composable(Destination.Home.route){
+            HomeScreen(modifier)
+        }
+        composable(Destination.Filters.route){
+            FiltersScreen(modifier)
+        }
+        composable(Destination.Chats.route){
+            ChatsScreen(modifier)
+        }
+        composable(Destination.Profile.route){
+            ProfileScreen(modifier,
+                navToEditProfile = {
+                    navController.navigate(Destination.EditProfile.route)
                 }
-            }
+            )
+        }
+
+        composable (Destination.EditProfile.route) {
+            EditProfileScreen(modifier = modifier, navBack = {
+                navController.popBackStack()
+            })
         }
 
 
-//        composable<Login> {
-//            LoginScreen(
-//                loginViewModel= loginViewModel,
-//                navToHome = {},
-//                navToRegister = {navController.navigate(Register)}
-//            )
-//        }
+        composable(Destination.Login.route) {
+            LoginScreen(
+                //loginViewModel= loginViewModel,
+                navToHome = {
+                    navController.navigate(Destination.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                navToRegister = { navController.navigate(Destination.Register.route) }
+            )
+        }
 
-//        composable<Register> {
-//            RegisterScreen(
-//                loginViewModel = loginViewModel,
-//                navBack = {navController.popBackStack() },
-//                navToHome = {}
-//            )
-//        }
+        composable (Destination.Register.route) {
+            RegisterScreen(
+                //loginViewModel = loginViewModel,
+                navBack = {navController.popBackStack() },
+                navToHome = {
+                    navController.navigate(Destination.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
