@@ -25,6 +25,7 @@ sealed class Destination(
     object EditProfile : Destination("edit_profile")
     object FilteredPosts : Destination("filtered_posts")
     object PostDetail : Destination("post_detail")
+    object UserProfile : Destination("user_profile")
 
 
     companion object {
@@ -37,6 +38,7 @@ sealed class Destination(
             EditProfile.route -> EditProfile
             FilteredPosts.route -> FilteredPosts
             PostDetail.route -> PostDetail
+            UserProfile.route -> UserProfile
             Login.route -> Login
             Register.route -> Register
             else -> null

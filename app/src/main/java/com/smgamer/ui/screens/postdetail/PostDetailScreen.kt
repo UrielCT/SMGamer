@@ -53,7 +53,8 @@ import com.smgamer.ui.theme.Blue100
 @Composable
 fun PostDetailScreen(
     modifier: Modifier,
-    navBack: () -> Unit
+    navBack: () -> Unit,
+    navToUserProfile: ()->Unit
 ){
     val context = LocalContext.current
     val image = ContextCompat.getDrawable(context, R.drawable.cover_image)
@@ -185,7 +186,7 @@ fun PostDetailScreen(
                 }
 
                 OutlinedButton(
-                    onClick = {},
+                    onClick = { navToUserProfile() },
                     shape = RectangleShape,
                     border = BorderStroke(1.dp, Color(0xFFFF9800)),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -264,7 +265,7 @@ fun PostDetailScreen(
 @Preview(showBackground = true)
 @Composable
 private fun PostDetailScreenPreview(){
-    PostDetailScreen(Modifier,{})
+    PostDetailScreen(Modifier,{},{})
 }
 
 
