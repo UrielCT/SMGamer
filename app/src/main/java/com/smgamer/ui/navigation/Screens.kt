@@ -20,9 +20,11 @@ sealed class Destination(
     object Profile : Destination("profile", "Profile", Icons.Default.Person, "profile view")
 
     // Pantallas sin barra
-    object EditProfile : Destination("edit_profile")
     object Login : Destination("login")
     object Register : Destination("register")
+    object EditProfile : Destination("edit_profile")
+    object FilteredPosts : Destination("filtered_posts")
+
 
     companion object {
         val bottomBarItems = listOf(Home, Filters, Chats, Profile)
@@ -32,6 +34,7 @@ sealed class Destination(
             Chats.route -> Chats
             Profile.route -> Profile
             EditProfile.route -> EditProfile
+            FilteredPosts.route -> FilteredPosts
             Login.route -> Login
             Register.route -> Register
             else -> null

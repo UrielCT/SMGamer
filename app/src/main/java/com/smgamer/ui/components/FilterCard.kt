@@ -29,14 +29,15 @@ import com.smgamer.R
 fun FilterCard(
     modifier: Modifier = Modifier,
     name: String,
-    imageRes:Int = R.drawable.icon_pc
+    imageRes:Int = R.drawable.icon_pc,
+    navToFilteredPosts: () -> Unit
 ){
     Card(
+        onClick = { navToFilteredPosts() },
         modifier
             .padding(horizontal = dimensionResource(R.dimen.common_padding_default),
                 vertical = dimensionResource(R.dimen.common_padding_mini)
-            )
-            ,
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -72,5 +73,5 @@ fun FilterCard(
 @Preview(showBackground = true)
 @Composable
 private fun FilterCardPreview(){
-    FilterCard(modifier = Modifier,"titulo")
+    FilterCard(modifier = Modifier,"titulo", navToFilteredPosts = {})
 }

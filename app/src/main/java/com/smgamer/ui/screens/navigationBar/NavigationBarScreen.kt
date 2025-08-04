@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -54,7 +56,8 @@ fun NavigationBarScreen(){
 
     val showTopBar = currentDestination in listOf(
         Destination.Home,
-        Destination.Chats
+        Destination.Chats,
+        Destination.FilteredPosts
     )
 
     // 👇 Solo muestra TopBar en una pantalla específica (ej: ChatDetail)
@@ -93,6 +96,8 @@ fun NavigationBarScreen(){
                         }
                         if(currentDestination == Destination.Chats){
                             Text("Chats")
+                        }else if(currentDestination == Destination.FilteredPosts){
+                            Text("Filters")
                         }
                     },
                     actions = {
@@ -115,6 +120,14 @@ fun NavigationBarScreen(){
                             }
                         }
 
+                    },
+                    navigationIcon = {
+                        if(currentDestination == Destination.FilteredPosts){
+                            IconButton(onClick = { navController.popBackStack()
+                            }) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            }
+                        }
                     }
                 )
             }

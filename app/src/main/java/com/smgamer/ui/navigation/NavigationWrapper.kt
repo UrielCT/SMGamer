@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.smgamer.ui.screens.chats.ChatsScreen
 import com.smgamer.ui.screens.editprofile.EditProfileScreen
+import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
@@ -35,7 +36,11 @@ fun  NavigationWrapper(
             HomeScreen(modifier)
         }
         composable(Destination.Filters.route){
-            FiltersScreen(modifier)
+            FiltersScreen(modifier,
+                navToFilteredPosts = {
+                    navController.navigate(Destination.FilteredPosts.route)
+                }
+            )
         }
         composable(Destination.Chats.route){
             ChatsScreen(modifier)
@@ -52,6 +57,10 @@ fun  NavigationWrapper(
             EditProfileScreen(modifier = modifier, navBack = {
                 navController.popBackStack()
             })
+        }
+
+        composable (Destination.FilteredPosts.route) {
+            FilteredPostsScreen(modifier = modifier)
         }
 
 

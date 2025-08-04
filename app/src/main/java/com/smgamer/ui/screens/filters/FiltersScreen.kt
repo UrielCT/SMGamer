@@ -20,7 +20,10 @@ import com.smgamer.ui.theme.SMGamerTheme
 data class Filter(val name:String,val imageVector: Int)
 
 @Composable
-fun FiltersScreen(modifier: Modifier){
+fun FiltersScreen(
+    modifier: Modifier,
+    navToFilteredPosts:()-> Unit
+){
     val filtersList : List<Filter> = listOf(
         Filter(name = "PLAYSTATION", imageVector = R.drawable.icon_ps4),
         Filter(name = "XBOX", imageVector = R.drawable.icon_xbox),
@@ -42,7 +45,8 @@ fun FiltersScreen(modifier: Modifier){
                 imageRes = filter.imageVector,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                navToFilteredPosts = { navToFilteredPosts() }
             )
         }
     }
@@ -52,6 +56,6 @@ fun FiltersScreen(modifier: Modifier){
 @Composable
 fun FiltersScreenPreview(){
     SMGamerTheme {
-        FiltersScreen(Modifier)
+        FiltersScreen(Modifier,{})
     }
 }
