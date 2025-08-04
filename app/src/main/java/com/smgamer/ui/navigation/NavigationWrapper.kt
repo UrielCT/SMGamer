@@ -11,6 +11,7 @@ import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
+import com.smgamer.ui.screens.newpost.NewPostScreen
 import com.smgamer.ui.screens.postdetail.PostDetailScreen
 import com.smgamer.ui.screens.profile.ProfileScreen
 import com.smgamer.ui.screens.register.RegisterScreen
@@ -56,6 +57,12 @@ fun  NavigationWrapper(
 
         composable (Destination.EditProfile.route) {
             EditProfileScreen(modifier = modifier, navBack = {
+                navController.popBackStack()
+            })
+        }
+
+        composable (Destination.NewPost.route) {
+            NewPostScreen (modifier = modifier, navBack = {
                 navController.popBackStack()
             })
         }

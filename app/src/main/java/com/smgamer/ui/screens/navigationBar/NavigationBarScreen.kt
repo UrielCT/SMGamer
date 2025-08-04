@@ -43,12 +43,6 @@ fun NavigationBarScreen(){
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = Destination.fromRoute(backStackEntry?.destination?.route)
 
-    // 👇 Rutas que NO deben mostrar ninguna barra
-    val noBarsRoutes = listOf(
-        Destination.Login,
-        Destination.Register,
-        Destination.EditProfile
-    )
 
     // 👇 Solo muestra BottomNav en ciertas pantallas
     val showBottomBar = currentDestination in listOf(
@@ -142,7 +136,7 @@ fun NavigationBarScreen(){
         floatingActionButton = {
             if(showFab){
                 FloatingActionButton(onClick = {
-                    navController.navigate(Destination.PostDetail.route)
+                    navController.navigate(Destination.NewPost.route)
                 }) {
                     Icon(Icons.Default.Add, contentDescription = null)
                 }
