@@ -1,5 +1,6 @@
 package com.smgamer.ui.components
 
+import android.telecom.Call.Details
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,11 +31,14 @@ import androidx.core.graphics.drawable.toBitmap
 import com.smgamer.R
 
 @Composable
-fun PostCard(modifier: Modifier){
+fun PostCard(
+    modifier: Modifier,
+    navToPostDetail: () -> Unit
+){
     Card(
         modifier= Modifier.padding(horizontal = dimensionResource(R.dimen.common_padding_default),
             vertical = dimensionResource(R.dimen.common_padding_min)),
-        onClick = {}) {
+        onClick = { navToPostDetail() }) {
 
         Column (modifier = Modifier.fillMaxWidth()){
             val image = ContextCompat.getDrawable(LocalContext.current, R.drawable.cover_image)
@@ -85,5 +89,5 @@ fun PostCard(modifier: Modifier){
 @Preview(showBackground = true)
 @Composable
 fun PostCardPreview(){
-    PostCard(modifier = Modifier)
+    PostCard(modifier = Modifier,{})
 }

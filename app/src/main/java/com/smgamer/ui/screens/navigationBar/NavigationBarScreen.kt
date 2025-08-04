@@ -44,14 +44,19 @@ fun NavigationBarScreen(){
     val currentDestination = Destination.fromRoute(backStackEntry?.destination?.route)
 
     // 👇 Rutas que NO deben mostrar ninguna barra
-    val noBarsRoutes = listOf(Destination.Login, Destination.Register, Destination.EditProfile)
+    val noBarsRoutes = listOf(
+        Destination.Login,
+        Destination.Register,
+        Destination.EditProfile
+    )
 
     // 👇 Solo muestra BottomNav en ciertas pantallas
     val showBottomBar = currentDestination in listOf(
         Destination.Home,
         Destination.Filters,
         Destination.Profile,
-        Destination.Chats
+        Destination.Chats,
+        Destination.PostDetail
     )
 
     val showTopBar = currentDestination in listOf(
@@ -136,7 +141,9 @@ fun NavigationBarScreen(){
 
         floatingActionButton = {
             if(showFab){
-                FloatingActionButton(onClick = {}) {
+                FloatingActionButton(onClick = {
+                    navController.navigate(Destination.PostDetail.route)
+                }) {
                     Icon(Icons.Default.Add, contentDescription = null)
                 }
             }
@@ -146,7 +153,14 @@ fun NavigationBarScreen(){
         bottomBar = {
             if (showBottomBar) {
                 if (currentDestination != null) {
-                    BottomBar(navController = navController,currentDestination = currentDestination /*, destinations = destinations*/)
+                    var cd = currentDestination
+                    if(cd == Destination.PostDetail){
+                        cd = Destination.Home
+                    }
+                    BottomBar(
+                        navController = navController,
+                        currentDestination = cd,
+                    )
                 }
             }
         }
@@ -154,7 +168,7 @@ fun NavigationBarScreen(){
     ) { innerPadding ->
         NavigationWrapper(
             navController= navController,
-            //startDestination = startDestination,
+            //currentDestination = currentDestination,
             modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)

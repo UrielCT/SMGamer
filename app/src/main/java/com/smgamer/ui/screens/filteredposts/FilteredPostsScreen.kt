@@ -15,6 +15,7 @@ import com.smgamer.ui.components.PostCard
 @Composable
 fun FilteredPostsScreen(
     modifier: Modifier,
+    navToPostDetail:()->Unit
 ){
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -27,7 +28,7 @@ fun FilteredPostsScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             content = {
                 items(23) { item ->
-                    PostCard(modifier = Modifier)
+                    PostCard(modifier = Modifier, navToPostDetail = navToPostDetail)
                 }
             }
         )
@@ -40,5 +41,5 @@ fun FilteredPostsScreen(
 @Preview(showBackground = true)
 @Composable
 fun FilteredPostsScreenPreview(){
-    FilteredPostsScreen(Modifier)
+    FilteredPostsScreen(Modifier,{})
 }

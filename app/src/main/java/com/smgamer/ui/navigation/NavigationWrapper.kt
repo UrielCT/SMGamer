@@ -2,9 +2,11 @@ package com.smgamer.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.DefaultTintColor
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import com.smgamer.ui.screens.chats.ChatsScreen
 import com.smgamer.ui.screens.editprofile.EditProfileScreen
 import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
@@ -12,6 +14,7 @@ import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
 import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.screens.postdetail.PostDetailScreen
 import com.smgamer.ui.screens.profile.ProfileScreen
 import com.smgamer.ui.screens.register.RegisterScreen
 
@@ -19,7 +22,7 @@ import com.smgamer.ui.screens.register.RegisterScreen
 fun  NavigationWrapper(
     //loginViewModel: LoginViewModel,
     navController: NavHostController,
-    //startDestination: Destination,
+    //currentDestination: Destination,
     modifier: Modifier
 ){
 
@@ -33,7 +36,11 @@ fun  NavigationWrapper(
     ){
 
         composable(Destination.Home.route){
-            HomeScreen(modifier)
+            HomeScreen(modifier,
+                navToPostDetail = {
+                    navController.navigate(Destination.PostDetail.route)
+                }
+            )
         }
         composable(Destination.Filters.route){
             FiltersScreen(modifier,
@@ -60,7 +67,17 @@ fun  NavigationWrapper(
         }
 
         composable (Destination.FilteredPosts.route) {
-            FilteredPostsScreen(modifier = modifier)
+            FilteredPostsScreen(modifier = modifier,
+                navToPostDetail = {
+                    navController.navigate(Destination.PostDetail.route)
+                }
+            )
+        }
+
+        composable (Destination.PostDetail.route) {
+            PostDetailScreen(modifier = modifier, navBack = {
+                navController.popBackStack()
+            })
         }
 
 
