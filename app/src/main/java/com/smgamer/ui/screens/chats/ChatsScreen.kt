@@ -21,7 +21,10 @@ data class Contact(
 
 
 @Composable
-fun ChatsScreen(modifier: Modifier){
+fun ChatsScreen(
+    modifier: Modifier,
+    navToChatDetail:()->Unit
+){
     Column (modifier = modifier
         .fillMaxSize()
         .background(Yellow100),
@@ -41,7 +44,8 @@ fun ChatsScreen(modifier: Modifier){
                 lastMessage = filter.lastMessage,
                 unreadCount = filter.unreadCount,
                 profileImageRes = filter.profileImageRes,
-                modifier = Modifier
+                modifier = Modifier,
+                navToChatDetail = navToChatDetail
             )
         }
     }
@@ -51,7 +55,7 @@ fun ChatsScreen(modifier: Modifier){
 @Composable
 fun ChatsScreenPreview(){
     SMGamerTheme {
-        ChatsScreen(Modifier)
+        ChatsScreen(Modifier,{})
     }
 
 }

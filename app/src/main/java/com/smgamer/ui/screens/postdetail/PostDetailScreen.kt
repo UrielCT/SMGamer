@@ -54,7 +54,8 @@ import com.smgamer.ui.theme.Blue100
 fun PostDetailScreen(
     modifier: Modifier,
     navBack: () -> Unit,
-    navToUserProfile: ()->Unit
+    navToUserProfile: ()->Unit,
+    navToChatDetail: ()-> Unit
 ){
     val context = LocalContext.current
     val image = ContextCompat.getDrawable(context, R.drawable.cover_image)
@@ -67,8 +68,6 @@ fun PostDetailScreen(
     ) {
         val(coverImg, colPublic, dots, fab, userCard, consoleClip,descTit,descTxt,
             publicTxt,lazyPublic,btnBack) = createRefs()
-
-
 
 
         image?.let {
@@ -129,7 +128,7 @@ fun PostDetailScreen(
                 bottom.linkTo(coverImg.bottom)
                 top.linkTo(coverImg.bottom)
             },
-            onClick = {}
+            onClick = { navToChatDetail() }
         ) {
             Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "chat")
         }
@@ -265,7 +264,7 @@ fun PostDetailScreen(
 @Preview(showBackground = true)
 @Composable
 private fun PostDetailScreenPreview(){
-    PostDetailScreen(Modifier,{},{})
+    PostDetailScreen(Modifier,{},{},{})
 }
 
 

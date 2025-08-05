@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.smgamer.ui.screens.chatdetail.ChatDetailScreen
 import com.smgamer.ui.screens.chats.ChatsScreen
 import com.smgamer.ui.screens.editprofile.EditProfileScreen
 import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
@@ -45,7 +46,9 @@ fun  NavigationWrapper(
             )
         }
         composable(Destination.Chats.route){
-            ChatsScreen(modifier)
+            ChatsScreen(modifier,
+                navToChatDetail = { navController.navigate(Destination.ChatDetail.route) }
+            )
         }
         composable(Destination.Profile.route){
             ProfileScreen(modifier,
@@ -84,10 +87,15 @@ fun  NavigationWrapper(
         composable (Destination.PostDetail.route) {
             PostDetailScreen(modifier = modifier,
                 navBack = { navController.popBackStack() },
-                navToUserProfile = {navController.navigate(Destination.UserProfile.route)}
+                navToUserProfile = { navController.navigate(Destination.UserProfile.route) },
+                navToChatDetail = {navController.navigate(Destination.ChatDetail.route) }
             )
         }
 
+
+        composable (Destination.ChatDetail.route) {
+            ChatDetailScreen(modifier = modifier)
+        }
 
         composable(Destination.Login.route) {
             LoginScreen(
