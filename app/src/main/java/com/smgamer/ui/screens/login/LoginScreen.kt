@@ -12,14 +12,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -45,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -55,7 +51,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -63,17 +58,16 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.smgamer.R
-import com.smgamer.ui.models.User
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.Date
 import java.util.regex.Pattern
 
 @Composable
 fun LoginScreen(
-    //loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel,
     navToHome: () -> Unit,
-    navToRegister: () -> Unit
+    navToRegister: () -> Unit,
+    modifier: Modifier
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -127,22 +121,22 @@ fun LoginScreen(
 
     // DESCOMENTAR
 
-//    val googleSignInLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.StartActivityForResult()
-//    ) { result ->
-//        try {
-//            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-//            val account = task.getResult(ApiException::class.java)!!
-//
-//            // Crea la credencial y pasa al ViewModel
-//            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-//            loginViewModel.signInWithGoogleCredential(credential, navToHome)
-//
-//        } catch (e: ApiException) {
-//            Log.w("GoogleSignIn", "Google sign in failed", e)
-//            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
-//        }
-//    }
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            val account = task.getResult(ApiException::class.java)!!
+
+            // Crea la credencial y pasa al ViewModel
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            loginViewModel.signInWithGoogleCredential(credential, navToHome)
+
+        } catch (e: ApiException) {
+            Log.w("GoogleSignIn", "Google sign in failed", e)
+            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     fun isEmailValid(email: String): Boolean {
@@ -153,43 +147,21 @@ fun LoginScreen(
         return pattern.matcher(email).matches()
     }
 
-//    fun login(){
-//        if (password.value != "" && isEmailValid(email.value) ){
-//
-//            loginViewModel.signInWithEmailAndPassword(email.value, password.value, navToHome)
-//
-////            coroutineScope.launch {
-////
-////                try {
-////                    isLoading = true
-////
-////                    val mAuth = auth.signInWithEmailAndPassword(email.value, password.value).await()
-////
-////                    if (mAuth.user != null) {
-////                        //val userId = mAuth.user!!.uid
-////
-////                        Toast.makeText(context, "Login exitoso!", Toast.LENGTH_SHORT).show()
-////                        navToHome()
-////
-////                    }
-////                } catch (e: Exception) {
-////                    Toast.makeText(context, "Error al logearse: ${e.message}", Toast.LENGTH_SHORT).show()
-////                } finally {
-////                    isLoading = false
-////                }
-////            }
-//
-//
-//            Log.d("login","email: $email")
-//            Log.d("login","password: $password")
-//        }else{
-//            Log.d("login","el email o la contraseña son incorrectos")
-//        }
-//    }
+    fun login(){
+        if (password.value != "" && isEmailValid(email.value) ){
+
+            loginViewModel.signInWithEmailAndPassword(email.value, password.value, navToHome)
+
+            Log.d("login","email: $email")
+            Log.d("login","password: $password")
+        }else{
+            Log.d("login","el email o la contraseña son incorrectos")
+        }
+    }
 
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -273,7 +245,7 @@ fun LoginScreen(
 
                         // Botón de login
                         Button(
-                            onClick = { /*login()*/ },
+                            onClick = { login() },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),
@@ -295,7 +267,7 @@ fun LoginScreen(
                         OutlinedButton(
                             onClick = {
                                 val signInIntent = googleSignInClient.signInIntent
-                                //googleSignInLauncher.launch(signInIntent)
+                                googleSignInLauncher.launch(signInIntent)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()

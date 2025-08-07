@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.smgamer.ui.screens.chatdetail.ChatDetailScreen
 import com.smgamer.ui.screens.chats.ChatsScreen
 import com.smgamer.ui.screens.editprofile.EditProfileScreen
@@ -12,6 +14,7 @@ import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
+import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.newpost.NewPostScreen
 import com.smgamer.ui.screens.postdetail.PostDetailScreen
 import com.smgamer.ui.screens.profile.ProfileScreen
@@ -20,15 +23,21 @@ import com.smgamer.ui.screens.userprofile.UserProfileScreen
 
 @Composable
 fun  NavigationWrapper(
-    //loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel,
     navController: NavHostController,
-    //currentDestination: Destination,
     modifier: Modifier
 ){
 
+    val auth = Firebase.auth
+    val startDestination = if (auth.currentUser != null) {
+        Destination.Home.route
+    } else {
+        Destination.Login.route
+    }
+
     NavHost(
         navController = navController,
-        startDestination= Destination.Home.route
+        startDestination= startDestination
     ){
 
         composable(Destination.Home.route){
@@ -99,19 +108,21 @@ fun  NavigationWrapper(
 
         composable(Destination.Login.route) {
             LoginScreen(
-                //loginViewModel= loginViewModel,
+                modifier = modifier,
+                loginViewModel= loginViewModel,
                 navToHome = {
                     navController.navigate(Destination.Home.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 },
-                navToRegister = { navController.navigate(Destination.Register.route) }
+                navToRegister = { navController.navigate(Destination.Register.route) },
             )
         }
 
         composable (Destination.Register.route) {
             RegisterScreen(
-                //loginViewModel = loginViewModel,
+                modifier = modifier,
+                loginViewModel = loginViewModel,
                 navBack = {navController.popBackStack() },
                 navToHome = {
                     navController.navigate(Destination.Home.route) {

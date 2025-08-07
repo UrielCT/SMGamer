@@ -1,10 +1,8 @@
 package com.smgamer.ui.screens.navigationBar
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,27 +12,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,13 +37,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -58,19 +53,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
+import com.smgamer.ui.screens.login.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationBarScreen(){
+fun NavigationBarScreen(
+    loginViewModel: LoginViewModel
+) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = Destination.fromRoute(backStackEntry?.destination?.route)
+    var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
@@ -90,8 +92,6 @@ fun NavigationBarScreen(){
         Destination.ChatDetail
     )
 
-    // 👇 Solo muestra TopBar en una pantalla específica (ej: ChatDetail)
-    //val showTopBar = currentDestination == Destination.ChatDetail
 
     val showFab = currentDestination == Destination.Home
 
@@ -159,7 +159,6 @@ fun NavigationBarScreen(){
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
-                                    //Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = "en linea",
                                         fontSize = 14.sp,
@@ -187,8 +186,29 @@ fun NavigationBarScreen(){
                                 IconButton(onClick = { isSearching = true }) {
                                     Icon(Icons.Default.Search, contentDescription = "Buscar")
                                 }
-                                IconButton(onClick = { /* más acciones */ }) {
-                                    Icon(Icons.Default.MoreVert, contentDescription = "Menú")
+
+
+                                Box {
+                                    IconButton(onClick = { expanded = true }) {
+                                        Icon(Icons.Default.MoreVert, contentDescription = "Menú")
+                                    }
+
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Cerrar sesión") },
+                                            onClick = {
+                                                Firebase.auth.signOut()
+                                                expanded = false
+
+                                                navController.navigate(Destination.Login.route) {
+                                                    popUpTo(0) { inclusive = true }
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -236,8 +256,8 @@ fun NavigationBarScreen(){
 
     ) { innerPadding ->
         NavigationWrapper(
+            loginViewModel = loginViewModel,
             navController= navController,
-            //currentDestination = currentDestination,
             modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
@@ -252,38 +272,30 @@ fun NavigationBarScreen(){
 fun BottomBar(
     navController: NavHostController,
     currentDestination: Destination
-    //destinations: List<Destination>
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    //val currentRoute = navBackStackEntry?.destination?.route
     val NoRippleInteractionSource = MutableInteractionSource()
 
     NavigationBar {
         Destination.bottomBarItems.forEach { destination ->
-            //val selected = currentRoute == destination.route
 
             NavigationBarItem(
-                selected = currentDestination?.route == destination.route,
+                selected = currentDestination.route == destination.route,
                 modifier = Modifier.clickable(
                     interactionSource = NoRippleInteractionSource,
                     indication = null
                 ){},
                 onClick = {
-
                     navController.navigate(destination.route) {
                         launchSingleTop = true
                         popUpTo(Destination.Home.route)
                     }
-
                 },
                 icon = {
                     destination.icon?.let {
                         Icon(it, contentDescription = destination.contentDescription)
                     }
                 },
-                label = {
-                    destination.label?.let { Text(it) }
-                },
+                label = { destination.label?.let { Text(it) } },
                 alwaysShowLabel = false,
 
             )
@@ -296,8 +308,8 @@ fun BottomBar(
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun NavigationBarScreenPreview(){
-    NavigationBarScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun NavigationBarScreenPreview(){
+//    NavigationBarScreen(loginViewModel = LoginViewMode )
+//}

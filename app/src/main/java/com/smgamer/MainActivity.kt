@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.smgamer.ui.navigation.NavigationWrapper
-import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
 import com.smgamer.ui.theme.SMGamerTheme
@@ -20,21 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SMGamerTheme {
-                //LoginScreen({},{},{})
-                //RegisterScreen({},{})
-                //HomeScreen()
-                //FiltersScreen()
-                //ChatsScreen()
-                //ProfileScreen()
-                //EditProfileScreen
-                //UserChatScreen()
-                //FilteredPostsScreen()
-                //PostDetailScreen()
-                //CreatePostScreen()
-                //UserProfileScreen
-                //NavigationWrapper(loginViewModel)
-                //NavigationWrapper()
-                NavigationBarScreen()
+                NavigationBarScreen(loginViewModel = loginViewModel)
             }
         }
     }
