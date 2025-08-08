@@ -48,12 +48,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -62,7 +60,7 @@ import com.google.firebase.ktx.Firebase
 import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
-import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.viewmodels.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

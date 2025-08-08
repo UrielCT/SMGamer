@@ -14,7 +14,7 @@ import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
-import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.viewmodels.LoginViewModel
 import com.smgamer.ui.screens.newpost.NewPostScreen
 import com.smgamer.ui.screens.postdetail.PostDetailScreen
 import com.smgamer.ui.screens.profile.ProfileScreen

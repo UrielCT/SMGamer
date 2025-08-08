@@ -58,8 +58,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.smgamer.R
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import com.smgamer.ui.viewmodels.LoginViewModel
 import java.util.regex.Pattern
 
 @Composable

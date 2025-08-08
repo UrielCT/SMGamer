@@ -5,10 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.viewmodels.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
 import com.smgamer.ui.theme.SMGamerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels()

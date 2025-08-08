@@ -1,4 +1,4 @@
-package com.smgamer.ui.screens.login
+package com.smgamer.ui.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -11,10 +11,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.smgamer.ui.models.User
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
 
-class LoginViewModel: ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(): ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
     private val db = FirebaseFirestore.getInstance()
     private val _loading = MutableLiveData(false)
@@ -28,7 +31,6 @@ class LoginViewModel: ViewModel() {
                         Log.d("login","signInWith google logged")
                         checkAndCreateUserInFirestore(navToHome)
                     }
-
                 }
                 .addOnFailureListener {
                     Log.d("login","fallo signInWith google ")

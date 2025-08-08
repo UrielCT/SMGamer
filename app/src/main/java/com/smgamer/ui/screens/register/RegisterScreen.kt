@@ -39,7 +39,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.smgamer.R
 import com.smgamer.ui.models.User
-import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Date
@@ -107,41 +107,42 @@ fun RegisterScreen(
 
         // Si pasa todas las validaciones
 
-//        loginViewModel.createUserWithEmailAndPassword(
-//            email.value, password.value,
-//            userName = username.value,
-//            navToHome = navToHome,
-//            phone = phone.value
-//        )
+        loginViewModel.createUserWithEmailAndPassword(
+            email.value, password.value,
+            userName = username.value,
+            navToHome = navToHome,
+            phone = phone.value
+        )
 
-        coroutineScope.launch {
-            try {
-                isLoading = true
-                val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
 
-                if (authResult.user != null) {
-                    val userId = authResult.user!!.uid
-
-                    val user = User(
-                        id = userId,
-                        email = email.value,
-                        username = username.value,
-                        phone = phone.value,
-                        timestamp = Date().time
-                    )
-
-                    usersCollection.document(userId).set(user).await()
-
-                    Toast.makeText(context, "Registro exitoso!", Toast.LENGTH_SHORT).show()
-                    navToHome()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(context, "Error al registrar: ${e.message}", Toast.LENGTH_SHORT).show()
-                Log.d("login","Error al registrarse: ${e.message}")
-            } finally {
-                isLoading = false
-            }
-        }
+//        coroutineScope.launch {
+//            try {
+//                isLoading = true
+//                val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
+//
+//                if (authResult.user != null) {
+//                    val userId = authResult.user!!.uid
+//
+//                    val user = User(
+//                        id = userId,
+//                        email = email.value,
+//                        username = username.value,
+//                        phone = phone.value,
+//                        timestamp = Date().time
+//                    )
+//
+//                    usersCollection.document(userId).set(user).await()
+//
+//                    Toast.makeText(context, "Registro exitoso!", Toast.LENGTH_SHORT).show()
+//                    navToHome()
+//                }
+//            } catch (e: Exception) {
+//                Toast.makeText(context, "Error al registrar: ${e.message}", Toast.LENGTH_SHORT).show()
+//                Log.d("login","Error al registrarse: ${e.message}")
+//            } finally {
+//                isLoading = false
+//            }
+//        }
     }
 
 
@@ -179,10 +180,6 @@ fun RegisterScreen(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-
-
-
-
 
 
 
@@ -344,39 +341,6 @@ fun RegisterScreen(
         }
     }
 }
-
-//
-//suspend fun createUser() {
-//    try {
-//        val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
-//
-//        if (authResult.user != null) {
-//            val userId = authResult.user!!.uid
-//
-////                val user = User(
-////                    id = userId,
-////                    email = email,
-////                    username = username,
-////                    phone = phone,
-////                    timestamp = Date().time
-////                )
-//
-//            //usersCollection.document(userId).set(user).await()
-//
-//            Toast.makeText(
-//                context,
-//                "Registro exitoso!",
-//                Toast.LENGTH_SHORT
-//            ).show()
-//
-//            navToHome()
-//        }
-//    } catch (e: Exception) {
-//        throw e
-//    } finally {
-//        isLoading = false
-//    }
-//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
