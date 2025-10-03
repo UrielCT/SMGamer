@@ -29,6 +29,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -53,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.ktx.auth
@@ -61,42 +64,44 @@ import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
 import com.smgamer.ui.viewmodels.LoginViewModel
+import com.smgamer.ui.viewmodels.PostsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationBarScreen(
+    postsViewModel: PostsViewModel,
     loginViewModel: LoginViewModel
 ) {
     val navController = rememberNavController()
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = Destination.fromRoute(backStackEntry?.destination?.route)
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    //val currentDestination = Destination.fromRoute(backStackEntry?.destination?.route)
     var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
-    // 👇 Solo muestra BottomNav en ciertas pantallas
-    val showBottomBar = currentDestination in listOf(
-        Destination.Home,
-        Destination.Filters,
-        Destination.Profile,
-        Destination.Chats,
-        Destination.PostDetail
-    )
-
-    val showTopBar = currentDestination in listOf(
-        Destination.Home,
-        Destination.Chats,
-        Destination.FilteredPosts,
-        Destination.ChatDetail
-    )
-
-
-    val showFab = currentDestination == Destination.Home
-
-
     // Estado para modo búsqueda
     var isSearching by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
+
+    // 👇 Solo muestra BottomNav en ciertas pantallas
+    val showBottomBar = currentRoute in listOf(
+        Destination.HOME.route,
+        Destination.FILTERS.route,
+        Destination.PROFILE.route,
+        Destination.CHATS.route,
+        Destination.POST_DETAIL.route
+    )
+
+    val showTopBar = currentRoute in listOf(
+        Destination.HOME.route,
+        Destination.CHATS.route,
+        Destination.FILTERED_POSTS.route,
+        Destination.CHAT_DETAIL.route
+    )
+
+
+    val showFab = currentRoute == Destination.HOME.route
 
 
 
@@ -122,11 +127,11 @@ fun NavigationBarScreen(
                                 }
                             )
                         }
-                        if(currentDestination == Destination.Chats){
+                        if(currentRoute == Destination.CHATS.route){
                             Text("Chats")
-                        }else if(currentDestination == Destination.FilteredPosts){
+                        }else if(currentRoute == Destination.FILTERED_POSTS.route){
                             Text("Filters")
-                        }else if(currentDestination == Destination.ChatDetail){
+                        }else if(currentRoute == Destination.CHAT_DETAIL.route){
 
                             val userImage = ContextCompat.getDrawable(context, R.drawable.ic_person)
 
@@ -171,7 +176,7 @@ fun NavigationBarScreen(
                         }
                     },
                     actions = {
-                        if (currentDestination == Destination.Home){
+                        if (currentRoute == Destination.HOME.route){
                             if (isSearching) {
                                 IconButton(onClick = {
                                     // Al cerrar búsqueda
@@ -201,7 +206,7 @@ fun NavigationBarScreen(
                                                 Firebase.auth.signOut()
                                                 expanded = false
 
-                                                navController.navigate(Destination.Login.route) {
+                                                navController.navigate(Destination.LOGIN.route) {
                                                     popUpTo(0) { inclusive = true }
                                                 }
                                             }
@@ -213,8 +218,8 @@ fun NavigationBarScreen(
 
                     },
                     navigationIcon = {
-                        if(currentDestination == Destination.FilteredPosts ||
-                            currentDestination == Destination.ChatDetail){
+                        if(currentRoute == Destination.FILTERED_POSTS.route ||
+                            currentRoute == Destination.CHAT_DETAIL.route){
                             IconButton(onClick = { navController.popBackStack()
                             }) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -229,7 +234,7 @@ fun NavigationBarScreen(
         floatingActionButton = {
             if(showFab){
                 FloatingActionButton(onClick = {
-                    navController.navigate(Destination.NewPost.route)
+                    navController.navigate(Destination.NEW_POST.route)
                 }) {
                     Icon(Icons.Default.Add, contentDescription = null)
                 }
@@ -239,14 +244,14 @@ fun NavigationBarScreen(
 
         bottomBar = {
             if (showBottomBar) {
-                if (currentDestination != null) {
-                    var cd = currentDestination
-                    if(cd == Destination.PostDetail){
-                        cd = Destination.Home
+                if (currentRoute != null) {
+                    var cd = currentRoute
+                    if(cd == Destination.POST_DETAIL.route){
+                        cd = Destination.HOME.route
                     }
                     BottomBar(
                         navController = navController,
-                        currentDestination = cd,
+                        currentRoute = cd,
                     )
                 }
             }
@@ -255,6 +260,7 @@ fun NavigationBarScreen(
     ) { innerPadding ->
         NavigationWrapper(
             loginViewModel = loginViewModel,
+            postsViewModel = postsViewModel,
             navController= navController,
             modifier = Modifier
             .fillMaxSize()
@@ -264,42 +270,128 @@ fun NavigationBarScreen(
     }
 }
 
-
-@SuppressLint("UnrememberedMutableInteractionSource")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomBar(
     navController: NavHostController,
-    currentDestination: Destination
+    currentRoute: String
 ) {
-    val NoRippleInteractionSource = MutableInteractionSource()
+    val navOptionsBuilder: NavOptionsBuilder.() -> Unit = remember(navController) {
+        {
+            popUpTo(navController.graph.id) {
+                inclusive = false
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    // Solo los destinos que van en la BottomBar
+    val bottomBarDestinations = listOf(
+        Destination.HOME,
+        Destination.FILTERS,
+        Destination.CHATS,
+        Destination.PROFILE
+    )
 
     NavigationBar {
-        Destination.bottomBarItems.forEach { destination ->
-
+        bottomBarDestinations.forEach { destination ->
             NavigationBarItem(
-                selected = currentDestination.route == destination.route,
-                modifier = Modifier.clickable(
-                    interactionSource = NoRippleInteractionSource,
-                    indication = null
-                ){},
+                selected = currentRoute == destination.route,
                 onClick = {
-                    navController.navigate(destination.route) {
-                        launchSingleTop = true
-                        popUpTo(Destination.Home.route)
+                    if (currentRoute != destination.route) {
+                        navController.navigate(destination.route, builder = navOptionsBuilder)
                     }
                 },
                 icon = {
-                    destination.icon?.let {
-                        Icon(it, contentDescription = destination.contentDescription)
-                    }
+                    destination.icon?.let { Icon(it, contentDescription = destination.contentDescription) }
                 },
-                label = { destination.label?.let { Text(it) } },
-                alwaysShowLabel = false,
-
+                label = {
+                    destination.labelRes?.let { Text(stringResource(it)) }
+                },
+                alwaysShowLabel = true // Opcional, true para que siempre se vea el texto
             )
         }
     }
 }
+
+
+//@Composable
+//fun BottomBar(
+//    navController: NavHostController,
+//    currentRoute: String
+//) {
+//
+//    val navOptionsBuilder: NavOptionsBuilder.() -> Unit = remember(navController) {
+//        {
+//            popUpTo(navController.graph.id) {
+//                inclusive = false
+//                saveState = true
+//            }
+//            launchSingleTop = true
+//            restoreState = true
+//        }
+//    }
+//
+//
+//
+//    NavigationBar{
+//        Destination.entries.forEach { destination ->
+//            NavigationBarItem(
+//                selected = currentRoute == destination.route,
+//                onClick = {
+//                    if (currentRoute != destination.route) {
+//                        navController.navigate(
+//                            route = destination.route,
+//                            builder = navOptionsBuilder
+//                        )
+//                    }
+//                },
+//                icon = {
+//                    destination.icon?.let {
+//                        Icon(
+//                            it,
+//                            contentDescription = null
+//                        )
+//                    }
+//                },
+//                label = {
+//                    destination.labelRes?.let { res ->
+//                        Text(stringResource(res))
+//                    }
+//                }
+//            )
+//        }
+//    }
+//
+////    NavigationBar {
+////        Destination.entries.forEach { destination ->
+////
+////            NavigationBarItem(
+////                selected = currentDestination.route == destination.route,
+////                modifier = Modifier.clickable(
+////                    interactionSource = noRippleInteractionSource,
+////                    indication = null
+////                ){},
+////                onClick = {
+////                    navController.navigate(destination.route) {
+////                        launchSingleTop = true
+////                        popUpTo(Destination.Home.route)
+////                    }
+////                },
+////                icon = {
+////                    destination.icon?.let {
+////                        Icon(it, contentDescription = destination.contentDescription)
+////                    }
+////                },
+////                label = { destination.label?.let { Text(it) } },
+////                alwaysShowLabel = false,
+////
+////            )
+////        }
+////    }
+//}
 
 
 

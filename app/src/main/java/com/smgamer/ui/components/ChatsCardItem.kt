@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.smgamer.R
 
 
@@ -53,15 +56,28 @@ fun ChatsCardItem(
         // Imagen de perfil circular
         val context = LocalContext.current
         val image = ContextCompat.getDrawable(context, profileImageRes)
-        image?.let {
-            Image(
-                bitmap = it.toBitmap().asImageBitmap(),
-                contentDescription = "Profile picture of $name",
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape).background(color = Color.Gray)
-            )
-        }
+//        image?.let {
+//            Image(
+//                bitmap = it.toBitmap().asImageBitmap(),
+//                contentDescription = "Profile picture of $name",
+//                modifier = Modifier
+//                    .size(56.dp)
+//                    .clip(CircleShape).background(color = Color.Gray)
+//            )
+//        }
+
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(image)
+                .crossfade(true)
+                .build(),
+            contentDescription = name,
+            modifier = Modifier
+                .size(80.dp)
+                .padding(8.dp)
+                .background(Color.Gray, shape = CircleShape),
+            contentScale = ContentScale.Crop
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 

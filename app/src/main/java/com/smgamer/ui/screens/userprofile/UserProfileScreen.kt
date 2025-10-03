@@ -34,7 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
-import com.smgamer.ui.theme.Blue100
+import com.smgamer.ui.theme.Background
 
 @Composable
 fun UserProfileScreen(
@@ -47,7 +47,7 @@ fun UserProfileScreen(
 
     ConstraintLayout(
         modifier = modifier
-            .background(Blue100)
+            .background(Background)
     ) {
         val(coverImg,btnBack,colPublic,colPhone,userImg,userName, userEmail,
             publicTxt,lazyPublic,fab) = createRefs()

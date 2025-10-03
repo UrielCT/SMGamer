@@ -2,4 +2,31 @@
     <string name="app_name">SMGamer</string>
 
     <string name="default_web_client_id">3404573985-sjrajgig8bhvajm0tgaps1sj4cvtml0p.apps.googleusercontent.com</string>
+    <string name="home_title">Home</string>
+    <string name="filters_title">Filters</string>
+    <string name="chats_title">Chats</string>
+    <string name="profile_title">Profile</string>
+
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="email_ph">Enter your Email</string>
+    <string name="password_ph">Enter your Password</string>
+
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="log_in">Log in</string>
+    <string name="log_in_with">OR LOG IN WITH</string>
+    <string name="google">Google</string>
+    <string name="no_account_txt">No Account?</string>
+    <string name="register">Register</string>
+    <string name="hide_password">Ocultar contraseña</string>
+    <string name="show_password">Mostrar contraseña</string>
+    <string name="username">Username</string>
+    <string name="username_ph">Enter your Username</string>
+    <string name="phone">Phone Number</string>
+    <string name="phone_ph">Enter your Number</string>
+    <string name="register_with">OR REGISTER WITH</string>
+    <string name="confirmPassword">Confirm Password</string>
+    <string name="confirmPassword_ph">Repeat your Password</string>
+
 </resources>

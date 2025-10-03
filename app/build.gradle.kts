@@ -41,6 +41,20 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += listOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/license.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/notice.txt"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -81,6 +95,13 @@ dependencies {
     // hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+    // cloudinary
+    implementation ("com.cloudinary:cloudinary-http44:1.30.0")
+
+    //coil
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+
 
 
     // Añadir la dependencia de material-icons-extended

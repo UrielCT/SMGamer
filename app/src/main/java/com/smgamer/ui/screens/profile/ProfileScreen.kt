@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -28,9 +29,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
-import com.smgamer.ui.theme.Blue100
+import com.smgamer.ui.theme.Background
 
 @Composable
 fun ProfileScreen(
@@ -41,7 +44,7 @@ fun ProfileScreen(
 
     ConstraintLayout(
         modifier = modifier
-            .background(Blue100)
+            .background(Background)
     ) {
         val(coverImg,txtEdit,colPublic,colPhone,userImg,userName, userEmail,
             publicTxt,lazyPublic) = createRefs()
@@ -50,17 +53,30 @@ fun ProfileScreen(
 
 
 
-        image?.let {
-            Image(bitmap = image.toBitmap().asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth()
-                    .height(220.dp)
-                    .constrainAs(coverImg){
-                        top.linkTo(parent.top)
-                    },
-                contentScale = ContentScale.Crop
-            )
-        }
+//        image?.let {
+//            Image(bitmap = image.toBitmap().asImageBitmap(),
+//                contentDescription = null,
+//                modifier = Modifier.fillMaxWidth()
+//                    .height(220.dp)
+//                    .constrainAs(coverImg){
+//                        top.linkTo(parent.top)
+//                    },
+//                contentScale = ContentScale.Crop
+//            )
+//        }
+
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(image)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            modifier = Modifier
+                .size(80.dp)
+                .padding(8.dp)
+                .background(Color.Gray, shape = CircleShape),
+            contentScale = ContentScale.Crop
+        )
 
 
         Text("EDITAR PERFIL",
@@ -98,23 +114,43 @@ fun ProfileScreen(
             Text("TELÉFONO", fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
 
-        userImage?.let {
-            Image(bitmap = userImage.toBitmap().asImageBitmap(),
-                contentDescription = "Profile image",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .border(3.dp, color = Color.LightGray, CircleShape)
-                    .background(color = Color.Blue)
-                    .constrainAs(userImg){
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(coverImg.bottom)
-                        top.linkTo(coverImg.bottom)
-                    },
-                contentScale = ContentScale.Crop
-            )
-        }
+//        userImage?.let {
+//            Image(bitmap = userImage.toBitmap().asImageBitmap(),
+//                contentDescription = "Profile image",
+//                modifier = Modifier
+//                    .size(120.dp)
+//                    .clip(CircleShape)
+//                    .border(3.dp, color = Color.LightGray, CircleShape)
+//                    .background(color = Color.Blue)
+//                    .constrainAs(userImg){
+//                        start.linkTo(parent.start)
+//                        end.linkTo(parent.end)
+//                        bottom.linkTo(coverImg.bottom)
+//                        top.linkTo(coverImg.bottom)
+//                    },
+//                contentScale = ContentScale.Crop
+//            )
+//        }
+
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(userImage)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .border(3.dp, color = Color.LightGray, CircleShape)
+                .background(color = Color.Blue)
+                .constrainAs(userImg){
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(coverImg.bottom)
+                    top.linkTo(coverImg.bottom)
+                },
+            contentScale = ContentScale.Crop
+        )
 
         Text("Nombre",
             color = Color.Black,
@@ -170,8 +206,8 @@ fun ProfileScreen(
 
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun ProfileScreenPreview(){
-    ProfileScreen(Modifier,{})
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun ProfileScreenPreview(){
+//    ProfileScreen(Modifier,{})
+//}

@@ -38,7 +38,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.smgamer.R
-import com.smgamer.ui.theme.Blue100
+import com.smgamer.ui.theme.Background
+
 
 @Composable
 fun EditProfileScreen(
@@ -49,7 +50,7 @@ fun EditProfileScreen(
 
     ConstraintLayout(
         modifier = modifier.fillMaxSize()
-            .background(Blue100)
+            .background(Background)
     ) {
         val (coverImg, btnEdit, editForm, userImg) = createRefs()
         val image = ContextCompat.getDrawable(context, R.drawable.cover_image)

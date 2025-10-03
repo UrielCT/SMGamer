@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -47,7 +48,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
-import com.smgamer.ui.theme.Blue100
+import com.smgamer.ui.theme.Background
 
 
 @Composable
@@ -64,7 +65,7 @@ fun PostDetailScreen(
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
-            .background(Blue100)
+            .background(Background)
     ) {
         val(coverImg, colPublic, dots, fab, userCard, consoleClip,descTit,descTxt,
             publicTxt,lazyPublic,btnBack) = createRefs()
