@@ -2,6 +2,7 @@ package com.smgamer.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,31 +10,35 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.smgamer.R
-
+import com.smgamer.ui.theme.CommonFontSizeDefault
+import com.smgamer.ui.theme.CommonFontSizeMicro
+import com.smgamer.ui.theme.CommonFontSizeMin
+import com.smgamer.ui.theme.CommonPaddingDefault
+import com.smgamer.ui.theme.CommonPaddingLarge_lm
+import com.smgamer.ui.theme.CommonPaddingMicroMin
+import com.smgamer.ui.theme.CommonPaddingMiddle
+import com.smgamer.ui.theme.CommonPaddingMinDefault
+import com.smgamer.ui.theme.CommonPaddingTwo
+import com.smgamer.ui.theme.Online
 
 @Composable
 fun ChatsCardItem(
@@ -41,93 +46,100 @@ fun ChatsCardItem(
     lastMessage: String,
     unreadCount: Int,
     profileImageRes: Int,
-    modifier: Modifier = Modifier,
-    navToChatDetail:()->Unit
+    isOnline: Boolean,
+    navToChatDetail: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Row(
-        modifier = modifier
-            .clickable{
-                navToChatDetail()
-            }
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable { navToChatDetail() }
+            .padding(horizontal = CommonPaddingDefault, vertical = CommonPaddingMinDefault),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Imagen de perfil circular
-        val context = LocalContext.current
-        val image = ContextCompat.getDrawable(context, profileImageRes)
-//        image?.let {
-//            Image(
-//                bitmap = it.toBitmap().asImageBitmap(),
-//                contentDescription = "Profile picture of $name",
+        Box(modifier = Modifier.size(CommonPaddingLarge_lm)) {
+//            AsyncImage(
+//                model = ImageRequest.Builder(context)
+//                    .data(profileImageRes)
+//                    .crossfade(true)
+//                    .build(),
+//                contentDescription = name,
 //                modifier = Modifier
-//                    .size(56.dp)
-//                    .clip(CircleShape).background(color = Color.Gray)
+//                    .size(CommonPaddingLarge_lm)
+//                    .clip(CircleShape)
+//                    .background(MaterialTheme.colorScheme.surfaceVariant),
+//                contentScale = ContentScale.Crop
 //            )
-//        }
+            Image(
+                painter = painterResource(id = profileImageRes),
+                contentDescription = name,
+                modifier = Modifier
+                    .size(CommonPaddingLarge_lm)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentScale = ContentScale.Crop
+            )
 
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(image)
-                .crossfade(true)
-                .build(),
-            contentDescription = name,
-            modifier = Modifier
-                .size(80.dp)
-                .padding(8.dp)
-                .background(Color.Gray, shape = CircleShape),
-            contentScale = ContentScale.Crop
-        )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(CommonPaddingDefault)
+                    .clip(CircleShape)
+                    .background(
+                        if (isOnline) Online
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    .border(
+                        width = CommonPaddingTwo,
+                        color = MaterialTheme.colorScheme.background,
+                        shape = CircleShape
+                    )
+            )
+        }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(CommonPaddingDefault))
 
-        // Nombre y último mensaje
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = name,
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
+                fontSize = CommonFontSizeDefault,
+                color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(CommonPaddingTwo))
             Text(
                 text = lastMessage,
-                fontSize = 14.sp,
-                color = Color.Gray,
+                fontSize = CommonFontSizeMin,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
 
-        // Círculo con cantidad de mensajes no leídos
         if (unreadCount > 0) {
             Box(
                 modifier = Modifier
-                    .defaultMinSize(24.dp,24.dp) // mínimo tamaño circular
-                    .padding(start = 8.dp)
-                    .background(Color(0xFFFF9800), shape = CircleShape)
-                    .padding(horizontal = 8.dp, vertical = 4.dp), // espaciado interno,
+                    .defaultMinSize(minWidth = CommonPaddingMiddle, minHeight = CommonPaddingMiddle)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    )
+                    .padding(horizontal = CommonPaddingMicroMin, vertical = CommonPaddingTwo),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = if (unreadCount > 99) "99+" else unreadCount.toString(),
-                    color = Color.White,
-                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = CommonFontSizeMicro,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
             }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun ChatsCardItemPreview(){
-    ChatsCardItem(name = "Juan", lastMessage = "hola", unreadCount = 1000,
-        profileImageRes = R.drawable.ic_person, navToChatDetail = {})
 }

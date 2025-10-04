@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.sp
 
 val CommonPaddingNone = 0.dp
 val CommonPaddingOne = 1.dp
+val CommonPaddingTwo = 2.dp
 val CommonPaddingMicro = 4.dp
 val CommonPaddingMicroMin = 6.dp
 val CommonPaddingMin = 8.dp
@@ -23,6 +24,8 @@ val BottomBarPadding = 64.dp
 
 val PostImageHeight = 180.dp
 val FilterImageSize = 80.dp
+
+val DividerThickness = 0.8.dp
 
 
 val MessageVerticalSpace = 40.dp
@@ -43,8 +46,7 @@ val CommonFontSizeDefaultMid = 17.sp
 val CommonFontSizeMiddle = 16.sp
 val CommonFontSizeMiddleMin = 15.sp
 val CommonFontSizeMin = 14.sp
+val CommonFontSizeMicro = 12.sp
 
 val VersionDialogHeight = 300.dp
 
-val FontSizeLange = 22.sp
-val FontSizeMin = 16.sp

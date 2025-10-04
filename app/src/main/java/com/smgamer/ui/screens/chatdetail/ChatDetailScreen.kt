@@ -37,14 +37,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 
 data class ChatMessage(
     val text: String,
     val isMine: Boolean,
-    val timestamp: LocalDateTime,
+    val timestamp: Long,
     val status: MessageStatus
 )
 
@@ -58,30 +61,25 @@ fun ChatDetailScreen(modifier: Modifier){
 
     val messages = remember {
         mutableStateListOf(
-            ChatMessage("Hola, ¿cómo estás?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Bien, ¿y vos?", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Todo bien. ¿Qué hacés?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Estudiando Compose 😎", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Hola, ¿cómo estás?", false, LocalDateTime.now(), MessageStatus.SENT),
-        ChatMessage( "Bien, ¿y vos?", true, LocalDateTime.now(), MessageStatus.SENT),
-        ChatMessage( "Todo bien. ¿Qué hacés?", false, LocalDateTime.now(), MessageStatus.SENT),
-        ChatMessage("Estudiando Compose 😎", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Hola, ¿cómo estás?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Bien, ¿y vos?", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Todo bien. ¿Qué hacés?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Estudiando Compose 😎", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Hola, ¿cómo estás?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Bien, ¿y vos?", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Todo bien. ¿Qué hacés?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Estudiando Compose 😎", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Hola, ¿cómo estás?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Bien, ¿y vos?", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Todo bien. ¿Qué hacés?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Estudiando Compose 😎", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Hola, ¿cómo estás?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Bien, ¿y vos?", true, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage( "Todo bien. ¿Qué hacés?", false, LocalDateTime.now(), MessageStatus.SENT),
-            ChatMessage("Estudiando Compose 😎", true, LocalDateTime.now(), MessageStatus.SENT)
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage("Hola, ¿cómo estás?", false, System.currentTimeMillis(), MessageStatus.SENT),
+            ChatMessage( "Bien, ¿y vos?", true, System.currentTimeMillis(), MessageStatus.SENT),
+
+
+
         )
 
     }
@@ -118,7 +116,7 @@ fun ChatDetailScreen(modifier: Modifier){
                         ChatMessage(
                             text.trim(),
                             isMine = true,
-                            timestamp = LocalDateTime.now(),
+                            timestamp = System.currentTimeMillis(),
                             status = MessageStatus.SENT
                         )
                     )
@@ -135,7 +133,7 @@ fun ChatDetailScreen(modifier: Modifier){
 @SuppressLint("NewApi")
 @Composable
 fun MessageBubble(message: ChatMessage) {
-    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     Row(
         modifier = Modifier
@@ -159,7 +157,7 @@ fun MessageBubble(message: ChatMessage) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = message.timestamp.format(timeFormatter),
+                    text = timeFormatter.format(Date(message.timestamp)),
                     fontSize = 12.sp,
                     color = Color.DarkGray
                 )
