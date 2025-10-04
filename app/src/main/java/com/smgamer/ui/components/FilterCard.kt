@@ -2,80 +2,59 @@ package com.smgamer.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
+import com.smgamer.ui.theme.CommonFontSizeXLarge
+import com.smgamer.ui.theme.CommonPaddingDefault
+import com.smgamer.ui.theme.CommonPaddingMicroMin
+import com.smgamer.ui.theme.CommonPaddingMin
+import com.smgamer.ui.theme.FilterImageSize
 
 @Composable
 fun FilterCard(
     modifier: Modifier = Modifier,
     name: String,
-    imageRes:Int = R.drawable.icon_pc,
+    imageRes: Int = R.drawable.icon_pc,
     navToFilteredPosts: () -> Unit
-){
-
-    val painter = if (imageRes != 0) painterResource(id = imageRes)
-    else rememberVectorPainter(Icons.Default.AccountCircle)
-
+) {
     val context = LocalContext.current
 
     Card(
         onClick = { navToFilteredPosts() },
-        modifier
-            .padding(horizontal = dimensionResource(R.dimen.common_padding_default),
-                vertical = dimensionResource(R.dimen.common_padding_mini)
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = modifier
+            .padding(horizontal = CommonPaddingDefault, vertical = CommonPaddingMin),
+        shape = RoundedCornerShape(CommonPaddingDefault),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = CommonPaddingMicroMin)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(R.dimen.common_padding_default))
+                .fillMaxWidth()
+                .padding(CommonPaddingDefault)
         ) {
-//            val context = LocalContext.current
-//            val image = ContextCompat.getDrawable(context, imageRes)
-//            image?.let {
-//                Image(painter = painterResource(id= imageRes) ,
-//                    contentDescription = null,
-//                    modifier = Modifier.
-//                        background(color = Color.Black)
-//                        .size(100.dp)
-//                        .padding(8.dp),
-//                    contentScale = ContentScale.Crop
-//                )
-//            }
-//            Image(
-//                painter = painter, // ✅ Carga eficiente
-//                contentDescription = name,
-//                modifier = Modifier
-//                    .size(80.dp)
-//                    .padding(8.dp)
-//                    .background(Color.Gray, shape = CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
-            // ✅ Imagen con Coil
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(imageRes)
@@ -83,25 +62,24 @@ fun FilterCard(
                     .build(),
                 contentDescription = name,
                 modifier = Modifier
-                    .size(80.dp)
-                    .padding(8.dp)
-                    .background(Color.Gray, shape = CircleShape),
+                    .size(FilterImageSize)
+                    .background(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = CircleShape
+                    )
+                    .padding(CommonPaddingMin)
+                    .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
 
-            Text(text = name,
-                modifier= Modifier
-                    .padding(horizontal = dimensionResource(R.dimen.common_padding_default),
-                        vertical = dimensionResource(R.dimen.common_padding_min)
-                    ),
+            Spacer(modifier = Modifier.width(CommonPaddingDefault))
+
+            Text(
+                text = name,
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp)
+                fontSize = CommonFontSizeXLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//private fun FilterCardPreview(){
-//    FilterCard(modifier = Modifier,"titulo", navToFilteredPosts = {})
-//}

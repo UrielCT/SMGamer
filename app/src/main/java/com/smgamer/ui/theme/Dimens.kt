@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.sp
 val CommonPaddingNone = 0.dp
 val CommonPaddingOne = 1.dp
 val CommonPaddingMicro = 4.dp
+val CommonPaddingMicroMin = 6.dp
 val CommonPaddingMin = 8.dp
 val CommonPaddingMinDefault = 12.dp
 val CommonPaddingDefault = 16.dp
@@ -21,6 +22,7 @@ val HomeBottomAppBarHeight = 60.dp
 val BottomBarPadding = 64.dp
 
 val PostImageHeight = 180.dp
+val FilterImageSize = 80.dp
 
 
 val MessageVerticalSpace = 40.dp

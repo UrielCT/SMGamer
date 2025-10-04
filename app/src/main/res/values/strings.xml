@@ -30,5 +30,6 @@
     <string name="confirmPassword_ph">Repeat your Password</string>
 
     <string name="likes_txt">%1$s likes</string>
+    <string name="by_user">By %1$s</string>
 
 </resources>

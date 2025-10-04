@@ -67,8 +67,12 @@ fun PostCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(PostImageHeight)
-                    .clip(RoundedCornerShape(topStart = CommonPaddingDefault,
-                        topEnd = CommonPaddingDefault)),
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = CommonPaddingDefault,
+                            topEnd = CommonPaddingDefault
+                        )
+                    ),
                 contentScale = ContentScale.Crop
             )
 
@@ -80,7 +84,7 @@ fun PostCard(
                 )
 
                 Text(
-                    text = "By ${post.user}",
+                    text = stringResource(R.string.by_user, post.user),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
