@@ -28,7 +28,7 @@ fun FilteredPostsScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             content = {
                 items(23) { item ->
-                    PostCard(modifier = Modifier, navToPostDetail = navToPostDetail)
+                    //PostCard(modifier = Modifier, navToPostDetail = navToPostDetail)
                 }
             }
         )

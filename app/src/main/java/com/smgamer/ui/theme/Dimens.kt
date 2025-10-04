@@ -20,6 +20,8 @@ val SnackBarPaddingBottom = 150.dp
 val HomeBottomAppBarHeight = 60.dp
 val BottomBarPadding = 64.dp
 
+val PostImageHeight = 180.dp
+
 
 val MessageVerticalSpace = 40.dp
 val GameBottomPadding = 100.dp
@@ -38,7 +40,7 @@ val CommonFontSizeDefault = 18.sp
 val CommonFontSizeDefaultMid = 17.sp
 val CommonFontSizeMiddle = 16.sp
 val CommonFontSizeMiddleMin = 15.sp
-val CommonFontSizeMin = 13.sp
+val CommonFontSizeMin = 14.sp
 
 val VersionDialogHeight = 300.dp
 

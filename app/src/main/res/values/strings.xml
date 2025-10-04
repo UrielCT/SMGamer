@@ -29,4 +29,6 @@
     <string name="confirmPassword">Confirm Password</string>
     <string name="confirmPassword_ph">Repeat your Password</string>
 
+    <string name="likes_txt">%1$s likes</string>
+
 </resources>
