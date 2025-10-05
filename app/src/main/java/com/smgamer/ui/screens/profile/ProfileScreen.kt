@@ -1,213 +1,192 @@
 package com.smgamer.ui.screens.profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
-import com.smgamer.ui.theme.Background
+import com.smgamer.ui.theme.CommonFontSizeDefault
+import com.smgamer.ui.theme.CommonFontSizeLarge
+import com.smgamer.ui.theme.CommonFontSizeMicro
+import com.smgamer.ui.theme.CommonFontSizeMiddle
+import com.smgamer.ui.theme.CommonFontSizeMin
+import com.smgamer.ui.theme.CommonPaddingDefault
+import com.smgamer.ui.theme.CommonPaddingMin
+import com.smgamer.ui.theme.CommonPaddingTwo
 
 @Composable
 fun ProfileScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     navToEditProfile: () -> Unit
-    ){
+) {
     val context = LocalContext.current
 
-    ConstraintLayout(
+    BoxWithConstraints(
         modifier = modifier
-            .background(Background)
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        val(coverImg,txtEdit,colPublic,colPhone,userImg,userName, userEmail,
-            publicTxt,lazyPublic) = createRefs()
-        val image = ContextCompat.getDrawable(context, R.drawable.cover_image)
-        val userImage = ContextCompat.getDrawable(context, R.drawable.ic_person)
-
-
-
-//        image?.let {
-//            Image(bitmap = image.toBitmap().asImageBitmap(),
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxWidth()
-//                    .height(220.dp)
-//                    .constrainAs(coverImg){
-//                        top.linkTo(parent.top)
-//                    },
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(image)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier
-                .size(80.dp)
-                .padding(8.dp)
-                .background(Color.Gray, shape = CircleShape),
-            contentScale = ContentScale.Crop
-        )
-
-
-        Text("EDITAR PERFIL",
-            color = Color.White,
-            fontSize = 20.sp,
-            modifier=Modifier
-                .clickable{
-                    navToEditProfile()
-                }
-                .constrainAs(txtEdit){
-                    top.linkTo(parent.top)
-                    end.linkTo(parent.end)
-                }
-        )
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            modifier= Modifier
-                .constrainAs(colPublic){
-                    start.linkTo(parent.start)
-                    bottom.linkTo(coverImg.bottom)
-                }
-        ) {
-            Text("1", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            Text("PUBLICACIONES", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        }
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            modifier= Modifier
-                .constrainAs(colPhone){
-                    end.linkTo(parent.end)
-                    bottom.linkTo(coverImg.bottom)
-                }
-        ) {
-            Text("12874387", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            Text("TELÉFONO", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        }
-
-//        userImage?.let {
-//            Image(bitmap = userImage.toBitmap().asImageBitmap(),
-//                contentDescription = "Profile image",
-//                modifier = Modifier
-//                    .size(120.dp)
-//                    .clip(CircleShape)
-//                    .border(3.dp, color = Color.LightGray, CircleShape)
-//                    .background(color = Color.Blue)
-//                    .constrainAs(userImg){
-//                        start.linkTo(parent.start)
-//                        end.linkTo(parent.end)
-//                        bottom.linkTo(coverImg.bottom)
-//                        top.linkTo(coverImg.bottom)
-//                    },
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(userImage)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .border(3.dp, color = Color.LightGray, CircleShape)
-                .background(color = Color.Blue)
-                .constrainAs(userImg){
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(coverImg.bottom)
-                    top.linkTo(coverImg.bottom)
-                },
-            contentScale = ContentScale.Crop
-        )
-
-        Text("Nombre",
-            color = Color.Black,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .constrainAs(userName){
-                    top.linkTo(userImg.bottom)
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-                }
-        )
-
-        Text("uriel@gmail.com",
-            color = Color.Black,
-            fontSize = 14.sp,
-            modifier = Modifier
-                .constrainAs(userEmail){
-                    top.linkTo(userName.bottom)
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-                }
-        )
-
-        Text("Publicaciones",
-            color = Color(0xFFFF9800),
-            fontSize = 18.sp,
-            modifier = Modifier
-                .constrainAs(publicTxt){
-                    top.linkTo(userEmail.bottom)
-                    start.linkTo(parent.start)
-                }
-        )
-
+        val screenWidth = maxWidth
+        val coverHeight = screenWidth * 0.55f
 
         LazyColumn(
-            modifier = Modifier
-                .constrainAs(lazyPublic) {
-                    top.linkTo(publicTxt.bottom)
-                    bottom.linkTo(parent.bottom)
-                    height= Dimension.fillToConstraints
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = CommonPaddingDefault)
+        ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(coverHeight)
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(R.drawable.cover_image)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    IconButton(
+                        onClick = { navToEditProfile() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(CommonPaddingDefault)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                shape = CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
 
-        ) {
-            items(6) {
-                ProfilePostCard("name", "gdsgd",  R.drawable.ic_person, Modifier)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-screenWidth * 0.16f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(R.drawable.ic_person)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(screenWidth * 0.32f)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .border(
+                                width = CommonPaddingTwo,
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = CircleShape
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-screenWidth * 0.08f))
+                ) {
+                    Text(
+                        text = "Username",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = CommonFontSizeLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "uriel@gmail.com",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = CommonFontSizeMin
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = CommonPaddingDefault),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    ProfileStat("1", stringResource(R.string.posts))
+                    ProfileStat("12874387", stringResource(R.string.user_phone))
+                }
+
+                Spacer(modifier = Modifier.height(CommonPaddingDefault))
+
+                Text(
+                    text = stringResource(R.string.posts_title),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = CommonFontSizeDefault,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = CommonPaddingDefault,
+                        bottom = CommonPaddingMin)
+                )
+            }
+
+            items(6) { index ->
+                ProfilePostCard(
+                    name = "Publicación $index",
+                    lastMessage = "Contenido o descripción breve de la publicación número $index.",
+                    profileImageRes = R.drawable.ic_person
+                )
             }
         }
-
-
     }
-
-
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun ProfileScreenPreview(){
-//    ProfileScreen(Modifier,{})
-//}
+@Composable
+fun ProfileStat(number: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = number,
+            fontSize = CommonFontSizeMiddle,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = label,
+            fontSize = CommonFontSizeMicro,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
