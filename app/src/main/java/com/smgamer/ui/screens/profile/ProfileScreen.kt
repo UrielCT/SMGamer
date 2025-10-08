@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +43,9 @@ import com.smgamer.ui.theme.CommonFontSizeMin
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingTwo
+import com.smgamer.ui.theme.DividerThickness
+import com.smgamer.ui.theme.scaledFont
+import com.smgamer.ui.theme.scaledPadding
 
 @Composable
 fun ProfileScreen(
@@ -61,7 +64,7 @@ fun ProfileScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = CommonPaddingDefault)
+            contentPadding = PaddingValues(bottom = scaledPadding(CommonPaddingDefault))
         ) {
             item {
                 Box(
@@ -83,7 +86,7 @@ fun ProfileScreen(
                         onClick = { navToEditProfile() },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(CommonPaddingDefault)
+                            .padding(scaledPadding(CommonPaddingDefault))
                             .background(
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                                 shape = CircleShape
@@ -114,7 +117,7 @@ fun ProfileScreen(
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary)
                             .border(
-                                width = CommonPaddingTwo,
+                                width = scaledPadding(CommonPaddingTwo),
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
                             ),
@@ -131,35 +134,40 @@ fun ProfileScreen(
                     Text(
                         text = "Username",
                         color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = CommonFontSizeLarge,
+                        fontSize = scaledFont(CommonFontSizeLarge),
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "uriel@gmail.com",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = CommonFontSizeMin
+                        fontSize = scaledFont(CommonFontSizeMin)
                     )
                 }
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = CommonPaddingDefault),
+                        .padding(horizontal = scaledPadding(CommonPaddingDefault)),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     ProfileStat("1", stringResource(R.string.posts))
                     ProfileStat("12874387", stringResource(R.string.user_phone))
                 }
 
-                Spacer(modifier = Modifier.height(CommonPaddingDefault))
+                HorizontalDivider(
+                    modifier = Modifier.padding( scaledPadding(CommonPaddingDefault)),
+                    thickness = DividerThickness,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
 
                 Text(
                     text = stringResource(R.string.posts_title),
                     color = MaterialTheme.colorScheme.primary,
-                    fontSize = CommonFontSizeDefault,
+                    fontSize = scaledFont(CommonFontSizeDefault),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = CommonPaddingDefault,
-                        bottom = CommonPaddingMin)
+                    modifier = Modifier.padding(start = scaledPadding(CommonPaddingDefault),
+                        bottom = scaledPadding(CommonPaddingMin)
+                    )
                 )
             }
 
@@ -179,13 +187,13 @@ fun ProfileStat(number: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = number,
-            fontSize = CommonFontSizeMiddle,
+            fontSize = scaledFont(CommonFontSizeMiddle),
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = label,
-            fontSize = CommonFontSizeMicro,
+            fontSize = scaledFont(CommonFontSizeMicro),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

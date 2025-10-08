@@ -1,5 +1,3 @@
-@file:Suppress("NAME_SHADOWING")
-
 package com.smgamer.ui.screens.postdetail
 
 import androidx.compose.foundation.BorderStroke
@@ -32,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,8 +61,6 @@ import com.smgamer.ui.theme.CommonPaddingOne
 import com.smgamer.ui.theme.CommonPaddingTen
 import com.smgamer.ui.theme.CommonPaddingTwo
 import com.smgamer.ui.theme.DividerThickness
-import com.smgamer.ui.theme.LocalFontScale
-import com.smgamer.ui.theme.LocalPaddingScale
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
 
@@ -79,163 +74,158 @@ fun PostDetailScreen(
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
 
     // Escalas adaptativas
-    val fontScale = screenWidth / 411f
     val paddingScale = screenHeight / 891f
+
     val images = listOf(
         R.drawable.cover_image,
         R.drawable.cover_image,
         R.drawable.cover_image,
     )
 
-    CompositionLocalProvider(
-        LocalPaddingScale provides paddingScale,
-        LocalFontScale provides fontScale
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        BoxWithConstraints(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+        val screenWidth = maxWidth
+        val coverHeight = screenWidth * 0.55f
+
+
+        ConstraintLayout(
+            modifier = Modifier.fillMaxSize()
         ) {
-            val screenWidth = maxWidth
-            val coverHeight = screenWidth * 0.55f
+            val (coverImg, date, likes, fab, lazyPublic, btnBack) = createRefs()
 
-
-            ConstraintLayout(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val (coverImg, date, likes, fab, lazyPublic, btnBack) = createRefs()
-
-                AutoSlidingCarousel(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(coverHeight)
-                        .constrainAs(coverImg) { top.linkTo(parent.top) },
-                    itemsCount = images.size
-                ) { page ->
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(images[page])
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Imagen ${page + 1}",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-
-                // 🔙 Botón volver
-                IconButton(
-                    onClick = navBack,
-                    modifier = Modifier
-                        //.padding((8 * paddingScale).dp)
-                        .padding(scaledPadding(CommonPaddingMin))
-                        .constrainAs(btnBack) {
-                            top.linkTo(parent.top /*margin = (8 * paddingScale).dp*/)
-                            start.linkTo(parent.start /*margin = (8 * paddingScale).dp*/)
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver",
-                        tint = MaterialTheme.colorScheme.background
-                    )
-                }
-
-                Text(
-                    "12hs Ago",
-                    modifier = Modifier
-                        .constrainAs(date) {
-                            end.linkTo(parent.end, margin = (CommonPaddingDefault * paddingScale))
-                            top.linkTo(parent.top, margin = (CommonPaddingMin * paddingScale))
-                        },
-                    fontSize = scaledFont(CommonFontSizeMin),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
+            AutoSlidingCarousel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(coverHeight)
+                    .constrainAs(coverImg) { top.linkTo(parent.top) },
+                itemsCount = images.size
+            ) { page ->
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(images[page])
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Imagen ${page + 1}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
-
-                Text(
-                    "0 likes",
-                    modifier = Modifier
-                        .constrainAs(likes) {
-                            start.linkTo(parent.start, margin = (CommonPaddingDefault * paddingScale))
-                            bottom.linkTo(coverImg.bottom, margin = (CommonPaddingMin * paddingScale))
-                        },
-                    fontSize = scaledFont(CommonFontSizeMin),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-
-                LazyColumn(
-                    modifier = Modifier
-                        .constrainAs(lazyPublic) {
-                            top.linkTo(coverImg.bottom)
-                            bottom.linkTo(parent.bottom)
-                            height = Dimension.fillToConstraints
-                        }
-                ) {
-                    item { Spacer(modifier = Modifier.height(CommonPaddingLarge)) }
-
-                    // 🧑 Tarjeta del usuario
-                    item {
-                        UserCard(
-                            name = "Juan",
-                            phone = "8928 8419",
-                            imageRes = R.drawable.ic_person,
-                            navToUserProfile = navToUserProfile
-                        )
-                    }
-
-                    // 🕹️ Detalles del post
-                    item { PostDetail() }
-
-                    item {
-                        Text(
-                            "Comments",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = scaledFont(CommonFontSizeDefault),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .padding(start = scaledPadding(CommonPaddingDefault),
-                                    top = scaledPadding(CommonPaddingMinDefault))
-                        )
-                    }
-
-                    // comments
-                    items(6) {
-                        CommentItem(
-                            name = "Mariano",
-                            lastMessage = "Muy buen juego",
-                            profileImageRes = R.drawable.ic_person
-                        )
-                    }
-                }
-
-                FloatingActionButton(
-                    modifier = Modifier
-                        .size(CommonPaddingLarge_lm)
-                        .constrainAs(fab) {
-                            end.linkTo(parent.end, margin = (CommonPaddingDefault * paddingScale))
-                            bottom.linkTo(coverImg.bottom)
-                            top.linkTo(coverImg.bottom)
-                        },
-                    onClick = { navToChatDetail() },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Chat,
-                        contentDescription = "Chat",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-
             }
+
+
+            // 🔙 Botón volver
+            IconButton(
+                onClick = navBack,
+                modifier = Modifier
+                    .constrainAs(btnBack) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                    }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = MaterialTheme.colorScheme.background
+                )
+            }
+
+            Text(
+                "12hs Ago",
+                modifier = Modifier
+                    .constrainAs(date) {
+                        end.linkTo(parent.end, margin = (CommonPaddingDefault * paddingScale))
+                        top.linkTo(parent.top, margin = (CommonPaddingMin * paddingScale))
+                    },
+                fontSize = scaledFont(CommonFontSizeMin),
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+
+            Text(
+                "0 likes",
+                modifier = Modifier
+                    .constrainAs(likes) {
+                        start.linkTo(parent.start, margin = (CommonPaddingDefault * paddingScale))
+                        bottom.linkTo(coverImg.bottom, margin = (CommonPaddingMin * paddingScale))
+                    },
+                fontSize = scaledFont(CommonFontSizeMin),
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .constrainAs(lazyPublic) {
+                        top.linkTo(coverImg.bottom)
+                        bottom.linkTo(parent.bottom)
+                        height = Dimension.fillToConstraints
+                    }
+            ) {
+                item { Spacer(modifier = Modifier.height(CommonPaddingLarge)) }
+
+                // 🧑 Tarjeta del usuario
+                item {
+                    UserCard(
+                        name = "Juan",
+                        phone = "8928 8419",
+                        imageRes = R.drawable.ic_person,
+                        navToUserProfile = navToUserProfile
+                    )
+                }
+
+                // 🕹️ Detalles del post
+                item { PostDetail() }
+
+                item {
+                    Text(
+                        "Comments",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = scaledFont(CommonFontSizeDefault),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(
+                                start = scaledPadding(CommonPaddingDefault),
+                                top = scaledPadding(CommonPaddingMinDefault)
+                            )
+                    )
+                }
+
+                // comments
+                items(6) {
+                    CommentItem(
+                        name = "Mariano",
+                        lastMessage = "Muy buen juego",
+                        profileImageRes = R.drawable.ic_person
+                    )
+                }
+            }
+
+            FloatingActionButton(
+                modifier = Modifier
+                    .size(CommonPaddingLarge_lm)
+                    .constrainAs(fab) {
+                        end.linkTo(parent.end, margin = (CommonPaddingDefault * paddingScale))
+                        bottom.linkTo(coverImg.bottom)
+                        top.linkTo(coverImg.bottom)
+                    },
+                onClick = { navToChatDetail() },
+                containerColor = MaterialTheme.colorScheme.primary,
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = "Chat",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+
         }
     }
+
 }
 
 @Composable

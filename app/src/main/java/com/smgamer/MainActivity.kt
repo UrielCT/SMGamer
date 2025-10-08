@@ -5,8 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import com.smgamer.ui.viewmodels.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
+import com.smgamer.ui.theme.LocalFontScale
+import com.smgamer.ui.theme.LocalPaddingScale
 import com.smgamer.ui.theme.SMGamerTheme
 import com.smgamer.ui.viewmodels.PostsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,10 +27,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SMGamerTheme {
-                NavigationBarScreen(
-                    loginViewModel = loginViewModel,
-                    postsViewModel = postsViewModel
-                )
+
+                val configuration = LocalConfiguration.current
+                val screenWidth = configuration.screenWidthDp
+                val screenHeight = configuration.screenHeightDp
+
+                // Escalas adaptativas
+                val fontScale = screenWidth / 411f
+                val paddingScale = screenHeight / 891f
+
+                CompositionLocalProvider(
+                    LocalPaddingScale provides paddingScale,
+                    LocalFontScale provides fontScale
+                ) {
+                    NavigationBarScreen(
+                        loginViewModel = loginViewModel,
+                        postsViewModel = postsViewModel
+                    )
+                }
+
             }
         }
     }

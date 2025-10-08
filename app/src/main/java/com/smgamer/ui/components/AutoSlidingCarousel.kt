@@ -58,8 +58,8 @@ fun AutoSlidingCarousel(
         // the transparent background
         DotsIndicator(
             modifier = Modifier
-                .padding(horizontal = scaledPadding(CommonPaddingMin), vertical = scaledPadding(
-                    CommonPaddingMicroMin))
+                .padding(horizontal = scaledPadding(CommonPaddingMin),
+                    vertical = scaledPadding(CommonPaddingMicroMin))
                 .align(Alignment.BottomCenter),
             totalDots = itemsCount,
             selectedIndex = if (isDragged) pagerState.currentPage else pagerState.targetPage,
