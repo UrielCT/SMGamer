@@ -57,7 +57,6 @@ fun ProfilePostCard(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-
         AsyncImage(
             model = ImageRequest.Builder(context)
                 .data(R.drawable.ic_person)

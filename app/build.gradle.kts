@@ -85,9 +85,9 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-    implementation ("com.google.android.gms:play-services-auth:20.7.")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
 
-    implementation("androidx.compose.foundation:foundation:1.6.1")
+    implementation("androidx.compose.foundation:foundation:1.7.3")
 
     //constraint layout
     implementation (libs.androidx.constraintlayout.compose)
@@ -101,6 +101,10 @@ dependencies {
 
     //coil
     implementation ("io.coil-kt:coil-compose:2.4.0")
+
+    //carousel
+    //implementation("com.google.accompanist:accompanist-pager:0.36.0")
+    implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
 
 
 
