@@ -1,6 +1,7 @@
 package com.smgamer.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,8 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.smgamer.R
 import com.smgamer.ui.components.PostCard
+import com.smgamer.ui.theme.CommonPaddingDefault
+import com.smgamer.ui.theme.CommonPaddingMin
+import com.smgamer.ui.theme.scaledPadding
 import com.smgamer.ui.viewmodels.PostsViewModel
-
 
 data class Post(
     val image:Int = R.drawable.cover_image,
@@ -27,7 +30,6 @@ fun HomeScreen(
     postsViewModel: PostsViewModel,
     navToPostDetail: () -> Unit
 ){
-
     val postsList = listOf(
         Post(name = "Juego 1", user = "Persona 1", lastComment = "Muy bueno", likes = 10),
         Post(name = "Juego 2", user = "Persona 1", lastComment = "Muy bueno", likes = 8),
@@ -45,9 +47,12 @@ fun HomeScreen(
         items(postsList) { post ->
             PostCard(
                 post = post,
-                navToPostDetail = navToPostDetail
+                navToPostDetail = navToPostDetail,
+                cardPadding = PaddingValues(
+                    horizontal = scaledPadding(CommonPaddingDefault),
+                    vertical = scaledPadding(CommonPaddingMin)
+                )
             )
         }
     }
-
 }
