@@ -95,6 +95,7 @@ val CommonPaddingMin = 8.dp
 val CommonPaddingTen = 10.dp
 val CommonPaddingMinDefault = 12.dp
 val CommonPaddingDefault = 16.dp
+val CommonPaddingDefaultMid = 18.dp
 val CommonPaddingMiddle = 24.dp
 val CommonPaddingLarge = 32.dp
 val CommonPaddingLarge_med = 48.dp
@@ -109,6 +110,8 @@ val PostImageHeight = 180.dp
 val FilterImageSize = 80.dp
 
 val DividerThickness = 0.8.dp
+
+val MaxBubbleWidth = 280.dp
 
 
 val MessageVerticalSpace = 40.dp

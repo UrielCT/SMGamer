@@ -35,5 +35,6 @@
     <string name="posts">POSTS</string>
     <string name="user_phone">PHONE</string>
     <string name="posts_title">Posts</string>
+    <string name="ph_message_txt">Mensaje</string>
 
 </resources>

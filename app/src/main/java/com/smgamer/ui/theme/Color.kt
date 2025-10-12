@@ -39,6 +39,9 @@ val ErrorDark = Color(0xFFCF6679)
 
 val Online = Color(0xFF4CAF50)
 
+val MyMessage = Color(0xFFD2F8FF)
+val YourMessage = Color(0xFFE0E0E0)
+
 //Paleta 2
 
 //Light
