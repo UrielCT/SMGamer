@@ -114,8 +114,10 @@ val DividerThickness = 0.8.dp
 val MaxBubbleWidth = 280.dp
 
 
-val MessageVerticalSpace = 40.dp
+val AddPostSize = 40.dp
 val GameBottomPadding = 100.dp
+val DescriptionTextFieldHeight = 120.dp
+
 
 val DropdownHeightInMax = 250.dp
 val AlertDialogWidthInMax = 400.dp

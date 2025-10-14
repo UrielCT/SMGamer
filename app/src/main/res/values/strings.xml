@@ -36,5 +36,15 @@
     <string name="user_phone">PHONE</string>
     <string name="posts_title">Posts</string>
     <string name="ph_message_txt">Mensaje</string>
+    <string name="new_post">New Post</string>
+    <string name="post_title_txt">Títle</string>
+    <string name="post_description_tct">Description</string>
+    <string name="add_image">Add Image</string>
+    <string name="from_gallery">Gallery</string>
+    <string name="take_picture">Camera</string>
+    <string name="delete_image">Delete Image</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="wantto_delete_imagen">Do you want to delete this image?</string>
 
 </resources>

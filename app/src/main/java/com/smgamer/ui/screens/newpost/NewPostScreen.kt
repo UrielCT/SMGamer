@@ -18,47 +18,68 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.toBitmap
 import coil.compose.rememberAsyncImagePainter
 import com.smgamer.R
-import com.smgamer.ui.theme.Background
+import com.smgamer.ui.components.ChooseImageDialog
+import com.smgamer.ui.theme.AddPostSize
+import com.smgamer.ui.theme.BottomBarPadding
+import com.smgamer.ui.theme.CommonFontSizeMicro
+import com.smgamer.ui.theme.CommonFontSizeMiddle
+import com.smgamer.ui.theme.CommonPaddingDefault
+import com.smgamer.ui.theme.CommonPaddingMicro
+import com.smgamer.ui.theme.CommonPaddingMin
+import com.smgamer.ui.theme.CommonPaddingMinDefault
+import com.smgamer.ui.theme.DescriptionTextFieldHeight
+import com.smgamer.ui.theme.GameBottomPadding
+import com.smgamer.ui.theme.scaledFont
+import com.smgamer.ui.theme.scaledPadding
 import com.smgamer.ui.viewmodels.PostsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +98,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewPostScreen(
     modifier: Modifier,
@@ -86,14 +109,19 @@ fun NewPostScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    //val title by remember { mutableStateOf<String>("") }
-    //val description by remember { mutableStateOf<String>("") }
-    //val category by remember { mutableStateOf<String>("") }
+    val categories = listOf(
+        "PC" to R.drawable.icon_pc,
+        "PlayStation" to R.drawable.icon_ps4,
+        "Xbox" to R.drawable.icon_xbox,
+        "Nintendo" to R.drawable.icon_nintendo,
+        //"Móvil" to R.drawable.ic_mobile
+    )
+
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
     var selectedImagesUri by remember { mutableStateOf<List<Uri>>(emptyList()) } // mis imagenes antes de cargarlas
     var uploadedImagesUrl by remember { mutableStateOf<List<String>>(emptyList()) } // imagenes de cloudinary
-
-
-    val camImage = ContextCompat.getDrawable(context, R.drawable.ic_person)
 
     var showDialog by remember { mutableStateOf(false) }
     // una imagen
@@ -121,19 +149,13 @@ fun NewPostScreen(
 //    }
 
     // Lanzador para seleccionar varias imágenes
-//    val galleryLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetMultipleContents()
-//    ) { uris: List<Uri> ->
-//        selectedImagesUri = selectedImagesUri + uris
-//    }
-
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
 
         val currentCount = selectedImagesUri.size
         val incomingCount = uris.size
-        val maxLimit = 5
+        val maxLimit = 3
 
         if (currentCount >= maxLimit) {
             Toast.makeText(context, "Ya alcanzaste el límite de $maxLimit imágenes",
@@ -189,27 +211,12 @@ fun NewPostScreen(
 //        }
 
     // Lanzador para cámara para multiples fotos
-//    val cameraLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.TakePicture()
-//    ) { success ->
-//        if (success) {
-//            photoFile?.let { file ->
-//                val uri = FileProvider.getUriForFile(
-//                    context,
-//                    "${context.packageName}.fileprovider",
-//                    file
-//                )
-//                selectedImagesUri = selectedImagesUri + uri
-//                //photoUris = photoUris + uri
-//            }
-//        }
-//    }
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            if (selectedImagesUri.size >= 5) {
-                Toast.makeText(context, "Ya alcanzaste el límite de 5 imágenes",
+            if (selectedImagesUri.size >= 3) {
+                Toast.makeText(context, "Ya alcanzaste el límite de 3 imágenes",
                     Toast.LENGTH_SHORT).show()
                 return@rememberLauncherForActivityResult
             }
@@ -224,8 +231,6 @@ fun NewPostScreen(
             }
         }
     }
-
-
 
     // Lanzador para pedir permiso de cámara
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -244,125 +249,111 @@ fun NewPostScreen(
         }
     }
 
+    val focusManager = LocalFocusManager.current
+    val density = LocalDensity.current
+    val imeVisible = WindowInsets.ime.getBottom(density) > 0
+    var hasFocus by remember { mutableStateOf(false) }
 
-    ConstraintLayout(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Background)
-    ) {
-        val (coverImg, btnEdit, editForm,tit,rowImages,categories) = createRefs()
+    LaunchedEffect(imeVisible) {
+        if (!imeVisible) focusManager.clearFocus()
+    }
 
-        var title by remember { mutableStateOf("") }
-        var description by remember { mutableStateOf("") }
-        val category by remember { mutableStateOf<String>("") }
+    //al apretar en add, mostrar panatalla de carga, bloquear botones y mostrar
+    // mensaje de exito o error y navegar hacia atras automaticamente
+    // no hace falta mostrar las imagenes cargadas despues de subirlas
 
-
-        Box(modifier = Modifier
-            .background(color = Color.Red)
-            .fillMaxWidth()
-            .height(220.dp)
-            .constrainAs(coverImg) {
-                top.linkTo(parent.top)
-            })
-
-
-        Text("Create new post -> ${selectedImagesUri.size} / 5",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.constrainAs(tit){
-                top.linkTo(parent.top, margin = 10.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-        )
-
-        if (imageToDelete != null) {
-            AlertDialog(
-                onDismissRequest = { imageToDelete = null },
-                title = { Text("Eliminar imagen") },
-                text = { Text("¿Deseas eliminar esta imagen?") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        selectedImagesUri = selectedImagesUri.filter { it != imageToDelete }
-                        imageToDelete = null
-                    }) {
-                        Text("Eliminar")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.new_post), fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                            //hideKeyboardAndClearFocus()
+                            navBack()
+                        }
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
-                dismissButton = {
-                    TextButton(onClick = { imageToDelete = null }) {
-                        Text("Cancelar")
+                actions = {
+                    IconButton(
+                        modifier  = Modifier
+                            .padding(end = scaledPadding(CommonPaddingMinDefault))
+                            .size(AddPostSize)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            ,
+                        onClick = {
+                            uploadImages()
+                            focusManager.clearFocus()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
         }
+    ) { innerPadding ->
 
         Column(
             modifier = Modifier
-                .padding(16.dp)
-                .constrainAs(rowImages) {
-                    top.linkTo(tit.bottom)
-                    bottom.linkTo(coverImg.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingDefault))
         ) {
-            Button(onClick = {
-                if (selectedImagesUri.size != 5) {
-                    showDialog = true
-                } else {
-                    Toast.makeText(context, "Ya alcanzaste el límite de 5 imágenes",
-                        Toast.LENGTH_SHORT).show()
-                }
-            }
+
+            // 📸 Zona de imágenes
+            Text(
+                text = "Imágenes (${selectedImagesUri.size}/3)",
+                fontWeight = FontWeight.Medium,
+                fontSize = scaledFont(CommonFontSizeMiddle),
+                modifier = Modifier.padding(scaledPadding(CommonPaddingDefault))
+            )
+
+            LazyRow(
+                modifier = Modifier.padding(horizontal = scaledPadding(CommonPaddingDefault)),
+                horizontalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingMin))
             ) {
-                Text("Seleccionar imagen")
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // una sola imagen
-//            uploadedImageUrl?.let { url ->
-//                Image(
-//                    painter = rememberAsyncImagePainter(url),
-//                    contentDescription = "Imagen subida",
-//                    modifier = Modifier
-//                        //.fillMaxWidth()
-//                        .size(50.dp)
-//                )
-//            }
-
-            Spacer(Modifier.height(16.dp))
-
-
-            // Mostrar imágenes seleccionadas (preview local)
-            LazyRow {
                 items(selectedImagesUri) { uri ->
-                    Image(
-                        painter = rememberAsyncImagePainter(uri),
-                        contentDescription = null,
+                    Box(
                         modifier = Modifier
-                            .size(100.dp)
-                            .padding(4.dp)
-                            .clickable {
-                                imageToDelete = uri
-                            },
-                        contentScale = ContentScale.Crop
-                    )
+                            .size(scaledPadding(GameBottomPadding))
+                            .clip(RoundedCornerShape(scaledPadding(CommonPaddingMinDefault)))
+                            .clickable { imageToDelete = uri }
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(uri),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+
+                item {
+                    Box(
+                        modifier = Modifier
+                            .size(scaledPadding(GameBottomPadding)) //100.dp
+                            .clip(RoundedCornerShape(scaledPadding(CommonPaddingMinDefault)))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                            .clickable { showDialog = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = { uploadImages() },
-                enabled = selectedImagesUri.isNotEmpty()
-            ) {
-                Text("Subir imágenes")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             // Mostrar imágenes subidas (desde URLs Cloudinary)
             LazyRow {
@@ -371,274 +362,202 @@ fun NewPostScreen(
                         painter = rememberAsyncImagePainter(url),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(100.dp)
-                            .padding(4.dp),
+                            .size(scaledPadding(GameBottomPadding))
+                            .padding(scaledPadding(CommonPaddingMicro)),
                         contentScale = ContentScale.Crop
                     )
                 }
             }
 
-            // una sola imagen
-
-//            selectedImageUri?.let { uri ->
-//                Image(
-//                    painter = rememberAsyncImagePainter(uri),
-//                    contentDescription = "Imagen seleccionada",
-//                    modifier = Modifier.size(100.dp),
-//                    contentScale = ContentScale.Crop
-//                )
-//
-//                Button(onClick = {
-//                    selectedImageUri?.let { uri ->
-//                        uploadImageToCloudinary(
-//                            context = context,
-//                            imageUri = uri,
-//                            uploadPreset = "sm_gamer",
-//                            scope = scope,
-//                            cloudName = "ddbqwxz5l"
-//                        ) { url ->
-//                            if (url != null) {
-//                                uploadedImageUrl = url
-//                                // Aquí puedes guardarla en tu base de datos
-//                            } else {
-//                                Toast.makeText(context, "Error al subir", Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-//                    }
-//                }) {
-//                    Text("Subir a Cloudinary")
-//                }
-//
-//
-//            }
-
-
-//            selectedImageUri?.let { uri ->
-//                Text("Imagen seleccionada: $uri")
-//                Button(onClick = {
-//                    // Subir a Cloudinary
-//                    scope.launch(Dispatchers.IO) {
-//                        try {
-//                            val file = uriToFile(uri, context)
-//                            val result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap())
-//                            val url = result["secure_url"] as String
-//                            launchedInMain {
-//                                uploadedImageUrl = url
-//                            }
-//                        } catch (e: Exception) {
-//                            launchedInMain {
-//                                // Manejar error aquí si querés
-//                            }
-//                        }
-//                    }
-//                }) {
-//                    Text("Guardar en Cloudinary")
-//                }
-//            }
-        }
-
-//        Row(
-//            modifier = Modifier
-//            .constrainAs(rowImages){
-//                top.linkTo(title.bottom)
-//                bottom.linkTo(coverImg.bottom)
-//                start.linkTo(parent.start)
-//                end.linkTo(parent.end)
-//            },
-//            horizontalArrangement = Arrangement.spacedBy(24.dp)
-//        ) {
-//
-//            camImage?.let {
-//                Image(
-//                    bitmap = camImage.toBitmap().asImageBitmap(),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .clickable{
-//                            showDialog = true
-//                        }
-//                        .background(color = Color.Gray)
-//                        .size(100.dp),
-//                    contentScale = ContentScale.Crop
-//                )
-//            }
-//
-//            uploadedImageUrl?.let { url->
-//                Image(
-//                    painter = rememberAsyncImagePainter(url),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .background(color = Color.Gray)
-//                        .size(100.dp),
-//                    contentScale = ContentScale.Crop
-//                )
-//            }
-//
-//        }
-
-
-
-
-
-
-        IconButton(onClick = { navBack() }) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Cerrar"
-            )
-        }
-
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .constrainAs(editForm) {
-                    top.linkTo(coverImg.bottom)
-                },
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // title
+            // 📝 Campos de texto
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Nombre") },
-                placeholder = { Text("Juan Pérez") },
+                label = { Text(stringResource(R.string.post_title_txt)) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .padding(horizontal = scaledPadding(CommonPaddingDefault))
+                    .fillMaxWidth()
+                    .onFocusChanged { focusState -> hasFocus = focusState.isFocused },
+                shape = RoundedCornerShape(scaledPadding(CommonPaddingMinDefault)),
             )
 
-
-            // description
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Descripcion") },
-                placeholder = { Text("Descripcion") },
-                singleLine = true,
-                isError = description.isNotEmpty() ,
-                modifier = Modifier.fillMaxWidth()
+                label = { Text(stringResource(R.string.post_description_tct)) },
+                modifier = Modifier
+                    .padding(horizontal = scaledPadding(CommonPaddingDefault))
+                    .fillMaxWidth()
+                    .height(DescriptionTextFieldHeight)
+                    .onFocusChanged { focusState -> hasFocus = focusState.isFocused },
+                shape = RoundedCornerShape(scaledPadding(CommonPaddingMinDefault)),
             )
 
-            // Opcional: mensaje de error
-//            if (description.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(description).matches()) {
-//                Text(
-//                    text = "Correo electrónico no válido",
-//                    color = MaterialTheme.colorScheme.error,
-//                    style = MaterialTheme.typography.bodySmall
-//                )
-//            }
-        }
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = scaledPadding(CommonPaddingMin)),
+                horizontalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingMinDefault))
+            ) {
+                items(categories) { (name, imageRes) ->
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = scaledPadding(CommonPaddingMin))
+                            .clickable { category = name },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(id = imageRes),
+                            contentDescription = name,
+                            modifier = Modifier
+                                .size(scaledPadding(BottomBarPadding))
+                                .clip(CircleShape)
+                                .background(
+                                    if (category == name)
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                                    else
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                .padding(scaledPadding(CommonPaddingMin)),
+                            contentScale = ContentScale.Crop
+                        )
 
-
-
-        Row(
-            modifier = Modifier
-                .constrainAs(categories) {
-                    bottom.linkTo(btnEdit.top)
-                    top.linkTo(editForm.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+                        Text(
+                            text = name,
+                            fontSize = scaledFont(CommonFontSizeMicro),
+                            fontWeight = if (category == name) FontWeight.Bold else FontWeight.Normal,
+                            color = if (category == name)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-
-            camImage?.let {
-                Image(
-                    bitmap = camImage.toBitmap().asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .background(color = Color.Gray)
-                        .size(60.dp),
-                    contentScale = ContentScale.Crop
-                )
             }
-
-            camImage?.let {
-                Image(
-                    bitmap = camImage.toBitmap().asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .background(color = Color.Gray)
-                        .size(60.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            camImage?.let {
-                Image(
-                    bitmap = camImage.toBitmap().asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .background(color = Color.Gray)
-                        .size(60.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            camImage?.let {
-                Image(
-                    bitmap = camImage.toBitmap().asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .background(color = Color.Gray)
-                        .size(60.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
         }
 
-
-        Button(onClick = {},
-            modifier= Modifier
-                .constrainAs(btnEdit){
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-        ) {
-            Text("PUBLICAR", fontSize = 22.sp, modifier = Modifier
-                .padding(horizontal = dimensionResource(R.dimen.common_padding_default)))
-        }
     }
 
-
+    // 💬 Diálogo para elegir fuente
     if (showDialog) {
-        AlertDialog(
+        ChooseImageDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Seleccionar opción") },
-            text = {
-                Column {
-                    Text(
-                        "Elegir de galería",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showDialog = false
-                                galleryLauncher.launch("image/*")
-                            }
-                            .padding(8.dp)
-                    )
-                    Text(
-                        "Sacar foto",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showDialog = false
-                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                //photoFile = createImageFile(context)
-                                //val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", photoFile!!)
-                                //cameraLauncher.launch(uri)
-                            }
-                            .padding(8.dp)
-                    )
-                }
+            onGalleryClick = {
+                showDialog = false
+                galleryLauncher.launch("image/*")
             },
-            confirmButton = {}
+            onCameraClick = {
+                showDialog = false
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        )
+    }
+
+    // 🗑 Confirmar eliminación
+    if (imageToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { imageToDelete = null },
+            title = { Text(stringResource(R.string.delete_image)) },
+            text = { Text(stringResource(R.string.wantto_delete_imagen)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    selectedImagesUri = selectedImagesUri.filter { it != imageToDelete }
+                    imageToDelete = null
+                }) { Text(stringResource(R.string.delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { imageToDelete = null }) { Text(stringResource(R.string.cancel)) }
+            }
         )
     }
 }
+
+
+
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun MyTextField(
+//    value: String,
+//    hasFocus: (Boolean) -> Unit,
+//    onValueChange: (String) -> Unit,
+//    onFocusManage: () -> Unit,
+//){
+//    OutlinedTextField(
+//        modifier = Modifier
+//            //.weight(1f)
+//            .onFocusChanged { focusState -> hasFocus(focusState.isFocused) },
+//        value = value,
+//        onValueChange = { onValueChange(it) },
+//        placeholder = {
+//            Text(
+//                "poner texto",
+//                //stringResource(R.string.txt_search),
+//                color = MaterialTheme.colorScheme.onSurfaceVariant
+//            )
+//        },
+//        leadingIcon = {
+//            IconButton(onClick = { onFocusManage() }
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.Search,
+//                    contentDescription = null,
+//                    tint = MaterialTheme.colorScheme.onSurface
+//                )
+//            }
+//        },
+////        trailingIcon = {
+////            if (focused || input.isNotEmpty()) {
+////                IconButton(onClick = {
+////                    clearInput()
+////                    onFocusManage()
+////                }) {
+////                    Icon(
+////                        imageVector = Icons.Default.Clear,
+////                        contentDescription = null,
+////                        tint = MaterialTheme.colorScheme.onSurface
+////                    )
+////                }
+////            }
+////        },
+//        singleLine = true,
+//        textStyle = TextStyle(
+//            fontSize = CommonFontSizeDefault,
+//            color = MaterialTheme.colorScheme.onSurface
+//        ),
+//        shape = RoundedCornerShape(CommonPaddingMin),
+//        colors = TextFieldDefaults.outlinedTextFieldColors(
+//            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+//            focusedBorderColor = MaterialTheme.colorScheme.primary,
+//            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+//            cursorColor = MaterialTheme.colorScheme.primary
+//        )
+//
+//    )
+//}
+
+
+
+//@Composable
+//fun keyboardAsState(): State<Boolean> {
+//    val keyboardState = remember { mutableStateOf(false) }
+//    val view = LocalView.current
+//
+//    DisposableEffect(view) {
+//        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+//            val heightDiff = view.rootView.height - view.height
+//            keyboardState.value = heightDiff > 200 // si hay más de 200dp de diferencia, está abierto
+//        }
+//        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+//        onDispose {
+//            view.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+//        }
+//    }
+//
+//    return keyboardState
+//}
+
 
 //// Función para convertir Uri a File (igual que antes)
 //fun uriToFile(uri: Uri, context: Context): File {
@@ -750,14 +669,4 @@ fun compressBitmapToFile(context: Context, bitmap: Bitmap): File {
         bitmap.compress(Bitmap.CompressFormat.WEBP, 80, out)  // Calidad 80%
     }
     return compressedFile
-}
-
-
-
-@SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
-@Composable
-fun NewPostScreenPreview(){
-    val postsViewModel = PostsViewModel()
-    NewPostScreen(Modifier, postsViewModel = postsViewModel,{})
 }
