@@ -82,6 +82,7 @@ fun ProfileScreen(
                         contentScale = ContentScale.Crop
                     )
 
+                    // Edit Icon
                     IconButton(
                         onClick = { navToEditProfile() },
                         modifier = Modifier
@@ -150,8 +151,8 @@ fun ProfileScreen(
                         .padding(horizontal = scaledPadding(CommonPaddingDefault)),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    ProfileStat("1", stringResource(R.string.posts))
-                    ProfileStat("12874387", stringResource(R.string.user_phone))
+                    //ProfileStat("1", stringResource(R.string.posts))
+                    //ProfileStat("12874387", stringResource(R.string.user_phone))
                 }
 
                 HorizontalDivider(
@@ -165,36 +166,21 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = scaledFont(CommonFontSizeDefault),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = scaledPadding(CommonPaddingDefault),
+                    modifier = Modifier.padding(
+                        start = scaledPadding(CommonPaddingDefault),
                         bottom = scaledPadding(CommonPaddingMin)
                     )
                 )
             }
 
             items(6) { index ->
-                ProfilePostCard(
-                    name = "Publicación $index",
-                    lastMessage = "Contenido o descripción breve de la publicación número $index.",
-                    profileImageRes = R.drawable.ic_person
-                )
+//                ProfilePostCard(
+//                    name = "Publicación $index",
+//                    lastMessage = "Contenido o descripción breve de la publicación número $index.",
+//                    profileImageRes = R.drawable.ic_person
+//                )
             }
         }
     }
 }
 
-@Composable
-fun ProfileStat(number: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = number,
-            fontSize = scaledFont(CommonFontSizeMiddle),
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Text(
-            text = label,
-            fontSize = scaledFont(CommonFontSizeMicro),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}

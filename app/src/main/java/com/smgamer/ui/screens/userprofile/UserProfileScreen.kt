@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,9 +38,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
-import com.smgamer.ui.screens.profile.ProfileStat
 import com.smgamer.ui.theme.CommonFontSizeDefault
 import com.smgamer.ui.theme.CommonFontSizeLarge
+import com.smgamer.ui.theme.CommonFontSizeMicro
+import com.smgamer.ui.theme.CommonFontSizeMiddle
 import com.smgamer.ui.theme.CommonFontSizeMin
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingMin
@@ -51,7 +53,11 @@ import com.smgamer.ui.theme.scaledPadding
 @Composable
 fun UserProfileScreen(
     modifier: Modifier,
-    navBack: () -> Unit
+    isMyProfile: Boolean = false,
+    isMyUser: Boolean = false,
+    navBack: () -> Unit,
+    navToChatDetail: () -> Unit,
+    navToEditProfile: () -> Unit
 ){
     val context = LocalContext.current
 
@@ -83,17 +89,45 @@ fun UserProfileScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    IconButton(
-                        onClick = navBack,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = MaterialTheme.colorScheme.background
-                        )
+                    // Back icon
+                    if (!isMyProfile){
+                        IconButton(
+                            onClick = navBack,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(scaledPadding(CommonPaddingDefault))
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                    shape = CircleShape
+                                )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
+
+                    if(isMyUser){
+                        IconButton(
+                            onClick = { navToEditProfile() },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(scaledPadding(CommonPaddingDefault))
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                    shape = CircleShape
+                                )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+
                 }
 
                 Box(
@@ -170,20 +204,47 @@ fun UserProfileScreen(
 
             items(6) { index ->
                 ProfilePostCard(
-                    name = "Publicación $index",
-                    lastMessage = "Contenido o descripción breve de la publicación número $index.",
-                    profileImageRes = R.drawable.ic_person
+                    isMyUser = isMyUser,
+                    name = "Nombre del juego",
+                    lastMessage = "Hace 12 días",
+                    profileImageRes = R.drawable.ic_person,
+                    onDeleteConfirm = {
+                        // eliminar post
+                    }
                 )
             }
         }
 
-        FloatingActionButton(
-            onClick = {},
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(scaledPadding(CommonPaddingDefault))
-        ) {
-            Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "chat")
+        // mostrar si no es mi usuario
+        if(!isMyUser){
+            FloatingActionButton(
+                onClick = {
+                    navToChatDetail()
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(scaledPadding(CommonPaddingDefault))
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null)
+            }
         }
+
+    }
+}
+
+@Composable
+fun ProfileStat(number: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = number,
+            fontSize = scaledFont(CommonFontSizeMiddle),
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = label,
+            fontSize = scaledFont(CommonFontSizeMicro),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

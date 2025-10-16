@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +40,7 @@ import com.smgamer.ui.theme.CommonPaddingMicro
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingMinDefault
 import com.smgamer.ui.theme.CommonPaddingNone
+import com.smgamer.ui.theme.DividerThickness
 import com.smgamer.ui.theme.PostImageHeight
 import com.smgamer.ui.theme.scaledPadding
 
@@ -104,6 +106,13 @@ fun PostCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                     maxLines = 2
+                )
+
+                Spacer(Modifier.height(scaledPadding(CommonPaddingMinDefault)))
+
+                HorizontalDivider(
+                    thickness = DividerThickness,
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
 
                 Spacer(Modifier.height(scaledPadding(CommonPaddingMinDefault)))

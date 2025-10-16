@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,14 +29,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,6 +54,7 @@ import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.smgamer.R
 import com.smgamer.ui.components.AutoSlidingCarousel
+import com.smgamer.ui.components.CommentDialog
 import com.smgamer.ui.theme.CommonFontSizeDefault
 import com.smgamer.ui.theme.CommonFontSizeLarge
 import com.smgamer.ui.theme.CommonFontSizeMiddle
@@ -85,6 +94,9 @@ fun PostDetailScreen(
         R.drawable.cover_image,
     )
 
+    var showCommentDialog by remember { mutableStateOf(false) }
+    var commentText by remember { mutableStateOf("") }
+
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
@@ -117,8 +129,6 @@ fun PostDetailScreen(
                 )
             }
 
-
-            // 🔙 Botón volver
             IconButton(
                 onClick = navBack,
                 modifier = Modifier
@@ -126,11 +136,16 @@ fun PostDetailScreen(
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                     }
+                    .padding(scaledPadding(CommonPaddingDefault))
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                        shape = CircleShape
+                    )
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = MaterialTheme.colorScheme.background
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
@@ -168,7 +183,6 @@ fun PostDetailScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(CommonPaddingLarge)) }
 
-                // 🧑 Tarjeta del usuario
                 item {
                     UserCard(
                         name = "Juan",
@@ -178,7 +192,6 @@ fun PostDetailScreen(
                     )
                 }
 
-                // 🕹️ Detalles del post
                 item { PostDetail() }
 
                 item {
@@ -213,20 +226,41 @@ fun PostDetailScreen(
                         bottom.linkTo(coverImg.bottom)
                         top.linkTo(coverImg.bottom)
                     },
-                onClick = { navToChatDetail() },
+                onClick = { showCommentDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary,
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = "Chat",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
         }
+
+        if (showCommentDialog) {
+            CommentDialog(
+                commentText = commentText,
+                onValueChange = { commentText = it },
+                onDismiss = { showCommentDialog = false },
+                onConfirm = {
+                    if (commentText.isNotBlank()) {
+                        println("Comentario enviado: $commentText")
+                        commentText = ""
+                        showCommentDialog = false
+                    }
+                },
+                onCancel = {
+                    showCommentDialog = false
+                    commentText = ""
+                }
+            )
+        }
     }
 
 }
+
+
 
 @Composable
 fun UserCard(

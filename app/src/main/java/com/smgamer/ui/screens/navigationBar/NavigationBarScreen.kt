@@ -1,5 +1,8 @@
 package com.smgamer.ui.screens.navigationBar
 
+import android.graphics.Rect
+import android.view.ViewTreeObserver
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -25,13 +30,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,11 +49,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,7 +75,6 @@ import com.google.firebase.ktx.Firebase
 import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
-import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.viewmodels.LoginViewModel
 import com.smgamer.ui.viewmodels.PostsViewModel
 
@@ -80,13 +95,11 @@ fun NavigationBarScreen(
     var isSearching by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    // 👇 Solo muestra BottomNav en ciertas pantallas
     val showBottomBar = currentRoute in listOf(
         Destination.HOME.route,
         Destination.FILTERS.route,
         Destination.PROFILE.route,
         Destination.CHATS.route,
-        Destination.POST_DETAIL.route
     )
 
     val showTopBar = currentRoute in listOf(
@@ -103,29 +116,22 @@ fun NavigationBarScreen(
             if(showTopBar){
                 TopAppBar(
                     title = {
-                        if(isSearching){
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                placeholder = { Text("Buscar...") },
-                                singleLine = true,
-                                modifier = Modifier
-                                    .padding(CommonPaddingMin)
-                                    .fillMaxWidth(),
-                                trailingIcon = {
-                                    IconButton(onClick = {
-                                        searchQuery = "" // limpia el texto
-                                        isSearching = false // cierra el modo búsqueda si querés
-                                    }) {
-                                        Icon(Icons.Default.Close, contentDescription = "Cerrar")
-                                    }
+                        if (isSearching) {
+                            SearchBarWithFocus(
+                                searchQuery = searchQuery,
+                                onSearchQueryChange = { searchQuery = it },
+                                onCloseSearch = {
+                                    isSearching = false
+                                    searchQuery = ""
                                 }
                             )
                         }
+
+
                         if(currentRoute == Destination.CHATS.route){
-                            Text("Chats")
+                            Text(stringResource(Destination.CHATS.labelRes!!) )
                         }else if(currentRoute == Destination.FILTERED_POSTS.route){
-                            Text("Filters")
+                            Text(stringResource(Destination.FILTERS.labelRes!!))
                         }else if(currentRoute == Destination.CHAT_DETAIL.route){
 
                             val userImage = ContextCompat.getDrawable(context, R.drawable.ic_person)
@@ -148,7 +154,7 @@ fun NavigationBarScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
 
                                 Column(
-                                    verticalArrangement = Arrangement.SpaceBetween
+                                    verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
                                         text = "Juan",
@@ -214,9 +220,12 @@ fun NavigationBarScreen(
                     navigationIcon = {
                         if(currentRoute == Destination.FILTERED_POSTS.route ||
                             currentRoute == Destination.CHAT_DETAIL.route){
-                            IconButton(onClick = { navController.popBackStack()
-                            }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            IconButton(onClick = { navController.popBackStack() }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
                             }
                         }
                     }
@@ -256,281 +265,117 @@ fun NavigationBarScreen(
             postsViewModel = postsViewModel,
             navController= navController,
             modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         )
 
     }
 }
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun MyTopBar(
-//    navController: NavController,
-//    currentRoute: String,
-//    searchQuery: String,
-//    onSearchQueryChange: (String) -> Unit,
-//    isSearching: Boolean,
-//    onSearchToggle: (Boolean) -> Unit,
-//    expanded: Boolean,
-//    onExpandedChange: (Boolean) -> Unit
-//) {
-//    if (isSearching) {
-//        // 🔍 Modo búsqueda
-//        SearchBar(
-//            query = searchQuery,
-//            onQueryChange = onSearchQueryChange,
-//            onSearch = { /* podés manejar el enter */ },
-//            active = isSearching,
-//            onActiveChange = { onSearchToggle(it) },
-//            placeholder = { Text("Buscar...") },
-//            leadingIcon = {
-//                IconButton(onClick = { onSearchToggle(false) }) {
-//                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar")
-//                }
-//            },
-//            trailingIcon = {
-//                if (searchQuery.isNotEmpty()) {
-//                    IconButton(onClick = { onSearchQueryChange("") }) {
-//                        Icon(Icons.Default.Close, contentDescription = "Borrar texto")
-//                    }
-//                }
-//            },
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            // Contenido opcional de resultados sugeridos
-//            Text(
-//                "Resultados recientes…",
-//                modifier = Modifier.padding(16.dp)
-//            )
-//        }
-//
-//    } else {
-//        // 📌 Modo normal con TopAppBar
-//        TopAppBar(
-//            title = {
-//                when (currentRoute) {
-//                    Destination.CHATS.route -> Text("Chats")
-//                    Destination.FILTERED_POSTS.route -> Text("Filters")
-//                    Destination.CHAT_DETAIL.route -> {
-//                        Row(
-//                            verticalAlignment = Alignment.CenterVertically,
-//                            modifier = Modifier.padding(vertical = 12.dp)
-//                        ) {
-//                            val userImage = ContextCompat.getDrawable(
-//                                LocalContext.current,
-//                                R.drawable.ic_person
-//                            )
-//                            userImage?.let {
-//                                Image(
-//                                    bitmap = it.toBitmap().asImageBitmap(),
-//                                    contentDescription = "Profile picture",
-//                                    modifier = Modifier
-//                                        .size(40.dp)
-//                                        .clip(CircleShape)
-//                                        .background(MaterialTheme.colorScheme.secondaryContainer)
-//                                )
-//                            }
-//                            Spacer(modifier = Modifier.width(12.dp))
-//                            Column {
-//                                Text(
-//                                    text = "Juan",
-//                                    fontWeight = FontWeight.Bold,
-//                                    fontSize = 18.sp,
-//                                    maxLines = 1,
-//                                    overflow = TextOverflow.Ellipsis
-//                                )
-//                                Text(
-//                                    text = "en línea",
-//                                    fontSize = 14.sp,
-//                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                                    maxLines = 1,
-//                                    overflow = TextOverflow.Ellipsis
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            },
-//            actions = {
-//                if (currentRoute == Destination.HOME.route) {
-//                    IconButton(onClick = { onSearchToggle(true) }) {
-//                        Icon(Icons.Default.Search, contentDescription = "Buscar")
-//                    }
-//                    Box {
-//                        IconButton(onClick = { onExpandedChange(true) }) {
-//                            Icon(Icons.Default.MoreVert, contentDescription = "Menú")
-//                        }
-//                        DropdownMenu(
-//                            expanded = expanded,
-//                            onDismissRequest = { onExpandedChange(false) }
-//                        ) {
-//                            DropdownMenuItem(
-//                                text = { Text("Cerrar sesión") },
-//                                onClick = {
-//                                    Firebase.auth.signOut()
-//                                    onExpandedChange(false)
-//                                    navController.navigate(Destination.LOGIN.route) {
-//                                        popUpTo(0) { inclusive = true }
-//                                    }
-//                                }
-//                            )
-//                        }
-//                    }
-//                }
-//            },
-//            navigationIcon = {
-//                if (currentRoute == Destination.FILTERED_POSTS.route ||
-//                    currentRoute == Destination.CHAT_DETAIL.route
-//                ) {
-//                    IconButton(onClick = { navController.popBackStack() }) {
-//                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-//                    }
-//                }
-//            },
-//            colors = TopAppBarDefaults.topAppBarColors(
-//                containerColor = MaterialTheme.colorScheme.primary,
-//                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-//                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-//                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-//            )
-//        )
-//    }
-//}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBarWithFocus(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onCloseSearch: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+    var isKeyboardVisible by remember { mutableStateOf(false) }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun MyTopBar(
-//    navController: NavController,
-//    currentRoute: String,
-//    isSearching: Boolean,
-//    searchQuery: String,
-//    onSearchChange: (String) -> Unit,
-//    onCloseSearch: () -> Unit,
-//    onStartSearch: () -> Unit,
-//    onLogout: () -> Unit,
-//    expanded: Boolean,
-//    onExpandedChange: (Boolean) -> Unit
-//) {
-//    SmallTopAppBar(
-//        title = {
-//            when {
-//                isSearching -> {
-//                    OutlinedTextField(
-//                        value = searchQuery,
-//                        onValueChange = onSearchChange,
-//                        placeholder = { Text("Buscar...") },
-//                        singleLine = true,
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(48.dp),
-//                        trailingIcon = {
-//                            IconButton(onClick = onCloseSearch) {
-//                                Icon(
-//                                    imageVector = Icons.Default.Close,
-//                                    contentDescription = "Cerrar búsqueda"
-//                                )
-//                            }
-//                        },
-//                        shape = RoundedCornerShape(12.dp),
-//                        colors = TextFieldDefaults.outlinedTextFieldColors(
-//                            containerColor = MaterialTheme.colorScheme.surface,
-//                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-//                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-//                            cursorColor = MaterialTheme.colorScheme.primary,
-//                            //textColor = MaterialTheme.colorScheme.onSurface,
-//                            //placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-//                        )
-//                    )
-//                }
-//                currentRoute == Destination.CHATS.route -> {
-//                    Text("Chats", style = MaterialTheme.typography.titleLarge)
-//                }
-//                currentRoute == Destination.FILTERED_POSTS.route -> {
-//                    Text("Filters", style = MaterialTheme.typography.titleLarge)
-//                }
-//                currentRoute == Destination.CHAT_DETAIL.route -> {
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically
-//                    ) {
-//                        Image(
-//                            painter = painterResource(id = R.drawable.ic_person),
-//                            contentDescription = "Profile picture",
-//                            modifier = Modifier
-//                                .size(40.dp)
-//                                .clip(CircleShape)
-//                                .background(MaterialTheme.colorScheme.surfaceVariant)
-//                        )
-//                        Spacer(modifier = Modifier.width(12.dp))
-//                        Column {
-//                            Text(
-//                                text = "Juan",
-//                                style = MaterialTheme.typography.titleMedium.copy(
-//                                    fontWeight = FontWeight.Bold
-//                                )
-//                            )
-//                            Text(
-//                                text = "en línea",
-//                                style = MaterialTheme.typography.bodySmall.copy(
-//                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-//                                )
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        },
-//        navigationIcon = {
-//            if (currentRoute == Destination.FILTERED_POSTS.route ||
-//                currentRoute == Destination.CHAT_DETAIL.route
-//            ) {
-//                IconButton(onClick = { navController.popBackStack() }) {
-//                    Icon(
-//                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-//                        contentDescription = "Atrás"
-//                    )
-//                }
-//            }
-//        },
-//        actions = {
-//            if (currentRoute == Destination.HOME.route) {
-//                if (isSearching) {
-//                    IconButton(onClick = onCloseSearch) {
-//                        Icon(Icons.Default.MoreVert, contentDescription = "Cerrar búsqueda")
-//                    }
-//                } else {
-//                    IconButton(onClick = onStartSearch) {
-//                        Icon(Icons.Default.Search, contentDescription = "Buscar")
-//                    }
-//                    Box {
-//                        IconButton(onClick = { onExpandedChange(true) }) {
-//                            Icon(Icons.Default.MoreVert, contentDescription = "Menú")
-//                        }
-//                        DropdownMenu(
-//                            expanded = expanded,
-//                            onDismissRequest = { onExpandedChange(false) }
-//                        ) {
-//                            DropdownMenuItem(
-//                                text = { Text("Cerrar sesión") },
-//                                onClick = {
-//                                    onLogout()
-//                                    onExpandedChange(false)
-//                                }
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        },
-//        colors = TopAppBarDefaults.smallTopAppBarColors(
-//            containerColor = MaterialTheme.colorScheme.surface,
-//            titleContentColor = MaterialTheme.colorScheme.onSurface,
-//            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-//            actionIconContentColor = MaterialTheme.colorScheme.onSurface
-//        )
-//    )
-//}
+    DisposableEffect(view) {
+        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+            val rect = Rect()
+            view.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = view.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            isKeyboardVisible = keypadHeight > screenHeight * 0.15
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        onDispose { view.viewTreeObserver.removeOnGlobalLayoutListener(listener) }
+    }
+
+    LaunchedEffect(isKeyboardVisible) {
+        if (!isKeyboardVisible) {
+            focusManager.clearFocus()
+        }
+    }
+
+    // 🔹 Presionar atrás mientras el campo tiene foco
+    BackHandler(enabled = isFocused) {
+        focusManager.clearFocus()
+        keyboardController?.hide()
+    }
+
+    OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchQueryChange,
+        placeholder = { Text("Buscar...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+        singleLine = true,
+        leadingIcon = {
+            IconButton(
+                onClick = {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Buscar",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        trailingIcon = {
+            if (searchQuery.isNotEmpty()) {
+                IconButton(onClick = { onSearchQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Borrar texto",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                IconButton(onClick = {
+                    onCloseSearch()
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Cerrar búsqueda",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+            }
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                isFocused = focusState.isFocused
+                if (!focusState.isFocused) keyboardController?.hide()
+            },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            cursorColor = MaterialTheme.colorScheme.primary
+        )
+    )
+}
 
 
 @Composable
@@ -549,7 +394,6 @@ fun BottomBar(
         }
     }
 
-    // Solo los destinos que van en la BottomBar
     val bottomBarDestinations = listOf(
         Destination.HOME,
         Destination.FILTERS,
@@ -572,83 +416,8 @@ fun BottomBar(
                 label = {
                     destination.labelRes?.let { Text(stringResource(it)) }
                 },
-                alwaysShowLabel = true // Opcional, true para que siempre se vea el texto
+                alwaysShowLabel = true
             )
         }
     }
 }
-
-
-//@Composable
-//fun BottomBar(
-//    navController: NavHostController,
-//    currentRoute: String
-//) {
-//
-//    val navOptionsBuilder: NavOptionsBuilder.() -> Unit = remember(navController) {
-//        {
-//            popUpTo(navController.graph.id) {
-//                inclusive = false
-//                saveState = true
-//            }
-//            launchSingleTop = true
-//            restoreState = true
-//        }
-//    }
-
-//    NavigationBar{
-//        Destination.entries.forEach { destination ->
-//            NavigationBarItem(
-//                selected = currentRoute == destination.route,
-//                onClick = {
-//                    if (currentRoute != destination.route) {
-//                        navController.navigate(
-//                            route = destination.route,
-//                            builder = navOptionsBuilder
-//                        )
-//                    }
-//                },
-//                icon = {
-//                    destination.icon?.let {
-//                        Icon(
-//                            it,
-//                            contentDescription = null
-//                        )
-//                    }
-//                },
-//                label = {
-//                    destination.labelRes?.let { res ->
-//                        Text(stringResource(res))
-//                    }
-//                }
-//            )
-//        }
-//    }
-//
-////    NavigationBar {
-////        Destination.entries.forEach { destination ->
-////
-////            NavigationBarItem(
-////                selected = currentDestination.route == destination.route,
-////                modifier = Modifier.clickable(
-////                    interactionSource = noRippleInteractionSource,
-////                    indication = null
-////                ){},
-////                onClick = {
-////                    navController.navigate(destination.route) {
-////                        launchSingleTop = true
-////                        popUpTo(Destination.Home.route)
-////                    }
-////                },
-////                icon = {
-////                    destination.icon?.let {
-////                        Icon(it, contentDescription = destination.contentDescription)
-////                    }
-////                },
-////                label = { destination.label?.let { Text(it) } },
-////                alwaysShowLabel = false,
-////
-////            )
-////        }
-////    }
-//}

@@ -89,15 +89,7 @@ fun  NavigationWrapper(
                     }
                 )
             }
-            composable(Destination.PROFILE.route) {
-                ProfileScreen(modifier,
-                    navToEditProfile = {
-                        navController.navigate(Destination.EDIT_PROFILE.route) {
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            }
+
 
             composable(Destination.EDIT_PROFILE.route) {
                 EditProfileScreen(modifier = modifier, navBack = {
@@ -114,10 +106,51 @@ fun  NavigationWrapper(
                     })
             }
 
+//            composable(Destination.PROFILE.route) {
+//                ProfileScreen(modifier,
+//                    navToEditProfile = {
+//                        navController.navigate(Destination.EDIT_PROFILE.route) {
+//                            launchSingleTop = true
+//                        }
+//                    }
+//                )
+//            }
+
+            composable(Destination.PROFILE.route) {
+                UserProfileScreen(
+                    modifier = modifier,
+                    navBack = { navController.popBackStack() },
+                    navToChatDetail = {
+                        navController.navigate(Destination.CHAT_DETAIL.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    isMyProfile = true,
+                    isMyUser = true,
+                    navToEditProfile = {
+                        navController.navigate(Destination.EDIT_PROFILE.route) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
             composable(Destination.USER_PROFILE.route) {
-                UserProfileScreen(modifier = modifier, navBack = {
-                    navController.popBackStack()
-                })
+                UserProfileScreen(
+                    modifier = modifier,
+                    navBack = { navController.popBackStack() },
+                    navToChatDetail = {
+                        navController.navigate(Destination.CHAT_DETAIL.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    isMyProfile = false,
+                    isMyUser = true, // esto seria la id del usuario para validar si esla mio o no
+                    navToEditProfile = {
+                        navController.navigate(Destination.EDIT_PROFILE.route) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
 
             composable(Destination.FILTERED_POSTS.route) {
