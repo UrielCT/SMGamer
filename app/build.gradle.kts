@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.googleServices)
 }
 
 android {
@@ -76,10 +76,14 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //Livedata
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
     // Firebase
 
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
+    implementation(platform(libs.firebase.bom))
+    //implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.credentials:credentials:1.3.0")
@@ -95,6 +99,15 @@ dependencies {
     // hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    // Hilt Compose
+    implementation (libs.androidx.hilt.navigation.compose)
+    // Hilt core
+    kapt (libs.hilt.android.compiler)
+
+
+    // Coroutines
+    implementation (libs.kotlinx.coroutines.core)
+    implementation (libs.kotlinx.coroutines.android)
 
     // cloudinary
     implementation ("com.cloudinary:cloudinary-http44:1.30.0")
@@ -108,7 +121,7 @@ dependencies {
 
 
 
-    // Añadir la dependencia de material-icons-extended
+    // dependencia de material-icons-extended
     implementation("androidx.compose.material:material-icons-extended:1.5.0")
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.runtime.android)

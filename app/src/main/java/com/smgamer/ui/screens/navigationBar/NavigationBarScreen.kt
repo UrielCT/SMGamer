@@ -75,13 +75,15 @@ import com.google.firebase.ktx.Firebase
 import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
-import com.smgamer.ui.viewmodels.LoginViewModel
+import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.viewmodels.PostsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationBarScreen(
     postsViewModel: PostsViewModel,
+    registerViewModel: RegisterViewModel,
     loginViewModel: LoginViewModel
 ) {
     val navController = rememberNavController()
@@ -262,6 +264,7 @@ fun NavigationBarScreen(
     ) { innerPadding ->
         NavigationWrapper(
             loginViewModel = loginViewModel,
+            registerViewModel = registerViewModel,
             postsViewModel = postsViewModel,
             navController= navController,
             modifier = Modifier

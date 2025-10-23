@@ -5,29 +5,27 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 import com.smgamer.R
 import com.smgamer.ui.components.LogTextField
+import com.smgamer.ui.components.common.rememberGoogleSignInLauncher
 import com.smgamer.ui.theme.BottomBarPadding
 import com.smgamer.ui.theme.CommonFontSizeLarge
 import com.smgamer.ui.theme.CommonPaddingDefault
@@ -35,19 +33,17 @@ import com.smgamer.ui.theme.CommonPaddingLarge_med
 import com.smgamer.ui.theme.CommonPaddingMiddle
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingMinDefault
-import com.smgamer.ui.viewmodels.LoginViewModel
 import java.util.regex.Pattern
 
 @Composable
 fun RegisterScreen(
-    loginViewModel: LoginViewModel,
+    registerViewModel: RegisterViewModel,
     navToHome:()-> Unit,
     navBack: () -> Unit,
     modifier: Modifier
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val auth = Firebase.auth
+    val state by registerViewModel.state.collectAsState()
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -56,11 +52,11 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
 
+    val (googleSignInClient, launchGoogleSignIn) = rememberGoogleSignInLauncher { credential ->
+        registerViewModel.registerWithGoogle(credential, navToHome)
+    }
 
-    val db = Firebase.firestore
-    val usersCollection = db.collection("Users")
 
     fun isEmailValid(email: String): Boolean {
         val pattern = Pattern.compile(
@@ -69,8 +65,6 @@ fun RegisterScreen(
         )
         return pattern.matcher(email).matches()
     }
-
-
 
     fun register() {
         // Validación de campos vacíos
@@ -98,46 +92,12 @@ fun RegisterScreen(
         }
 
         // Si pasa todas las validaciones
-
-        loginViewModel.createUserWithEmailAndPassword(
-            email, password,
-            userName = username,
-            navToHome = navToHome,
-            phone = phone
-        )
-
-
-//        coroutineScope.launch {
-//            try {
-//                isLoading = true
-//                val authResult = auth.createUserWithEmailAndPassword(email.value, password.value).await()
-//
-//                if (authResult.user != null) {
-//                    val userId = authResult.user!!.uid
-//
-//                    val user = User(
-//                        id = userId,
-//                        email = email.value,
-//                        username = username.value,
-//                        phone = phone.value,
-//                        timestamp = Date().time
-//                    )
-//
-//                    usersCollection.document(userId).set(user).await()
-//
-//                    Toast.makeText(context, "Registro exitoso!", Toast.LENGTH_SHORT).show()
-//                    navToHome()
-//                }
-//            } catch (e: Exception) {
-//                Toast.makeText(context, "Error al registrar: ${e.message}", Toast.LENGTH_SHORT).show()
-//                Log.d("login","Error al registrarse: ${e.message}")
-//            } finally {
-//                isLoading = false
-//            }
-//        }
+        registerViewModel.registerWithEmail(
+            email, password, username, phone
+        ) {
+            navToHome()
+        }
     }
-
-
 
     Box(
         modifier = Modifier
@@ -264,7 +224,8 @@ fun RegisterScreen(
 
             item {
                 OutlinedButton(
-                    onClick = { /* Google login */ },
+                    onClick = { launchGoogleSignIn() },
+                    enabled = state !is RegisterState.Loading,
                     modifier = Modifier
                         .padding(horizontal = CommonPaddingDefault)
                         .fillMaxWidth()
@@ -284,5 +245,15 @@ fun RegisterScreen(
             item { Spacer(Modifier.height(CommonPaddingDefault)) }
         }
 
+        if (state is RegisterState.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
     }
 }

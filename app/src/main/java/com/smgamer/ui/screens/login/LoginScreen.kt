@@ -1,9 +1,6 @@
 package com.smgamer.ui.screens.login
 
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,31 +10,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.Firebase
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 import com.smgamer.R
 import com.smgamer.ui.components.LogTextField
+import com.smgamer.ui.components.common.rememberGoogleSignInLauncher
 import com.smgamer.ui.theme.BottomBarPadding
 import com.smgamer.ui.theme.CommonFontSizeLarge
 import com.smgamer.ui.theme.CommonPaddingDefault
@@ -45,7 +38,6 @@ import com.smgamer.ui.theme.CommonPaddingLarge_med
 import com.smgamer.ui.theme.CommonPaddingMiddle
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingMinDefault
-import com.smgamer.ui.viewmodels.LoginViewModel
 import java.util.regex.Pattern
 
 @Composable
@@ -55,73 +47,14 @@ fun LoginScreen(
     navToRegister: () -> Unit,
     modifier: Modifier
 ) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val auth = Firebase.auth
+    val state by loginViewModel.state.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    var isLoading by remember { mutableStateOf(false) }
-
-//    fun firebaseAuthWithGoogle(idToken: String, onSuccess: () -> Unit) {
-//        coroutineScope.launch {
-//            try {
-//                isLoading = true
-//                val credential = GoogleAuthProvider.getCredential(idToken, null)
-//                auth.signInWithCredential(credential).await()
-//                Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-//                onSuccess()
-//            } catch (e: Exception) {
-//                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-//            } finally {
-//                isLoading = false
-//            }
-//        }
-//    }
-
-    // Configuración del login con Google
-    val googleSignInClient = remember {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-        GoogleSignIn.getClient(context, gso)
-    }
-//
-//    val googleSignInLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.StartActivityForResult()
-//    ) { result ->
-//        try {
-//            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-//            val account = task.getResult(ApiException::class.java)!!
-//            firebaseAuthWithGoogle(account.idToken!!, navToHome)
-//        } catch (e: ApiException) {
-//            Log.w("GoogleSignIn", "Google sign in failed", e)
-//            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-
-
-
-    // DESCOMENTAR
-
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        try {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            val account = task.getResult(ApiException::class.java)!!
-
-            // Crea la credencial y pasa al ViewModel
-            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            loginViewModel.signInWithGoogleCredential(credential, navToHome)
-
-        } catch (e: ApiException) {
-            Log.w("GoogleSignIn", "Google sign in failed", e)
-            Toast.makeText(context, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
-        }
+    val (googleSignInClient, launchGoogleSignIn) = rememberGoogleSignInLauncher { credential ->
+        loginViewModel.signInWithGoogleCredential(credential, navToHome)
     }
 
 
@@ -144,9 +77,6 @@ fun LoginScreen(
             Log.d("login","el email o la contraseña son incorrectos")
         }
     }
-
-
-
 
     Box(
         modifier = Modifier
@@ -202,9 +132,10 @@ fun LoginScreen(
 
             item { Spacer(Modifier.height(CommonPaddingMiddle)) }
 
+            //login con email
             item {
                 Button(
-                    onClick = { navToHome() },
+                    onClick = { login() },
                     modifier = Modifier
                         .padding(horizontal = CommonPaddingDefault)
                         .fillMaxWidth()
@@ -224,9 +155,11 @@ fun LoginScreen(
 
             item { Spacer(Modifier.height(CommonPaddingDefault)) }
 
+            // login con google
             item {
                 OutlinedButton(
-                    onClick = { /* Google login */ },
+                    onClick = { launchGoogleSignIn() },
+                    enabled = state !is LoginState.Loading,
                     modifier = Modifier
                         .padding(horizontal = CommonPaddingDefault)
                         .fillMaxWidth()
@@ -256,6 +189,17 @@ fun LoginScreen(
             Spacer(Modifier.width(CommonPaddingMin))
             TextButton(onClick = { navToRegister() }) {
                 Text(stringResource(R.string.register))
+            }
+        }
+
+        if (state is LoginState.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }
