@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,9 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -78,7 +74,7 @@ import com.smgamer.ui.theme.scaledPadding
 fun PostDetailScreen(
     modifier: Modifier = Modifier,
     navBack: () -> Unit,
-    navToUserProfile: () -> Unit,
+    navToUserProfile: (String) -> Unit,
     navToChatDetail: () -> Unit
 ) {
     val context = LocalContext.current
@@ -188,7 +184,7 @@ fun PostDetailScreen(
                         name = "Juan",
                         phone = "8928 8419",
                         imageRes = R.drawable.ic_person,
-                        navToUserProfile = navToUserProfile
+                        navToUserProfile = { navToUserProfile("1in2iY7NyzcSws24cBtfH9qYwg03") }  // id del usuario
                     )
                 }
 

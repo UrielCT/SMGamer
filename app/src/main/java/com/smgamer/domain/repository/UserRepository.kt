@@ -12,4 +12,6 @@ interface UserRepository {
                                 phone: String): Result<User>
     suspend fun createUser(email: String, password: String, username: String, phone: String): Result<User>
     suspend fun getCurrentUser(): User?
+    suspend fun getUserById(userId: String): User?
+    suspend fun logout()
 }

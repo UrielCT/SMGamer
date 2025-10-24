@@ -1,5 +1,6 @@
 package com.smgamer.di
 
+import com.smgamer.data.datastore.local.UserLocalDataSource
 import com.smgamer.data.datastore.remote.FirebaseAuthService
 import com.smgamer.data.datastore.remote.FirestoreService
 import com.smgamer.data.repository.UserRepositoryImpl
@@ -18,6 +19,7 @@ object RepositoryModule {
     @Singleton
     fun provideUserRepository(
         authService: FirebaseAuthService,
-        firestoreService: FirestoreService
-    ): UserRepository = UserRepositoryImpl(authService, firestoreService)
+        firestoreService: FirestoreService,
+        userLocalDataSource: UserLocalDataSource
+    ): UserRepository = UserRepositoryImpl(authService, firestoreService, userLocalDataSource)
 }

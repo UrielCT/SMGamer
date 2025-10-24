@@ -14,18 +14,14 @@ class FirestoreService @Inject constructor(
 
     // 🔹 Guarda o actualiza un usuario
     suspend fun saveUser(user: UserDto) {
-        usersCollection.document(user.id)
-            .set(user)
-            .await()
+        usersCollection.document(user.id).set(user).await()
     }
 
     // 🔹 Crea usuario solo si no existe
     suspend fun createUserIfNotExists(user: UserDto) {
         val doc = usersCollection.document(user.id).get().await()
         if (!doc.exists()) {
-            usersCollection.document(user.id)
-                .set(user)
-                .await()
+            usersCollection.document(user.id).set(user).await()
         }
     }
 
@@ -34,4 +30,5 @@ class FirestoreService @Inject constructor(
         val doc = usersCollection.document(userId).get().await()
         return if (doc.exists()) doc.toObject(UserDto::class.java) else null
     }
+
 }

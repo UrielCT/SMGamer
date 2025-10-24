@@ -2,6 +2,7 @@ package com.smgamer.ui.screens.navigationBar
 
 import android.graphics.Rect
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -70,13 +71,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.register.RegisterViewModel
+import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 import com.smgamer.ui.viewmodels.PostsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,6 +84,7 @@ import com.smgamer.ui.viewmodels.PostsViewModel
 fun NavigationBarScreen(
     postsViewModel: PostsViewModel,
     registerViewModel: RegisterViewModel,
+    userProfileViewModel: UserProfileViewModel,
     loginViewModel: LoginViewModel
 ) {
     val navController = rememberNavController()
@@ -198,6 +199,10 @@ fun NavigationBarScreen(
                                         Icon(Icons.Default.MoreVert, contentDescription = "Menú")
                                     }
 
+
+                                    //
+                                    // TODO: boton de cerra sesion
+                                    //
                                     DropdownMenu(
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false }
@@ -205,12 +210,18 @@ fun NavigationBarScreen(
                                         DropdownMenuItem(
                                             text = { Text("Cerrar sesión") },
                                             onClick = {
-                                                Firebase.auth.signOut()
                                                 expanded = false
 
-                                                navController.navigate(Destination.LOGIN.route) {
-                                                    popUpTo(0) { inclusive = true }
-                                                }
+                                                loginViewModel.logout(
+                                                    onSuccess = {
+                                                        navController.navigate(Destination.LOGIN.route) {
+                                                            popUpTo(0) { inclusive = true }
+                                                        }
+                                                    },
+                                                    onError = {
+                                                        Toast.makeText(context, "Error al cerrar sesión", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                )
                                             }
                                         )
                                     }
@@ -265,6 +276,7 @@ fun NavigationBarScreen(
         NavigationWrapper(
             loginViewModel = loginViewModel,
             registerViewModel = registerViewModel,
+            userProfileViewModel = userProfileViewModel,
             postsViewModel = postsViewModel,
             navController= navController,
             modifier = Modifier

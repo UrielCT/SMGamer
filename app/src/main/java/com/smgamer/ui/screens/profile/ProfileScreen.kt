@@ -46,141 +46,141 @@ import com.smgamer.ui.theme.CommonPaddingTwo
 import com.smgamer.ui.theme.DividerThickness
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
-
-@Composable
-fun ProfileScreen(
-    modifier: Modifier = Modifier,
-    navToEditProfile: () -> Unit
-) {
-    val context = LocalContext.current
-
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        val screenWidth = maxWidth
-        val coverHeight = screenWidth * 0.55f
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = scaledPadding(CommonPaddingDefault))
-        ) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(coverHeight)
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(R.drawable.cover_image)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    // Edit Icon
-                    IconButton(
-                        onClick = { navToEditProfile() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(scaledPadding(CommonPaddingDefault))
-                            .background(
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                                shape = CircleShape
-                            )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = (-screenWidth * 0.16f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(R.drawable.ic_person)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(screenWidth * 0.32f)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .border(
-                                width = scaledPadding(CommonPaddingTwo),
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = CircleShape
-                            ),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = (-screenWidth * 0.08f))
-                ) {
-                    Text(
-                        text = "Username",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = scaledFont(CommonFontSizeLarge),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "uriel@gmail.com",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = scaledFont(CommonFontSizeMin)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = scaledPadding(CommonPaddingDefault)),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    //ProfileStat("1", stringResource(R.string.posts))
-                    //ProfileStat("12874387", stringResource(R.string.user_phone))
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding( scaledPadding(CommonPaddingDefault)),
-                    thickness = DividerThickness,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-
-                Text(
-                    text = stringResource(R.string.posts_title),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = scaledFont(CommonFontSizeDefault),
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(
-                        start = scaledPadding(CommonPaddingDefault),
-                        bottom = scaledPadding(CommonPaddingMin)
-                    )
-                )
-            }
-
-            items(6) { index ->
-//                ProfilePostCard(
-//                    name = "Publicación $index",
-//                    lastMessage = "Contenido o descripción breve de la publicación número $index.",
-//                    profileImageRes = R.drawable.ic_person
+//
+//@Composable
+//fun ProfileScreen(
+//    modifier: Modifier = Modifier,
+//    navToEditProfile: () -> Unit
+//) {
+//    val context = LocalContext.current
+//
+//    BoxWithConstraints(
+//        modifier = modifier
+//            .fillMaxSize()
+//            .background(MaterialTheme.colorScheme.background)
+//    ) {
+//        val screenWidth = maxWidth
+//        val coverHeight = screenWidth * 0.55f
+//
+//        LazyColumn(
+//            modifier = Modifier.fillMaxSize(),
+//            contentPadding = PaddingValues(bottom = scaledPadding(CommonPaddingDefault))
+//        ) {
+//            item {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(coverHeight)
+//                ) {
+//                    AsyncImage(
+//                        model = ImageRequest.Builder(context)
+//                            .data(R.drawable.cover_image)
+//                            .crossfade(true)
+//                            .build(),
+//                        contentDescription = null,
+//                        modifier = Modifier.fillMaxSize(),
+//                        contentScale = ContentScale.Crop
+//                    )
+//
+//                    // Edit Icon
+//                    IconButton(
+//                        onClick = { navToEditProfile() },
+//                        modifier = Modifier
+//                            .align(Alignment.TopEnd)
+//                            .padding(scaledPadding(CommonPaddingDefault))
+//                            .background(
+//                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+//                                shape = CircleShape
+//                            )
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.Edit,
+//                            contentDescription = null,
+//                            tint = MaterialTheme.colorScheme.onPrimary
+//                        )
+//                    }
+//                }
+//
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .offset(y = (-screenWidth * 0.16f)),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    AsyncImage(
+//                        model = ImageRequest.Builder(context)
+//                            .data(R.drawable.ic_person)
+//                            .crossfade(true)
+//                            .build(),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .size(screenWidth * 0.32f)
+//                            .clip(CircleShape)
+//                            .background(MaterialTheme.colorScheme.primary)
+//                            .border(
+//                                width = scaledPadding(CommonPaddingTwo),
+//                                color = MaterialTheme.colorScheme.surfaceVariant,
+//                                shape = CircleShape
+//                            ),
+//                        contentScale = ContentScale.Crop
+//                    )
+//                }
+//
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .offset(y = (-screenWidth * 0.08f))
+//                ) {
+//                    Text(
+//                        text = "Username",
+//                        color = MaterialTheme.colorScheme.onBackground,
+//                        fontSize = scaledFont(CommonFontSizeLarge),
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                    Text(
+//                        text = "uriel@gmail.com",
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                        fontSize = scaledFont(CommonFontSizeMin)
+//                    )
+//                }
+//
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = scaledPadding(CommonPaddingDefault)),
+//                    horizontalArrangement = Arrangement.SpaceAround
+//                ) {
+//                    //ProfileStat("1", stringResource(R.string.posts))
+//                    //ProfileStat("12874387", stringResource(R.string.user_phone))
+//                }
+//
+//                HorizontalDivider(
+//                    modifier = Modifier.padding( scaledPadding(CommonPaddingDefault)),
+//                    thickness = DividerThickness,
+//                    color = MaterialTheme.colorScheme.outlineVariant
 //                )
-            }
-        }
-    }
-}
+//
+//                Text(
+//                    text = stringResource(R.string.posts_title),
+//                    color = MaterialTheme.colorScheme.primary,
+//                    fontSize = scaledFont(CommonFontSizeDefault),
+//                    fontWeight = FontWeight.Bold,
+//                    modifier = Modifier.padding(
+//                        start = scaledPadding(CommonPaddingDefault),
+//                        bottom = scaledPadding(CommonPaddingMin)
+//                    )
+//                )
+//            }
+//
+//            items(6) { index ->
+////                ProfilePostCard(
+////                    name = "Publicación $index",
+////                    lastMessage = "Contenido o descripción breve de la publicación número $index.",
+////                    profileImageRes = R.drawable.ic_person
+////                )
+//            }
+//        }
+//    }
+//}
 

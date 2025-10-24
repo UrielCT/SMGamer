@@ -8,8 +8,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.smgamer.ui.screens.chatdetail.ChatDetailScreen
@@ -25,12 +27,14 @@ import com.smgamer.ui.screens.postdetail.PostDetailScreen
 import com.smgamer.ui.screens.register.RegisterScreen
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileScreen
+import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 import com.smgamer.ui.viewmodels.PostsViewModel
 
 @Composable
 fun  NavigationWrapper(
     loginViewModel: LoginViewModel,
     registerViewModel: RegisterViewModel,
+    userProfileViewModel: UserProfileViewModel,
     postsViewModel: PostsViewModel,
     navController: NavHostController,
     modifier: Modifier
@@ -52,6 +56,7 @@ fun  NavigationWrapper(
         } else {
             Destination.LOGIN.route
         }
+
     }
 
     if (startDestination != null) {
@@ -117,42 +122,98 @@ fun  NavigationWrapper(
 //                )
 //            }
 
+            // mi perfil con el bottom bar
+//            composable(Destination.PROFILE.route) {
+//                UserProfileScreen(
+//                    modifier = modifier,
+//                    userProfileViewModel=userProfileViewModel,
+//                    navBack = { navController.popBackStack() },
+//                    navToChatDetail = {
+//                        navController.navigate(Destination.CHAT_DETAIL.route) {
+//                            launchSingleTop = true
+//                        }
+//                    },
+//                    isMyProfile = true,
+//                    isMyUser = true,
+//                    navToEditProfile = {
+//                        navController.navigate(Destination.EDIT_PROFILE.route) {
+//                            launchSingleTop = true
+//                        }
+//                    }
+//                )
+//            }
             composable(Destination.PROFILE.route) {
                 UserProfileScreen(
                     modifier = modifier,
+                    isProfile = true,
+                    userProfileViewModel = userProfileViewModel,
                     navBack = { navController.popBackStack() },
-                    navToChatDetail = {
-                        navController.navigate(Destination.CHAT_DETAIL.route) {
-                            launchSingleTop = true
-                        }
-                    },
-                    isMyProfile = true,
-                    isMyUser = true,
-                    navToEditProfile = {
-                        navController.navigate(Destination.EDIT_PROFILE.route) {
-                            launchSingleTop = true
-                        }
-                    }
+                    navToChatDetail = { navController.navigate(Destination.CHAT_DETAIL.route) },
+                    navToEditProfile = { navController.navigate(Destination.EDIT_PROFILE.route) }
                 )
             }
-            composable(Destination.USER_PROFILE.route) {
+
+            // perfil del usuario, mio o de otro, sin el bottom bar
+            composable(
+                route = "${Destination.USER_PROFILE.route}/{userId}",
+                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId")
                 UserProfileScreen(
                     modifier = modifier,
+                    isProfile = false,
+                    userProfileViewModel = userProfileViewModel,
+                    userId = userId,
                     navBack = { navController.popBackStack() },
-                    navToChatDetail = {
-                        navController.navigate(Destination.CHAT_DETAIL.route) {
-                            launchSingleTop = true
-                        }
-                    },
-                    isMyProfile = false,
-                    isMyUser = true, // esto seria la id del usuario para validar si esla mio o no
-                    navToEditProfile = {
-                        navController.navigate(Destination.EDIT_PROFILE.route) {
-                            launchSingleTop = true
-                        }
-                    }
+                    navToChatDetail = { navController.navigate(Destination.CHAT_DETAIL.route) },
+                    navToEditProfile = { navController.navigate(Destination.EDIT_PROFILE.route) }
                 )
             }
+
+
+//            composable(Destination.USER_PROFILE.route) {
+//                UserProfileScreen(
+//                    modifier = modifier,
+//                    userProfileViewModel=userProfileViewModel,
+//                    navBack = { navController.popBackStack() },
+//                    navToChatDetail = {
+//                        navController.navigate(Destination.CHAT_DETAIL.route) {
+//                            launchSingleTop = true
+//                        }
+//                    },
+//                    isMyProfile = false,
+//                    isMyUser = false, // esto seria la id del usuario para validar si esla mio o no
+//                    navToEditProfile = {
+//                        navController.navigate(Destination.EDIT_PROFILE.route) {
+//                            launchSingleTop = true
+//                        }
+//                    }
+//                )
+//            }
+
+//            composable(
+//                route = "${Destination.USER_PROFILE.route}/{userId}",
+//                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//                val userId = backStackEntry.arguments?.getString("userId")
+//                UserProfileScreen(
+//                    modifier = modifier,
+//                    userProfileViewModel = userProfileViewModel,
+//                    userId = userId,
+//                    navBack = { navController.popBackStack() },
+//                    navToChatDetail = {
+//                        navController.navigate(Destination.CHAT_DETAIL.route) {
+//                            launchSingleTop = true
+//                        }
+//                    },
+//                    navToEditProfile = {
+//                        navController.navigate(Destination.EDIT_PROFILE.route) {
+//                            launchSingleTop = true
+//                        }
+//                    }
+//                )
+//            }
+
 
             composable(Destination.FILTERED_POSTS.route) {
                 FilteredPostsScreen(modifier = modifier,
@@ -167,8 +228,8 @@ fun  NavigationWrapper(
             composable(Destination.POST_DETAIL.route) {
                 PostDetailScreen(modifier = modifier,
                     navBack = { navController.popBackStack() },
-                    navToUserProfile = {
-                        navController.navigate(Destination.USER_PROFILE.route) {
+                    navToUserProfile = { userId ->
+                        navController.navigate("${Destination.USER_PROFILE.route}/$userId") {
                             launchSingleTop = true
                         }
                     },

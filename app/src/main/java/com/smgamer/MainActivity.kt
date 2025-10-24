@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
 import com.smgamer.ui.screens.register.RegisterViewModel
+import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 import com.smgamer.ui.theme.LocalFontScale
 import com.smgamer.ui.theme.LocalPaddingScale
 import com.smgamer.ui.theme.SMGamerTheme
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
     private val registerViewModel: RegisterViewModel by viewModels()
     private val postsViewModel: PostsViewModel by viewModels()
+    private val userProfileViewModel: UserProfileViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     NavigationBarScreen(
                         loginViewModel = loginViewModel,
                         registerViewModel = registerViewModel,
+                        userProfileViewModel = userProfileViewModel,
                         postsViewModel = postsViewModel
                     )
                 }

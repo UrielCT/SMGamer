@@ -49,6 +49,10 @@ class FirebaseAuthService @Inject constructor(
     }
 
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
+
+
+    fun logout() { auth.signOut() }
+
 }
 
 private fun FirebaseUser.toUserDto(username: String = displayName ?: "", phone: String = "") = UserDto(

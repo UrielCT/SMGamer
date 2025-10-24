@@ -79,6 +79,15 @@ dependencies {
     //Livedata
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
+    // DataStore (Preferences)
+    implementation ("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Para usar corrutinas con DataStore
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+
+
+
     // Firebase
 
     // Import the Firebase BoM
