@@ -59,5 +59,6 @@
     <string name="desc_comment_dialog">Write your comment on this post:</string>
     <string name="ph_comment">Your comment...</string>
     <string name="ok">OK</string>
+    <string name="phone_label">Phone</string>
 
 </resources>

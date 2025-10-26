@@ -1,6 +1,8 @@
 package com.smgamer.ui.screens.editprofile
 
+import android.Manifest
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -20,29 +22,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
+import com.smgamer.ui.components.ChooseImageDialog
+import com.smgamer.ui.screens.newpost.createImageFile
 import com.smgamer.ui.theme.CommonFontSizeDefault
 import com.smgamer.ui.theme.CommonFontSizeLarge
 import com.smgamer.ui.theme.CommonFontSizeMin
@@ -51,25 +62,114 @@ import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingTwo
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
+import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun EditProfileScreen(
     modifier: Modifier = Modifier,
     navBack: () -> Unit,
+    editProfileViewModel: EditProfileViewModel
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    var name by remember { mutableStateOf("Uriel") }
-    var email by remember { mutableStateOf("uriel@gmail.com") }
+    val user by editProfileViewModel.user
+    val isLoading by editProfileViewModel.isLoading
+
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
 
     var coverUri by remember { mutableStateOf<Uri?>(null) }
     var profileUri by remember { mutableStateOf<Uri?>(null) }
 
-    val coverPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-        coverUri = it
+    var isCoverSelected by remember { mutableStateOf(true) }
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    // sincronizamos al cargar
+    LaunchedEffect(user) {
+        name = user?.username ?: ""
+        email = user?.email ?: ""
+        phone = user?.phone ?: ""
     }
-    val profilePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-        profileUri = it
+
+    var photoFile by remember { mutableStateOf<File?>(null) }
+
+    // Lanzador para galería de 1 imagen
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            if (isCoverSelected){
+                coverUri = it
+            }else{
+                profileUri = it
+            }
+        }
+    }
+
+
+    // Función para subir imágenes (puede ser la que ya tenés)
+    fun updateUserData(){
+        scope.launch {
+            editProfileViewModel.updateUserProfile(
+                context = context,
+                name = name,
+                email = email,
+                phone = phone,
+                profileUri = profileUri,
+                coverUri = coverUri,
+                onSuccess = {
+                    Toast.makeText(context, "Perfil actualizado", Toast.LENGTH_SHORT).show()
+                    profileUri = null
+                    coverUri = null
+                },
+                onError = {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+    }
+
+    // Lanzador para cámara para 1 foto
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            val selectedUri = photoFile?.let {
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    it
+                )
+            }
+            if (isCoverSelected){
+                coverUri = selectedUri
+            }else{
+                profileUri = selectedUri
+            }
+        }
+    }
+
+    // Lanzador para pedir permiso de cámara
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            photoFile = createImageFile(context)
+            photoFile?.let {
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    it
+                )
+                cameraLauncher.launch(uri)
+            } ?: Toast.makeText(context, "No se pudo crear el archivo de imagen", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
     }
 
     BoxWithConstraints(
@@ -91,17 +191,22 @@ fun EditProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(coverHeight)
-                        .clickable { coverPicker.launch("image/*") }
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(coverUri ?: R.drawable.cover_image)
+                            .data(coverUri ?: user?.coverImage ?: R.drawable.cover_image)
                             .crossfade(true)
                             .build(),
+                        //placeholder = painterResource(R.drawable.ic_gallery_image),
+                        error = painterResource(R.drawable.cover_image),
                         contentDescription = "Imagen de portada",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().clickable {
+                            isCoverSelected = true
+                            showDialog = true
+                        }
                     )
+
 
                     // 🔙 Botón volver
                     IconButton(
@@ -131,7 +236,7 @@ fun EditProfileScreen(
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(profileUri ?: R.drawable.ic_person)
+                            .data(profileUri ?: user?.profileImage ?: R.drawable.ic_person)
                             .crossfade(true)
                             .build(),
                         contentDescription = "Imagen de perfil",
@@ -143,8 +248,10 @@ fun EditProfileScreen(
                                 width = scaledPadding(CommonPaddingTwo),
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
-                            )
-                            .clickable { profilePicker.launch("image/*") },
+                            ).clickable {
+                                isCoverSelected = false
+                                showDialog = true
+                                        },
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -182,6 +289,16 @@ fun EditProfileScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        label = { Text(stringResource(R.string.phone_label)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+
+
                     if (email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                         Text(
                             text = stringResource(R.string.invalid_email),
@@ -191,7 +308,7 @@ fun EditProfileScreen(
                     }
 
                     Button(
-                        onClick = {  },
+                        onClick = { updateUserData() },
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
                             .padding(top = scaledPadding(CommonPaddingDefault))
@@ -203,6 +320,32 @@ fun EditProfileScreen(
                     }
                 }
             }
+        }
+    }
+
+    // 💬 Diálogo para elegir fuente
+    if (showDialog) {
+        ChooseImageDialog(
+            onDismissRequest = { showDialog = false },
+            onGalleryClick = {
+                showDialog = false
+                galleryLauncher.launch("image/*")
+            },
+            onCameraClick = {
+                showDialog = false
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        )
+    }
+
+    if (isLoading) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
 }

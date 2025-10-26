@@ -17,6 +17,7 @@ import com.google.firebase.ktx.Firebase
 import com.smgamer.ui.screens.chatdetail.ChatDetailScreen
 import com.smgamer.ui.screens.chats.ChatsScreen
 import com.smgamer.ui.screens.editprofile.EditProfileScreen
+import com.smgamer.ui.screens.editprofile.EditProfileViewModel
 import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
@@ -35,6 +36,7 @@ fun  NavigationWrapper(
     loginViewModel: LoginViewModel,
     registerViewModel: RegisterViewModel,
     userProfileViewModel: UserProfileViewModel,
+    editProfileViewModel: EditProfileViewModel,
     postsViewModel: PostsViewModel,
     navController: NavHostController,
     modifier: Modifier
@@ -98,9 +100,11 @@ fun  NavigationWrapper(
 
 
             composable(Destination.EDIT_PROFILE.route) {
-                EditProfileScreen(modifier = modifier, navBack = {
-                    navController.popBackStack()
-                })
+                EditProfileScreen(
+                    modifier = modifier,
+                    editProfileViewModel = editProfileViewModel,
+                    navBack = { navController.popBackStack() }
+                )
             }
 
             composable(Destination.NEW_POST.route) {

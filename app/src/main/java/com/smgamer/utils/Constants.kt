@@ -14,4 +14,13 @@ object Constants {
     const val NAV_USER_PROFILE = "nav_user_profile"
     const val NAV_NEW_POST = "nav_new_post"
     const val NAV_CHAT_DETAIL = "nav_chat_detail"
+
+    //Cloudinary
+
+    const val CLRY_CLOUD_NAME = "ddbqwxz5l"
+    const val CLRY_UPLOAD_PRESET = "sm_gamer"
+    const val CLRY_API_KEY = "499377271426119"
+    const val CLRY_API_SECRET = "UXJH6Urypb1jYnZvYh2NKjSn6N8"
+
+
 }

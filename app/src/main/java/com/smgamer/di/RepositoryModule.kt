@@ -3,7 +3,10 @@ package com.smgamer.di
 import com.smgamer.data.datastore.local.UserLocalDataSource
 import com.smgamer.data.datastore.remote.FirebaseAuthService
 import com.smgamer.data.datastore.remote.FirestoreService
+import com.smgamer.data.datastore.remote.cloudinary.CloudinaryService
+import com.smgamer.data.repository.CloudinaryRepositoryImpl
 import com.smgamer.data.repository.UserRepositoryImpl
+import com.smgamer.domain.repository.CloudinaryRepository
 import com.smgamer.domain.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -22,4 +25,11 @@ object RepositoryModule {
         firestoreService: FirestoreService,
         userLocalDataSource: UserLocalDataSource
     ): UserRepository = UserRepositoryImpl(authService, firestoreService, userLocalDataSource)
+
+
+    @Provides
+    @Singleton
+    fun provideCloudinaryRepository(
+        cloudinaryService: CloudinaryService
+    ): CloudinaryRepository = CloudinaryRepositoryImpl(cloudinaryService)
 }

@@ -72,9 +72,7 @@ fun ImageFromCard(
     Card(
         modifier = Modifier
             .size(scaledPadding(GameBottomPadding))
-            .clickable {
-                onClick()
-            },
+            .clickable { onClick() },
         shape = RoundedCornerShape(scaledPadding(CommonPaddingDefault)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = scaledPadding(CommonPaddingMicro))

@@ -5,6 +5,7 @@ import com.smgamer.data.datastore.local.UserLocalDataSource
 import com.smgamer.data.datastore.remote.FirebaseAuthService
 import com.smgamer.data.datastore.remote.FirestoreService
 import com.smgamer.data.mappers.toDomain
+import com.smgamer.data.mappers.toDto
 import com.smgamer.domain.repository.UserRepository
 import com.smgamer.domain.model.User
 import javax.inject.Inject
@@ -98,10 +99,14 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-
     override suspend fun logout() {
         authService.logout()
         localDataSource.clearUser()
+    }
+
+    override suspend fun updateUser(user: User) {
+        firestoreService.updateUser(user.toDto())
+        localDataSource.saveUser(user)
     }
 
 }

@@ -12,12 +12,12 @@ class FirestoreService @Inject constructor(
 ) {
     private val usersCollection = firestore.collection("Users")
 
-    // 🔹 Guarda o actualiza un usuario
+    // Guardar o actualiza usuario
     suspend fun saveUser(user: UserDto) {
         usersCollection.document(user.id).set(user).await()
     }
 
-    // 🔹 Crea usuario solo si no existe
+    // Crear usuario solo si no existe
     suspend fun createUserIfNotExists(user: UserDto) {
         val doc = usersCollection.document(user.id).get().await()
         if (!doc.exists()) {
@@ -25,10 +25,13 @@ class FirestoreService @Inject constructor(
         }
     }
 
-    // 🔹 Obtiene usuario por ID
     suspend fun getUserById(userId: String): UserDto? {
         val doc = usersCollection.document(userId).get().await()
         return if (doc.exists()) doc.toObject(UserDto::class.java) else null
+    }
+
+    suspend fun updateUser(userDto: UserDto) {
+        usersCollection.document(userDto.id).set(userDto).await()
     }
 
 }

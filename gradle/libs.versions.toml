@@ -28,6 +28,7 @@ room = "2.6.1"
 services = "4.4.2"
 firebaseAuth = "23.2.1"
 firebaseBom = "33.1.1"
+exifinterface = "1.4.1"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -67,6 +68,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # Firebase
 firebase-bom={module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom"}
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 
 [plugins]

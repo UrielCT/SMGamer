@@ -258,9 +258,13 @@ fun NewPostScreen(
         if (!imeVisible) focusManager.clearFocus()
     }
 
+
     //al apretar en add, mostrar panatalla de carga, bloquear botones y mostrar
     // mensaje de exito o error y navegar hacia atras automaticamente
     // no hace falta mostrar las imagenes cargadas despues de subirlas
+
+
+
 
     Scaffold(
         topBar = {

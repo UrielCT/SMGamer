@@ -74,6 +74,7 @@ import androidx.navigation.compose.rememberNavController
 import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
+import com.smgamer.ui.screens.editprofile.EditProfileViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileViewModel
@@ -85,6 +86,7 @@ fun NavigationBarScreen(
     postsViewModel: PostsViewModel,
     registerViewModel: RegisterViewModel,
     userProfileViewModel: UserProfileViewModel,
+    editProfileViewModel: EditProfileViewModel,
     loginViewModel: LoginViewModel
 ) {
     val navController = rememberNavController()
@@ -277,6 +279,7 @@ fun NavigationBarScreen(
             loginViewModel = loginViewModel,
             registerViewModel = registerViewModel,
             userProfileViewModel = userProfileViewModel,
+            editProfileViewModel = editProfileViewModel,
             postsViewModel = postsViewModel,
             navController= navController,
             modifier = Modifier

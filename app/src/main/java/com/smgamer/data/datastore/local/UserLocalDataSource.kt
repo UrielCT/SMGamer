@@ -19,6 +19,7 @@ class UserLocalDataSource @Inject constructor(
     private val KEY_USERNAME = stringPreferencesKey("username")
     private val KEY_PHONE = stringPreferencesKey("phone")
     private val KEY_IMAGE = stringPreferencesKey("profileImage")
+    private val KEY_COVER = stringPreferencesKey("coverImage")
 
     suspend fun saveUser(user: User) {
         context.dataStore.edit { prefs ->
@@ -27,6 +28,7 @@ class UserLocalDataSource @Inject constructor(
             prefs[KEY_USERNAME] = user.username
             prefs[KEY_PHONE] = user.phone
             prefs[KEY_IMAGE] = user.profileImage
+            prefs[KEY_COVER] = user.coverImage
         }
     }
 
@@ -39,6 +41,7 @@ class UserLocalDataSource @Inject constructor(
             username = prefs[KEY_USERNAME] ?: "",
             phone = prefs[KEY_PHONE] ?: "",
             profileImage = prefs[KEY_IMAGE] ?: "",
+            coverImage = prefs[KEY_COVER] ?: "",
             timestamp = System.currentTimeMillis()
         )
     }
