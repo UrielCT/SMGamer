@@ -1,17 +1,8 @@
 package com.smgamer.ui.screens.newpost
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
-import android.os.Environment
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +28,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,7 +43,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +55,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.core.content.FileProvider
 import coil.compose.rememberAsyncImagePainter
 import com.smgamer.R
 import com.smgamer.ui.components.ChooseImageDialog
@@ -73,41 +63,26 @@ import com.smgamer.ui.theme.BottomBarPadding
 import com.smgamer.ui.theme.CommonFontSizeMicro
 import com.smgamer.ui.theme.CommonFontSizeMiddle
 import com.smgamer.ui.theme.CommonPaddingDefault
-import com.smgamer.ui.theme.CommonPaddingMicro
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingMinDefault
 import com.smgamer.ui.theme.DescriptionTextFieldHeight
 import com.smgamer.ui.theme.GameBottomPadding
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
-import com.smgamer.ui.viewmodels.PostsViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.asRequestBody
-import org.json.JSONObject
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.smgamer.ui.utils.rememberCameraHandler
+import com.smgamer.ui.utils.rememberGalleryHandler
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewPostScreen(
     modifier: Modifier,
-    postsViewModel: PostsViewModel,
+    newPostViewModel: NewPostViewModel,
     navBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+
+    val isLoading by newPostViewModel.isLoading
 
     val categories = listOf(
         "PC" to R.drawable.icon_pc,
@@ -120,134 +95,10 @@ fun NewPostScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
-    var selectedImagesUri by remember { mutableStateOf<List<Uri>>(emptyList()) } // mis imagenes antes de cargarlas
-    var uploadedImagesUrl by remember { mutableStateOf<List<String>>(emptyList()) } // imagenes de cloudinary
+    var selectedImagesUri by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     var showDialog by remember { mutableStateOf(false) }
-    // una imagen
-    //var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    //var uploadedImageUrl by remember { mutableStateOf<String?>(null) }
-    // muchas imagenes
-
-
     var imageToDelete by remember { mutableStateOf<Uri?>(null) }
-
-
-
-    // varias fotos
-    //var photoUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
-
-    var photoFile by remember { mutableStateOf<File?>(null) }
-
-    // Lanzador para galería de 1 imagen
-//    val galleryLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetContent()
-//    ) { uri: Uri? ->
-//        uri?.let {
-//            selectedImageUri = it
-//        }
-//    }
-
-    // Lanzador para seleccionar varias imágenes
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri> ->
-
-        val currentCount = selectedImagesUri.size
-        val incomingCount = uris.size
-        val maxLimit = 3
-
-        if (currentCount >= maxLimit) {
-            Toast.makeText(context, "Ya alcanzaste el límite de $maxLimit imágenes",
-                Toast.LENGTH_SHORT).show()
-            return@rememberLauncherForActivityResult
-        }
-
-        val availableSlots = maxLimit - currentCount
-        val toAdd = if (incomingCount > availableSlots) uris.take(availableSlots) else uris
-
-        selectedImagesUri = selectedImagesUri + toAdd
-
-        if (incomingCount > availableSlots) {
-            Toast.makeText(context,
-                "Solo se agregaron $availableSlots imágen/es más. Límite $maxLimit alcanzado.",
-                Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
-    // Función para subir imágenes (puede ser la que ya tenés)
-    fun uploadImages() {
-        uploadedImagesUrl = emptyList() // limpiar URLs anteriores
-        selectedImagesUri.forEach { uri ->
-            uploadImageToCloudinary(
-                scope = scope,
-                context = context,
-                imageUri = uri,
-                uploadPreset = "sm_gamer",
-                cloudName = "ddbqwxz5l"
-            ) { url ->
-                url?.let {
-                    uploadedImagesUrl = uploadedImagesUrl + it
-                }
-            }
-        }
-    }
-
-
-
-    // Lanzador para cámara para 1 foto
-//    val cameraLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.TakePicture()
-//    ) { success ->
-//        if (success) {
-//            selectedImageUri = photoFile?.let {
-//                FileProvider.getUriForFile(
-//                    context,
-//                    "${context.packageName}.fileprovider",
-//                    it
-//                )
-//            }
-//        }
-
-    // Lanzador para cámara para multiples fotos
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            if (selectedImagesUri.size >= 3) {
-                Toast.makeText(context, "Ya alcanzaste el límite de 3 imágenes",
-                    Toast.LENGTH_SHORT).show()
-                return@rememberLauncherForActivityResult
-            }
-
-            photoFile?.let { file ->
-                val uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    file
-                )
-                selectedImagesUri = selectedImagesUri + uri
-            }
-        }
-    }
-
-    // Lanzador para pedir permiso de cámara
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            photoFile = createImageFile(context)
-            val uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                photoFile!!
-            )
-            cameraLauncher.launch(uri)
-        } else {
-            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
@@ -258,12 +109,44 @@ fun NewPostScreen(
         if (!imeVisible) focusManager.clearFocus()
     }
 
+// ✅ Handlers reutilizables
+    val openCamera = rememberCameraHandler(context) { uri ->
+        if (selectedImagesUri.size < 3) {
+            selectedImagesUri = selectedImagesUri + uri
+        } else {
+            Toast.makeText(context, "Límite de 3 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
-    //al apretar en add, mostrar panatalla de carga, bloquear botones y mostrar
-    // mensaje de exito o error y navegar hacia atras automaticamente
-    // no hace falta mostrar las imagenes cargadas despues de subirlas
+    val openGallery = rememberGalleryHandler(multiple = true) { uris ->
+        val remaining = 3 - selectedImagesUri.size
+        val toAdd = uris.take(remaining)
+        selectedImagesUri = selectedImagesUri + toAdd
+        if (uris.size > remaining)
+            Toast.makeText(context, "Solo se agregaron $remaining imágenes (máx 3)", Toast.LENGTH_SHORT).show()
+    }
 
-
+    // Función para subir imágenes (puede ser la que ya tenés)
+    fun uploadImages() {
+        if (title.isNotBlank() && description.isNotBlank() && category.isNotBlank()) {
+            newPostViewModel.createPost(
+                context = context,
+                title = title,
+                description = description,
+                category = category,
+                images = selectedImagesUri,
+                onSuccess = {
+                    Toast.makeText(context, "Post creado correctamente", Toast.LENGTH_SHORT).show()
+                    navBack()
+                },
+                onError = {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                }
+            )
+        } else {
+            Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     Scaffold(
@@ -272,7 +155,6 @@ fun NewPostScreen(
                 title = { Text(stringResource(R.string.new_post), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = {
-                            //hideKeyboardAndClearFocus()
                             navBack()
                         }
                     ) {
@@ -359,20 +241,6 @@ fun NewPostScreen(
                 }
             }
 
-            // Mostrar imágenes subidas (desde URLs Cloudinary)
-            LazyRow {
-                items(uploadedImagesUrl) { url ->
-                    Image(
-                        painter = rememberAsyncImagePainter(url),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(scaledPadding(GameBottomPadding))
-                            .padding(scaledPadding(CommonPaddingMicro)),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
-
             // 📝 Campos de texto
             OutlinedTextField(
                 value = title,
@@ -447,14 +315,8 @@ fun NewPostScreen(
     if (showDialog) {
         ChooseImageDialog(
             onDismissRequest = { showDialog = false },
-            onGalleryClick = {
-                showDialog = false
-                galleryLauncher.launch("image/*")
-            },
-            onCameraClick = {
-                showDialog = false
-                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+            onGalleryClick = { showDialog = false; openGallery() },
+            onCameraClick = { showDialog = false; openCamera() }
         )
     }
 
@@ -475,202 +337,15 @@ fun NewPostScreen(
             }
         )
     }
-}
 
-
-
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun MyTextField(
-//    value: String,
-//    hasFocus: (Boolean) -> Unit,
-//    onValueChange: (String) -> Unit,
-//    onFocusManage: () -> Unit,
-//){
-//    OutlinedTextField(
-//        modifier = Modifier
-//            //.weight(1f)
-//            .onFocusChanged { focusState -> hasFocus(focusState.isFocused) },
-//        value = value,
-//        onValueChange = { onValueChange(it) },
-//        placeholder = {
-//            Text(
-//                "poner texto",
-//                //stringResource(R.string.txt_search),
-//                color = MaterialTheme.colorScheme.onSurfaceVariant
-//            )
-//        },
-//        leadingIcon = {
-//            IconButton(onClick = { onFocusManage() }
-//            ) {
-//                Icon(
-//                    imageVector = Icons.Default.Search,
-//                    contentDescription = null,
-//                    tint = MaterialTheme.colorScheme.onSurface
-//                )
-//            }
-//        },
-////        trailingIcon = {
-////            if (focused || input.isNotEmpty()) {
-////                IconButton(onClick = {
-////                    clearInput()
-////                    onFocusManage()
-////                }) {
-////                    Icon(
-////                        imageVector = Icons.Default.Clear,
-////                        contentDescription = null,
-////                        tint = MaterialTheme.colorScheme.onSurface
-////                    )
-////                }
-////            }
-////        },
-//        singleLine = true,
-//        textStyle = TextStyle(
-//            fontSize = CommonFontSizeDefault,
-//            color = MaterialTheme.colorScheme.onSurface
-//        ),
-//        shape = RoundedCornerShape(CommonPaddingMin),
-//        colors = TextFieldDefaults.outlinedTextFieldColors(
-//            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-//            focusedBorderColor = MaterialTheme.colorScheme.primary,
-//            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-//            cursorColor = MaterialTheme.colorScheme.primary
-//        )
-//
-//    )
-//}
-
-
-
-//@Composable
-//fun keyboardAsState(): State<Boolean> {
-//    val keyboardState = remember { mutableStateOf(false) }
-//    val view = LocalView.current
-//
-//    DisposableEffect(view) {
-//        val listener = ViewTreeObserver.OnGlobalLayoutListener {
-//            val heightDiff = view.rootView.height - view.height
-//            keyboardState.value = heightDiff > 200 // si hay más de 200dp de diferencia, está abierto
-//        }
-//        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
-//        onDispose {
-//            view.viewTreeObserver.removeOnGlobalLayoutListener(listener)
-//        }
-//    }
-//
-//    return keyboardState
-//}
-
-
-//// Función para convertir Uri a File (igual que antes)
-//fun uriToFile(uri: Uri, context: Context): File {
-//    val inputStream = context.contentResolver.openInputStream(uri)
-//    val tempFile = File.createTempFile("upload", ".jpg", context.cacheDir)
-//    inputStream.use { input ->
-//        tempFile.outputStream().use { output ->
-//            input?.copyTo(output)
-//        }
-//    }
-//    return tempFile
-//}
-
-// Helper para lanzar en Main Thread desde un coroutine IO
-fun CoroutineScope.launchedInMain(block: suspend () -> Unit) {
-    this.launch(Dispatchers.Main) { block() }
-}
-
-// Crear archivo temporal para la foto
-fun createImageFile(context: Context): File {
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
-}
-
-
-fun uploadImageToCloudinary(
-    scope: CoroutineScope,
-    context: Context,
-    imageUri: Uri,
-    uploadPreset: String,
-    cloudName: String,
-    onResult: (String?) -> Unit
-) {
-    scope.launch(Dispatchers.IO) {
-        try {
-            val rotatedBitmap = rotateImageIfRequired(context, imageUri)
-            val compressedFile = compressBitmapToFile(context, rotatedBitmap)
-
-            val client = OkHttpClient()
-            val requestBody = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart(
-                    "file",
-                    compressedFile.name,
-                    compressedFile.asRequestBody("image/webp".toMediaTypeOrNull())
-                )
-                .addFormDataPart("upload_preset", uploadPreset)
-                .build()
-
-            val request = Request.Builder()
-                .url("https://api.cloudinary.com/v1_1/$cloudName/image/upload")
-                .post(requestBody)
-                .build()
-
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                val json = JSONObject(response.body?.string() ?: "")
-                val url = json.getString("secure_url")
-                withContext(Dispatchers.Main) {
-                    onResult(url)
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    onResult(null)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            withContext(Dispatchers.Main) {
-                onResult(null)
-            }
+    if (isLoading) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
-}
-
-
-fun rotateImageIfRequired(context: Context, imageUri: Uri): Bitmap {
-    val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri)
-    val bitmap = BitmapFactory.decodeStream(inputStream)
-    inputStream?.close()
-
-    val exifStream = context.contentResolver.openInputStream(imageUri)
-    val exif = ExifInterface(exifStream!!)
-    exifStream.close()
-
-    val orientation = exif.getAttributeInt(
-        ExifInterface.TAG_ORIENTATION,
-        ExifInterface.ORIENTATION_NORMAL
-    )
-
-    return when (orientation) {
-        ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-        ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-        ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-        else -> bitmap
-    }
-}
-
-fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
-    val matrix = Matrix()
-    matrix.postRotate(degrees)
-    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-}
-
-fun compressBitmapToFile(context: Context, bitmap: Bitmap): File {
-    val compressedFile = File(context.cacheDir, "compressed_${System.currentTimeMillis()}.webp")
-    FileOutputStream(compressedFile).use { out ->
-        bitmap.compress(Bitmap.CompressFormat.WEBP, 80, out)  // Calidad 80%
-    }
-    return compressedFile
 }

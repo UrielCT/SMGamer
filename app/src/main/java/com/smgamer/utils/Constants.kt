@@ -21,6 +21,4 @@ object Constants {
     const val CLRY_UPLOAD_PRESET = "sm_gamer"
     const val CLRY_API_KEY = "499377271426119"
     const val CLRY_API_SECRET = "UXJH6Urypb1jYnZvYh2NKjSn6N8"
-
-
 }

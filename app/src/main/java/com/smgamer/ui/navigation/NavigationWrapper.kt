@@ -24,12 +24,12 @@ import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.login.LoginScreen
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.newpost.NewPostScreen
+import com.smgamer.ui.screens.newpost.NewPostViewModel
 import com.smgamer.ui.screens.postdetail.PostDetailScreen
 import com.smgamer.ui.screens.register.RegisterScreen
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileScreen
 import com.smgamer.ui.screens.userprofile.UserProfileViewModel
-import com.smgamer.ui.viewmodels.PostsViewModel
 
 @Composable
 fun  NavigationWrapper(
@@ -37,7 +37,7 @@ fun  NavigationWrapper(
     registerViewModel: RegisterViewModel,
     userProfileViewModel: UserProfileViewModel,
     editProfileViewModel: EditProfileViewModel,
-    postsViewModel: PostsViewModel,
+    newPostViewModel: NewPostViewModel,
     navController: NavHostController,
     modifier: Modifier
 ){
@@ -71,7 +71,6 @@ fun  NavigationWrapper(
             composable(Destination.HOME.route) {
                 HomeScreen(
                     modifier = modifier,
-                    postsViewModel = postsViewModel,
                     navToPostDetail = {
                         navController.navigate(Destination.POST_DETAIL.route) {
                             launchSingleTop = true
@@ -110,7 +109,7 @@ fun  NavigationWrapper(
             composable(Destination.NEW_POST.route) {
                 NewPostScreen(
                     modifier = modifier,
-                    postsViewModel = postsViewModel,
+                    newPostViewModel = newPostViewModel,
                     navBack = {
                         navController.popBackStack()
                     })

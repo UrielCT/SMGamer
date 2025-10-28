@@ -1,10 +1,7 @@
 package com.smgamer.ui.screens.editprofile
 
-import android.Manifest
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,12 +45,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
 import com.smgamer.ui.components.ChooseImageDialog
-import com.smgamer.ui.screens.newpost.createImageFile
 import com.smgamer.ui.theme.CommonFontSizeDefault
 import com.smgamer.ui.theme.CommonFontSizeLarge
 import com.smgamer.ui.theme.CommonFontSizeMin
@@ -62,8 +57,9 @@ import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.CommonPaddingTwo
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
+import com.smgamer.ui.utils.rememberCameraHandler
+import com.smgamer.ui.utils.rememberGalleryHandler
 import kotlinx.coroutines.launch
-import java.io.File
 
 @Composable
 fun EditProfileScreen(
@@ -95,23 +91,18 @@ fun EditProfileScreen(
         phone = user?.phone ?: ""
     }
 
-    var photoFile by remember { mutableStateOf<File?>(null) }
 
-    // Lanzador para galería de 1 imagen
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            if (isCoverSelected){
-                coverUri = it
-            }else{
-                profileUri = it
-            }
-        }
+    // ✅ Handlers reutilizables
+    val openCamera = rememberCameraHandler(context) { uri ->
+        if (isCoverSelected) coverUri = uri else profileUri = uri
     }
 
+    val openGallery = rememberGalleryHandler { uris ->
+        uris.firstOrNull()?.let { if (isCoverSelected) coverUri = it else profileUri = it }
+    }
 
     // Función para subir imágenes (puede ser la que ya tenés)
+    // agregar nuevos campos del usuario
     fun updateUserData(){
         scope.launch {
             editProfileViewModel.updateUserProfile(
@@ -133,44 +124,6 @@ fun EditProfileScreen(
         }
     }
 
-    // Lanzador para cámara para 1 foto
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            val selectedUri = photoFile?.let {
-                FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    it
-                )
-            }
-            if (isCoverSelected){
-                coverUri = selectedUri
-            }else{
-                profileUri = selectedUri
-            }
-        }
-    }
-
-    // Lanzador para pedir permiso de cámara
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            photoFile = createImageFile(context)
-            photoFile?.let {
-                val uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    it
-                )
-                cameraLauncher.launch(uri)
-            } ?: Toast.makeText(context, "No se pudo crear el archivo de imagen", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -327,14 +280,8 @@ fun EditProfileScreen(
     if (showDialog) {
         ChooseImageDialog(
             onDismissRequest = { showDialog = false },
-            onGalleryClick = {
-                showDialog = false
-                galleryLauncher.launch("image/*")
-            },
-            onCameraClick = {
-                showDialog = false
-                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+            onGalleryClick = { showDialog = false; openGallery() },
+            onCameraClick = { showDialog = false; openCamera() }
         )
     }
 

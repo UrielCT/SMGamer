@@ -14,7 +14,6 @@ import com.smgamer.ui.components.PostCard
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.scaledPadding
-import com.smgamer.ui.viewmodels.PostsViewModel
 
 data class Post(
     val image:Int = R.drawable.cover_image,
@@ -27,7 +26,6 @@ data class Post(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    postsViewModel: PostsViewModel,
     navToPostDetail: () -> Unit
 ){
     val postsList = listOf(

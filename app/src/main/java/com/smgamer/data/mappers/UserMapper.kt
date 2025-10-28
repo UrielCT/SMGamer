@@ -1,7 +1,9 @@
 package com.smgamer.data.mappers
 
 import com.google.firebase.auth.FirebaseUser
+import com.smgamer.data.model.PostDto
 import com.smgamer.data.model.UserDto
+import com.smgamer.domain.model.Post
 import com.smgamer.domain.model.User
 import java.util.Date
 
@@ -37,3 +39,26 @@ fun FirebaseUser.toDomain(): User {
         timestamp = Date().time
     )
 }
+
+
+
+
+fun PostDto.toDomain() = Post(
+    id = id,
+    idUser = idUser,
+    title = title,
+    description = description,
+    images = images,
+    category = category,
+    timestamp = timestamp
+)
+
+fun Post.toDto() = PostDto(
+    id = id,
+    idUser = idUser,
+    title = title,
+    description = description,
+    images = images,
+    category = category,
+    timestamp = timestamp
+)

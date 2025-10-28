@@ -76,14 +76,14 @@ import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
 import com.smgamer.ui.screens.editprofile.EditProfileViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
+import com.smgamer.ui.screens.newpost.NewPostViewModel
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileViewModel
-import com.smgamer.ui.viewmodels.PostsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationBarScreen(
-    postsViewModel: PostsViewModel,
+    newPostViewModel: NewPostViewModel,
     registerViewModel: RegisterViewModel,
     userProfileViewModel: UserProfileViewModel,
     editProfileViewModel: EditProfileViewModel,
@@ -280,7 +280,7 @@ fun NavigationBarScreen(
             registerViewModel = registerViewModel,
             userProfileViewModel = userProfileViewModel,
             editProfileViewModel = editProfileViewModel,
-            postsViewModel = postsViewModel,
+            newPostViewModel = newPostViewModel,
             navController= navController,
             modifier = Modifier
                 .fillMaxSize()
