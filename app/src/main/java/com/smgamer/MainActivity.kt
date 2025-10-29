@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalConfiguration
 import com.smgamer.ui.screens.editprofile.EditProfileViewModel
+import com.smgamer.ui.screens.home.HomeViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
 import com.smgamer.ui.screens.newpost.NewPostViewModel
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels()
     private val registerViewModel: RegisterViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
     private val newPostViewModel: NewPostViewModel by viewModels()
     private val userProfileViewModel: UserProfileViewModel by viewModels()
     private val editProfileViewModel: EditProfileViewModel by viewModels()
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
                     NavigationBarScreen(
                         loginViewModel = loginViewModel,
                         registerViewModel = registerViewModel,
+                        homeViewModel = homeViewModel,
                         userProfileViewModel = userProfileViewModel,
                         editProfileViewModel = editProfileViewModel,
                         newPostViewModel = newPostViewModel

@@ -32,7 +32,7 @@ enum class Destination(
     REGISTER(route = Constants.NAV_REGISTER),
     EDIT_PROFILE(route = Constants.NAV_EDIT_PROFILE),
     FILTERED_POSTS(route = Constants.NAV_FILTERED_POSTS),
-    POST_DETAIL(route = Constants.NAV_POST_DETAIL),
+    POST_DETAIL(route = "${Constants.NAV_POST_DETAIL}/{postId}"),
     USER_PROFILE(route = Constants.NAV_USER_PROFILE),
     NEW_POST(route = Constants.NAV_NEW_POST),
     CHAT_DETAIL(route = Constants.NAV_CHAT_DETAIL),

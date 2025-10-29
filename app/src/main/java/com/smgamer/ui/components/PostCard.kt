@@ -17,10 +17,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +29,7 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
-import com.smgamer.ui.screens.home.Post
+import com.smgamer.domain.model.PostData
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingLarge
 import com.smgamer.ui.theme.CommonPaddingMicro
@@ -46,20 +42,22 @@ import com.smgamer.ui.theme.scaledPadding
 
 @Composable
 fun PostCard(
-    post: Post,
+    data: PostData,
+    isLiked: Boolean,
+    onLikeClick: () -> Unit,
     modifier: Modifier = Modifier,
-    navToPostDetail: () -> Unit,
+    navToPostDetail: (String) -> Unit,
     cardPadding: PaddingValues = PaddingValues(CommonPaddingNone),
     likeSize : Dp = scaledPadding(CommonPaddingLarge)
 ){
     val context = LocalContext.current
-    var isLiked by remember { mutableStateOf(false) }
+    val lastComment = data.comments.maxByOrNull { it.timestamp }?.comment ?: "Sin comentarios"
 
     Card(
         modifier = modifier
             .padding(cardPadding)
             .fillMaxWidth(),
-        onClick = { navToPostDetail() },
+        onClick = { navToPostDetail(data.post.id) },
         shape = RoundedCornerShape(scaledPadding(CommonPaddingDefault)),
         elevation = CardDefaults.cardElevation(defaultElevation = scaledPadding(CommonPaddingMicro)),
         colors = CardDefaults.cardColors(
@@ -70,7 +68,7 @@ fun PostCard(
 
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(post.image)
+                    .data(data.post.images[0])
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -88,13 +86,13 @@ fun PostCard(
 
             Column(modifier = Modifier.padding(scaledPadding(CommonPaddingDefault))) {
                 Text(
-                    text = post.name,
+                    text = data.post.title,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
-                    text = stringResource(R.string.by_user, post.user),
+                    text = stringResource(R.string.by_user, data.user?.username ?: "User"),  // iria el nombre del user
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -102,10 +100,10 @@ fun PostCard(
                 Spacer(Modifier.height(scaledPadding(CommonPaddingMin)))
 
                 Text(
-                    text = post.lastComment,
+                    text = lastComment,  // poner el ultimo comentario
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    maxLines = 2
+                    maxLines = 1
                 )
 
                 Spacer(Modifier.height(scaledPadding(CommonPaddingMinDefault)))
@@ -122,7 +120,7 @@ fun PostCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     IconButton(
-                        onClick = { isLiked = !isLiked },
+                        onClick = { onLikeClick() },
                         modifier = Modifier.size(likeSize)
                     ) {
                         Icon(
@@ -137,7 +135,7 @@ fun PostCard(
                     }
                     Spacer(Modifier.weight(1f))
                     Text(
-                        text = stringResource(R.string.likes_txt, post.likes + if (isLiked) 1 else 0),
+                        text = stringResource(R.string.likes_txt, data.likesCount), // poner los likes
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )

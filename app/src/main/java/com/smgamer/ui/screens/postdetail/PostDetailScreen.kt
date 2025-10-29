@@ -73,6 +73,7 @@ import com.smgamer.ui.theme.scaledPadding
 @Composable
 fun PostDetailScreen(
     modifier: Modifier = Modifier,
+    postId: String,
     navBack: () -> Unit,
     navToUserProfile: (String) -> Unit,
     navToChatDetail: () -> Unit
