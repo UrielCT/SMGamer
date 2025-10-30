@@ -68,6 +68,7 @@ class PostRepositoryImpl @Inject constructor(
     override fun getPostsByUserIdFlow(userId: String): Flow<List<Post>> =
         firestoreService.getPostsByUserIdFlow(userId).map { list -> list.map { it.toDomain() } }
 
+
     override suspend fun getPostById(postId: String): Result<Post?> {
         return try {
             val dto = firestoreService.getPostById(postId)

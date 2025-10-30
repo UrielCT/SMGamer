@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
                         homeViewModel = homeViewModel,
                         userProfileViewModel = userProfileViewModel,
                         editProfileViewModel = editProfileViewModel,
-                        newPostViewModel = newPostViewModel
+                        newPostViewModel = newPostViewModel,
                     )
                 }
 

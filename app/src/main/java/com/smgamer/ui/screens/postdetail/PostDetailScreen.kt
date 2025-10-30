@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -76,9 +78,10 @@ fun PostDetailScreen(
     postId: String,
     navBack: () -> Unit,
     navToUserProfile: (String) -> Unit,
-    navToChatDetail: () -> Unit
 ) {
     val context = LocalContext.current
+    //val uiState by postDetailViewModel.uiState.collectAsStateWithLifecycle()
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
 
@@ -93,6 +96,10 @@ fun PostDetailScreen(
 
     var showCommentDialog by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
+
+    LaunchedEffect(postId) {
+       // postDetailViewModel.loadPost(postId)
+    }
 
     BoxWithConstraints(
         modifier = modifier

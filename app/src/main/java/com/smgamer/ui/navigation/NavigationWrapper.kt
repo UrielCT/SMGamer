@@ -253,11 +253,6 @@ fun  NavigationWrapper(
                             launchSingleTop = true
                         }
                     },
-                    navToChatDetail = {
-                        navController.navigate(Destination.CHAT_DETAIL.route) {
-                            launchSingleTop = true
-                        }
-                    }
                 )
             }
 
