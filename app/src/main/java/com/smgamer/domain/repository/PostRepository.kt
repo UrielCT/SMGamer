@@ -20,6 +20,9 @@ interface PostRepository {
 
     suspend fun deletePost(postId: String): Result<Unit>
     suspend fun getPostById(postId: String): Result<Post?>
+
+    fun getPostByIdFlow(postId:String): Flow<PostData?>
+
     fun getPostsByCategoryAndTimestampFlow(category: String): Flow<List<Post>>
     fun getPostsByUserIdFlow(userId: String): Flow<List<Post>>
 

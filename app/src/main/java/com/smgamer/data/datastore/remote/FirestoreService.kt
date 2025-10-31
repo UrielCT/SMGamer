@@ -472,6 +472,22 @@ class FirestoreService @Inject constructor(
     }
 
 
+    // FirestoreService.kt (añadir)
+    fun getPostByIdFlow(postId: String): Flow<PostDto?> = callbackFlow {
+        val listener = postsCollection
+            .document(postId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val dto = snapshot?.toObject(PostDto::class.java)?.copy(id = snapshot.id)
+                trySend(dto).isSuccess
+            }
+
+        awaitClose { listener.remove() }
+    }
+
 
 
 

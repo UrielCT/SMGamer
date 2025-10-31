@@ -29,6 +29,7 @@ import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.newpost.NewPostScreen
 import com.smgamer.ui.screens.newpost.NewPostViewModel
 import com.smgamer.ui.screens.postdetail.PostDetailScreen
+import com.smgamer.ui.screens.postdetail.PostDetailViewModel
 import com.smgamer.ui.screens.register.RegisterScreen
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileScreen
@@ -42,6 +43,7 @@ fun  NavigationWrapper(
     userProfileViewModel: UserProfileViewModel,
     editProfileViewModel: EditProfileViewModel,
     newPostViewModel: NewPostViewModel,
+    postDetailViewModel: PostDetailViewModel,
     navController: NavHostController,
     innerPadding: PaddingValues,
     modifier: Modifier
@@ -246,6 +248,7 @@ fun  NavigationWrapper(
                 val postId = backStackEntry.arguments?.getString("postId") ?: ""
                 PostDetailScreen(
                     modifier = modifier.padding(innerPadding),
+                    postDetailViewModel = postDetailViewModel,
                     postId = postId,
                     navBack = { navController.popBackStack() },
                     navToUserProfile = { userId ->

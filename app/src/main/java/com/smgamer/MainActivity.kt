@@ -12,6 +12,7 @@ import com.smgamer.ui.screens.home.HomeViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
 import com.smgamer.ui.screens.newpost.NewPostViewModel
+import com.smgamer.ui.screens.postdetail.PostDetailViewModel
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 import com.smgamer.ui.theme.LocalFontScale
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
     private val newPostViewModel: NewPostViewModel by viewModels()
     private val userProfileViewModel: UserProfileViewModel by viewModels()
     private val editProfileViewModel: EditProfileViewModel by viewModels()
+    private val postDetailViewModel: PostDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +56,7 @@ class MainActivity : ComponentActivity() {
                         userProfileViewModel = userProfileViewModel,
                         editProfileViewModel = editProfileViewModel,
                         newPostViewModel = newPostViewModel,
+                        postDetailViewModel = postDetailViewModel
                     )
                 }
 

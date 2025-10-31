@@ -50,6 +50,7 @@ import com.smgamer.ui.screens.editprofile.EditProfileViewModel
 import com.smgamer.ui.screens.home.HomeViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.newpost.NewPostViewModel
+import com.smgamer.ui.screens.postdetail.PostDetailViewModel
 import com.smgamer.ui.screens.register.RegisterViewModel
 import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 
@@ -57,6 +58,7 @@ import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 @Composable
 fun NavigationBarScreen(
     newPostViewModel: NewPostViewModel,
+    postDetailViewModel: PostDetailViewModel,
     registerViewModel: RegisterViewModel,
     homeViewModel: HomeViewModel,
     userProfileViewModel: UserProfileViewModel,
@@ -187,6 +189,7 @@ fun NavigationBarScreen(
             userProfileViewModel = userProfileViewModel,
             editProfileViewModel = editProfileViewModel,
             newPostViewModel = newPostViewModel,
+            postDetailViewModel = postDetailViewModel,
             navController= navController,
             innerPadding = innerPadding,
             modifier = Modifier.fillMaxSize()

@@ -1,27 +1,22 @@
 package com.smgamer.data.repository
 
-import com.google.firebase.firestore.Query
 import com.smgamer.data.datastore.remote.FirestoreService
 import com.smgamer.data.mappers.toDomain
-import com.smgamer.data.model.UserDto
 import com.smgamer.domain.model.Post
 import com.smgamer.domain.model.PostData
-import com.smgamer.domain.model.User
 import com.smgamer.domain.repository.PostRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val firestoreService: FirestoreService,
 ): PostRepository {
-
-    private val userCache = mutableMapOf<String, UserDto>()
 
     override suspend fun createPost(
         idUser: String,
@@ -43,14 +38,9 @@ class PostRepositoryImpl @Inject constructor(
     }
 
 
-    /**
-     * 🔹 Búsqueda dinámica de posts con sus usuarios y likes.
-     */
-
     override fun getPostsByTitleFlow(query: String): Flow<List<PostData>> {
         return firestoreService.getPostsByTitleFlow(query)
     }
-
 
 
     override suspend fun deletePost(postId: String): Result<Unit> {
@@ -77,6 +67,45 @@ class PostRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getPostByIdFlow(postId: String): Flow<PostData?> {
+        return firestoreService.getPostByIdFlow(postId)
+            .flatMapLatest { postDto ->
+                if (postDto == null) {
+                    // Si el post no existe, emito null
+                    flowOf(null)
+                } else {
+                    // Convertir PostDto -> Post domain si hace falta
+                    val postDomainFlow = flowOf(postDto.toDomain())
+
+                    // Flujos para user, likes y comments (desde FirestoreService)
+                    val userFlow = firestoreService.getUserByIdFlow(postDto.idUser)
+                        .map { it?.toDomain() } // user puede ser null
+
+                    val likesFlow = firestoreService.getLikesByPostIdFlow(postId)
+                        .map { list -> list.map { it.toDomain() } }
+
+                    val commentsFlow = firestoreService.getCommentsByPostFlow(postId)
+                        .map { list -> list.map { it.toDomain() } }
+
+                    combine(
+                        postDomainFlow,
+                        userFlow,
+                        likesFlow,
+                        commentsFlow
+                    ) { post, user, likes, comments ->
+                        PostData(
+                            post = post,
+                            user = user,
+                            likes = likes,
+                            comments = comments
+                        )
+                    }
+                }
+            }.distinctUntilChanged()
+    }
+
 
 }
 

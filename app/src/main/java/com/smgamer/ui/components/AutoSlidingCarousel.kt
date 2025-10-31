@@ -42,9 +42,19 @@ fun AutoSlidingCarousel(
 ) {
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
 
+    if (itemsCount <= 1) {
+        Box(modifier = modifier.fillMaxWidth()) {
+            HorizontalPager(count = itemsCount, state = pagerState) { page ->
+                itemContent(page)
+            }
+        }
+        return
+    }
+
     LaunchedEffect(pagerState.currentPage) {
         delay(autoSlideDuration)
-        pagerState.animateScrollToPage((pagerState.currentPage + 1) % itemsCount)
+        val nextPage = (pagerState.currentPage + 1) % itemsCount
+        pagerState.animateScrollToPage(nextPage)
     }
 
     Box(
@@ -54,8 +64,6 @@ fun AutoSlidingCarousel(
             itemContent(page)
         }
 
-        // you can remove the surface in case you don't want
-        // the transparent background
         DotsIndicator(
             modifier = Modifier
                 .padding(horizontal = scaledPadding(CommonPaddingMin),

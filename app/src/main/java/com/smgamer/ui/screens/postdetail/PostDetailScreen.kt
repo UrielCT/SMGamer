@@ -1,8 +1,10 @@
 package com.smgamer.ui.screens.postdetail
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +35,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,13 +49,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.smgamer.R
+import com.smgamer.domain.model.CommentWithUser
 import com.smgamer.ui.components.AutoSlidingCarousel
 import com.smgamer.ui.components.CommentDialog
 import com.smgamer.ui.theme.CommonFontSizeDefault
@@ -70,17 +76,19 @@ import com.smgamer.ui.theme.CommonPaddingTwo
 import com.smgamer.ui.theme.DividerThickness
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PostDetailScreen(
     modifier: Modifier = Modifier,
+    postDetailViewModel: PostDetailViewModel,
     postId: String,
     navBack: () -> Unit,
     navToUserProfile: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    //val uiState by postDetailViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by postDetailViewModel.uiState.collectAsState()
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
@@ -88,18 +96,37 @@ fun PostDetailScreen(
     // Escalas adaptativas
     val paddingScale = screenHeight / 891f
 
-    val images = listOf(
-        R.drawable.cover_image,
-        R.drawable.cover_image,
-        R.drawable.cover_image,
+    val images = uiState.postData?.post?.images ?: listOf(
+        R.drawable.cover_image, R.drawable.cover_image, R.drawable.cover_image
     )
 
     var showCommentDialog by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
 
     LaunchedEffect(postId) {
-       // postDetailViewModel.loadPost(postId)
+       postDetailViewModel.loadPost(postId)
     }
+
+    fun createComment(){
+        if (commentText.isNotBlank()) {
+            uiState.postData?.post?.id?.let {
+                postDetailViewModel.createComment(
+                    commentText, it,
+                    onSuccess = {
+                        Toast.makeText(context, "Comentario creado", Toast.LENGTH_SHORT).show()
+                        commentText = ""
+                        showCommentDialog = false
+                    },
+                    onError = {
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        }else{
+            Toast.makeText(context,"Texto en blanco",Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     BoxWithConstraints(
         modifier = modifier
@@ -154,7 +181,7 @@ fun PostDetailScreen(
             }
 
             Text(
-                "12hs Ago",
+                uiState.postData?.post?.timestamp?.let { agoTextFromTimestamp(it) } ?: "Hace un momento",
                 modifier = Modifier
                     .constrainAs(date) {
                         end.linkTo(parent.end, margin = (CommonPaddingDefault * paddingScale))
@@ -166,7 +193,7 @@ fun PostDetailScreen(
             )
 
             Text(
-                "0 likes",
+                "${uiState.postData?.likesCount ?: 0} likes",
                 modifier = Modifier
                     .constrainAs(likes) {
                         start.linkTo(parent.start, margin = (CommonPaddingDefault * paddingScale))
@@ -188,15 +215,24 @@ fun PostDetailScreen(
                 item { Spacer(modifier = Modifier.height(CommonPaddingLarge)) }
 
                 item {
+                    val user = uiState.postData?.user
                     UserCard(
-                        name = "Juan",
-                        phone = "8928 8419",
-                        imageRes = R.drawable.ic_person,
-                        navToUserProfile = { navToUserProfile("1in2iY7NyzcSws24cBtfH9qYwg03") }  // id del usuario
+                        name = user?.username ?: "User",
+                        phone = user?.phone ?: "",
+                        imageRes = user?.profileImage,
+                        navToUserProfile = {
+                            user?.id?.let { navToUserProfile(it) }
+                        }
                     )
                 }
 
-                item { PostDetail() }
+                item {
+                    PostDetail(
+                        category= uiState.postData?.post?.category.toString(),
+                        title= uiState.postData?.post?.title.toString(),
+                        description = uiState.postData?.post?.description.toString()
+                    )
+                }
 
                 item {
                     Text(
@@ -212,14 +248,21 @@ fun PostDetailScreen(
                     )
                 }
 
-                // comments
-                items(6) {
-                    CommentItem(
-                        name = "Mariano",
-                        lastMessage = "Muy buen juego",
-                        profileImageRes = R.drawable.ic_person
-                    )
+                if (uiState.commentsWithUsers.isEmpty()) {
+                    item {
+                        Text(
+                            "Sin comentarios aún",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .padding(scaledPadding(CommonPaddingDefault))
+                        )
+                    }
+                } else {
+                    items(uiState.commentsWithUsers) { commentWithUser ->
+                        CommentItemWithUser(commentWithUser = commentWithUser)
+                    }
                 }
+
             }
 
             FloatingActionButton(
@@ -247,21 +290,66 @@ fun PostDetailScreen(
                 commentText = commentText,
                 onValueChange = { commentText = it },
                 onDismiss = { showCommentDialog = false },
-                onConfirm = {
-                    if (commentText.isNotBlank()) {
-                        println("Comentario enviado: $commentText")
-                        commentText = ""
-                        showCommentDialog = false
-                    }
-                },
+                onConfirm = { createComment() },
                 onCancel = {
                     showCommentDialog = false
                     commentText = ""
                 }
             )
         }
+
+
+        // Estado de carga / error (overlay simple)
+        if (uiState.isLoading) {
+            // Podés mostrar un ProgressIndicator bonito
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (uiState.error != null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                Text(
+                    text = uiState.error ?: "Error",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
     }
 
+}
+
+fun agoTextFromTimestamp(timestamp: Long): String {
+    val now = System.currentTimeMillis()
+    val diff = now - timestamp
+
+    return when {
+        diff < TimeUnit.MINUTES.toMillis(1) -> "hace unos segundos"
+        diff < TimeUnit.HOURS.toMillis(1) -> {
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
+            "hace $minutes minuto${if (minutes > 1) "s" else ""}"
+        }
+        diff < TimeUnit.DAYS.toMillis(1) -> {
+            val hours = TimeUnit.MILLISECONDS.toHours(diff)
+            "hace $hours hora${if (hours > 1) "s" else ""}"
+        }
+        diff < TimeUnit.DAYS.toMillis(2) -> "ayer"
+        diff < TimeUnit.DAYS.toMillis(7) -> {
+            val days = TimeUnit.MILLISECONDS.toDays(diff)
+            "hace $days día${if (days > 1) "s" else ""}"
+        }
+        diff < TimeUnit.DAYS.toMillis(30) -> {
+            val weeks = TimeUnit.MILLISECONDS.toDays(diff) / 7
+            "hace $weeks semana${if (weeks > 1) "s" else ""}"
+        }
+        diff < TimeUnit.DAYS.toMillis(365) -> {
+            val months = TimeUnit.MILLISECONDS.toDays(diff) / 30
+            "hace $months mes${if (months > 1) "es" else ""}"
+        }
+        else -> {
+            val years = TimeUnit.MILLISECONDS.toDays(diff) / 365
+            "hace $years año${if (years > 1) "s" else ""}"
+        }
+    }
 }
 
 
@@ -270,7 +358,7 @@ fun PostDetailScreen(
 fun UserCard(
     name: String,
     phone: String,
-    imageRes: Int,
+    imageRes: String?,
     navToUserProfile: () -> Unit
 ) {
     val context = LocalContext.current
@@ -315,7 +403,6 @@ fun UserCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                //Spacer(modifier = Modifier.height((4 * paddingScale).dp))
                 Text(
                     text = phone,
                     fontSize = scaledFont(CommonFontSizeMin),
@@ -340,9 +427,13 @@ fun UserCard(
 }
 
 @Composable
-fun PostDetail(){
+fun PostDetail(
+    category: String,
+    title: String,
+    description: String
+){
     Text(
-        "Nombre del juego",
+        title,
         color = MaterialTheme.colorScheme.onBackground,
         fontSize = scaledFont(CommonFontSizeLarge),
         fontWeight = FontWeight.Bold,
@@ -352,7 +443,7 @@ fun PostDetail(){
     )
 
     Text(
-        "PS4",
+        category,
         color = MaterialTheme.colorScheme.onPrimary,
         fontSize = scaledFont(CommonFontSizeLarge),
         modifier = Modifier
@@ -387,7 +478,7 @@ fun PostDetail(){
     )
 
     Text(
-        text = "Lorem ipsum dolor sit amet consectetur adipiscing elit sagittis placerat tristique, malesuada blandit dictum magna viverra pretium facilisi nascetur congue, odio sapien tortor cras posuere fringilla sollicitudin mus faucibus. Libero odio aptent integer placerat interdum himenaeos nisi mauris inceptos conubia, in laoreet ac nunc sapien tortor natoque accumsan sagittis. Odio ultrices felis blandit in lobortis nullam a facilisi, commodo mattis ornare ad mollis aenean tempor, vestibulum lacus vel netus pretium auctor morbi.",
+        description,
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = scaledFont(CommonFontSizeMiddle),
         modifier = Modifier
@@ -403,13 +494,13 @@ fun PostDetail(){
 }
 
 @Composable
-fun CommentItem(
-    name: String,
-    lastMessage: String,
-    profileImageRes: Int,
+fun CommentItemWithUser(
+    commentWithUser: CommentWithUser,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val comment = commentWithUser.comment
+    val user = commentWithUser.user
 
     Row(
         modifier = modifier
@@ -419,14 +510,14 @@ fun CommentItem(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)
-                .data(profileImageRes)
+                .data(if (user.profileImage.isBlank()) R.drawable.ic_person else user.profileImage)
                 .crossfade(true)
                 .build(),
             contentDescription = null,
             modifier = Modifier
                 .size(scaledPadding(CommonPaddingLarge_lm))
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .border(
                     width = scaledPadding(CommonPaddingTwo),
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -438,18 +529,29 @@ fun CommentItem(
         Spacer(modifier = Modifier.width( scaledPadding(CommonPaddingMinDefault) ))
 
         Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = user.username.ifBlank { "Usuario" }.uppercase(),
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                    fontSize = scaledFont(CommonFontSizeMiddle),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = agoTextFromTimestamp(comment.timestamp),
+                    fontSize = scaledFont(CommonFontSizeMin),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Text(
-                text = name.uppercase(),
-                fontWeight = FontWeight.Bold,
-                fontStyle = FontStyle.Italic,
-                fontSize = scaledFont(CommonFontSizeMiddle),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = lastMessage,
+                text = comment.comment,
                 fontSize = scaledFont(CommonFontSizeMin),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                overflow = TextOverflow.Ellipsis
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                modifier = Modifier.padding(top = scaledPadding(CommonPaddingMicro))
             )
         }
     }
