@@ -54,7 +54,7 @@ fun ProfilePostCard(
     isMyUser: Boolean,
     name: String,
     lastMessage: String,
-    profileImageRes: Int = R.drawable.ic_person,
+    profileImageRes: Any,
     modifier: Modifier = Modifier,
     onDeleteConfirm: () -> Unit = {}
 ) {

@@ -13,17 +13,13 @@ interface PostRepository {
         images:List<String>,
     ): Result<Post>
 
-    //suspend fun getAllPosts(): Result<List<Post>>
-    //fun getAllPostsFlow(): Flow<List<Post>>
-    //fun getPostsByTitleFlow(query: String): Flow<List<PostData>>
-
-
-    suspend fun deletePost(postId: String): Result<Unit>
+    suspend fun deletePost(postId: String)
     suspend fun getPostById(postId: String): Result<Post?>
 
     fun getPostByIdFlow(postId:String): Flow<PostData?>
 
     fun getPostsByCategoryAndTimestampFlow(category: String): Flow<List<Post>>
+
     fun getPostsByUserIdFlow(userId: String): Flow<List<Post>>
 
     fun getAllPostsFlow(): Flow<List<PostData>>

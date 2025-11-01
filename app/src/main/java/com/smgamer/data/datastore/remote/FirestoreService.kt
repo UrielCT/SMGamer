@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -459,17 +460,34 @@ class FirestoreService @Inject constructor(
     }
 
     // --- getPostsByUserIdFlow (filter by idUser, ordered desc by timestamp) ---
-    fun getPostsByUserIdFlow(userId: String): Flow<List<PostDto>> = callbackFlow {
+//    fun getPostsByUserIdFlow(userId: String): Flow<List<PostDto>> = callbackFlow {
+//        val listener = postsCollection
+//            .whereEqualTo("idUser", userId)
+//            .orderBy("timestamp", Query.Direction.DESCENDING)
+//            .addSnapshotListener { snapshot, error ->
+//                if (error != null) { close(error); return@addSnapshotListener }
+//                val posts = snapshot?.documents?.mapNotNull { it.toObject(PostDto::class.java)?.copy(id = it.id) } ?: emptyList()
+//                trySend(posts).isSuccess
+//            }
+//        awaitClose { listener.remove() }
+//    }
+    fun getPostsByUserIdFlow(userId: String): Flow<List<Post>> = callbackFlow {
         val listener = postsCollection
             .whereEqualTo("idUser", userId)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
-                val posts = snapshot?.documents?.mapNotNull { it.toObject(PostDto::class.java)?.copy(id = it.id) } ?: emptyList()
+
+                val posts = snapshot?.documents
+                    ?.mapNotNull { it.toObject(PostDto::class.java)?.toDomain()?.copy(id = it.id) }
+                    ?: emptyList()
+
                 trySend(posts).isSuccess
             }
+
         awaitClose { listener.remove() }
-    }
+    }.distinctUntilChangedBy { it.map { post -> post.id } } // ✅ Esto asegura que Compose detecte cambios
+
 
 
     // FirestoreService.kt (añadir)

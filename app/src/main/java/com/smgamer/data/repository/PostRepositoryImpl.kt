@@ -43,20 +43,26 @@ class PostRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun deletePost(postId: String): Result<Unit> {
-        return try {
-            firestoreService.deletePost(postId)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+//    override suspend fun deletePost(postId: String): Result<Unit> {
+//        return try {
+//            firestoreService.deletePost(postId)
+//            Result.success(Unit)
+//        } catch (e: Exception) {
+//            Result.failure(e)
+//        }
+//    }
+    override suspend fun deletePost(postId: String) {
+        firestoreService.deletePost(postId)
+        //firestore.collection("posts").document(postId).delete().await()
     }
 
     override fun getPostsByCategoryAndTimestampFlow(category: String): Flow<List<Post>> =
         firestoreService.getPostsByCategoryAndTimestampFlow(category).map { list -> list.map { it.toDomain() } }
 
+//    override fun getPostsByUserIdFlow(userId: String): Flow<List<Post>> =
+//        firestoreService.getPostsByUserIdFlow(userId).map { list -> list.map { it.toDomain() } }
     override fun getPostsByUserIdFlow(userId: String): Flow<List<Post>> =
-        firestoreService.getPostsByUserIdFlow(userId).map { list -> list.map { it.toDomain() } }
+        firestoreService.getPostsByUserIdFlow(userId) // ya es Flow<List<Post>>
 
 
     override suspend fun getPostById(postId: String): Result<Post?> {

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -29,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
@@ -60,13 +61,10 @@ fun UserProfileScreen(
     navBack: () -> Unit,
     navToChatDetail: () -> Unit,
     navToEditProfile: () -> Unit,
-    userProfileViewModel: UserProfileViewModel = hiltViewModel()
+    userProfileViewModel: UserProfileViewModel
 ){
-    val user by userProfileViewModel.user
-    val isLoading by userProfileViewModel.isLoading
-    val isMyUser by userProfileViewModel.isMyUser
+    val uiState by userProfileViewModel.uiState.collectAsState()
 
-    // userId = null o id del usuario
     LaunchedEffect(userId) {
         userProfileViewModel.loadUserProfile(userId)
     }
@@ -79,12 +77,12 @@ fun UserProfileScreen(
         val screenWidth = maxWidth
         val coverHeight = screenWidth * 0.55f
 
-        if (isLoading) {
+        if (uiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             return@BoxWithConstraints
         }
 
-        if (user == null) {
+        if (uiState.user == null) {
             Text(
                 text = "No hay usuario iniciado",
                 modifier = Modifier.align(Alignment.Center),
@@ -105,14 +103,14 @@ fun UserProfileScreen(
                 ) {
                     // imagen del cover
                     AsyncImage(
-                        model = user!!.coverImage.ifEmpty { R.drawable.cover_image },
+                        model = uiState.user?.coverImage?.ifEmpty { R.drawable.cover_image },
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
 
-                    // Back icon
-                    if (!isProfile){ //antes !isMyProfile
+                    // Back
+                    if (!isProfile){
                         IconButton(
                             onClick = navBack,
                             modifier = Modifier
@@ -131,7 +129,7 @@ fun UserProfileScreen(
                         }
                     }
 
-                    if(isMyUser){
+                    if(uiState.isMyUser){
                         IconButton(
                             onClick = { navToEditProfile() },
                             modifier = Modifier
@@ -160,7 +158,7 @@ fun UserProfileScreen(
                 ) {
                     //imagen de usuario
                     AsyncImage(
-                        model = user!!.profileImage.ifEmpty { R.drawable.ic_person },
+                        model = uiState.user?.profileImage?.ifEmpty { R.drawable.ic_person },
                         contentDescription = null,
                         modifier = Modifier
                             .size(screenWidth * 0.32f)
@@ -182,13 +180,13 @@ fun UserProfileScreen(
                         .offset(y = (-screenWidth * 0.08f))
                 ) {
                     Text(
-                        text = user!!.username,
+                        text = uiState.user?.username ?: "",
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = scaledFont(CommonFontSizeLarge),
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = user!!.email,
+                        text = uiState.user?.email ?: "",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = scaledFont(CommonFontSizeMin)
                     )
@@ -201,7 +199,7 @@ fun UserProfileScreen(
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     ProfileStat("1", stringResource(R.string.posts))
-                    ProfileStat(user!!.phone, stringResource(R.string.user_phone))
+                    ProfileStat(uiState.user?.phone ?: "", stringResource(R.string.user_phone))
                 }
 
                 HorizontalDivider(
@@ -222,21 +220,27 @@ fun UserProfileScreen(
                 )
             }
 
-            items(6) { index ->
-                ProfilePostCard(
-                    isMyUser = isMyUser,
-                    name = "Nombre del juego",
-                    lastMessage = "Hace 12 días",
-                    profileImageRes = R.drawable.ic_person,
-                    onDeleteConfirm = {
-                        // eliminar post
-                    }
-                )
+            if(uiState.posts.isEmpty()){
+                item { Text("No hay posts publicados",
+                    Modifier.padding(scaledPadding(CommonPaddingDefault))) }
+            }else{
+                items(uiState.posts, key = { it.id }) { post ->
+                    ProfilePostCard(
+                        isMyUser = uiState.isMyUser,
+                        name = post.title,
+                        lastMessage = post.description,
+                        profileImageRes = uiState.user?.profileImage ?: { R.drawable.cover_image },
+                        onDeleteConfirm = {
+                            userProfileViewModel.deletePost(post.id)
+                        }
+                    )
+                }
             }
+
         }
 
         // mostrar si no es mi usuario
-        if(!isMyUser){
+        if(!uiState.isMyUser){
             FloatingActionButton(
                 onClick = {
                     navToChatDetail()
