@@ -22,7 +22,7 @@ data class Filter(
 @Composable
 fun FiltersScreen(
     modifier: Modifier,
-    navToFilteredPosts: () -> Unit
+    navToFilteredPosts: (String) -> Unit
 ) {
     val filtersList: List<Filter> = listOf(
         Filter(name = "PLAYSTATION", imageVector = R.drawable.icon_ps4),
@@ -43,7 +43,7 @@ fun FiltersScreen(
                 name = filter.name,
                 imageRes = filter.imageVector,
                 modifier = Modifier.fillMaxWidth(),
-                navToFilteredPosts = { navToFilteredPosts() }
+                navToFilteredPosts = { navToFilteredPosts(filter.name) }
             )
         }
     }

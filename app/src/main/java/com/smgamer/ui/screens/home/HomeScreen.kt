@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smgamer.ui.components.PostCard
 import com.smgamer.ui.theme.CommonPaddingDefault
@@ -61,7 +62,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel,
+    homeViewModel: HomeViewModel = hiltViewModel(),
     navToPostDetail: (String) -> Unit,
     navToLogin: () -> Unit
 ){

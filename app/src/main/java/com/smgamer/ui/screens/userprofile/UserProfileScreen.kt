@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.smgamer.R
 import com.smgamer.ui.components.ProfilePostCard
@@ -61,7 +62,7 @@ fun UserProfileScreen(
     navBack: () -> Unit,
     navToChatDetail: () -> Unit,
     navToEditProfile: () -> Unit,
-    userProfileViewModel: UserProfileViewModel
+    userProfileViewModel: UserProfileViewModel= hiltViewModel()
 ){
     val uiState by userProfileViewModel.uiState.collectAsState()
 

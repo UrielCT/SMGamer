@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalConfiguration
 import com.smgamer.ui.screens.editprofile.EditProfileViewModel
+import com.smgamer.ui.screens.filteredposts.FilteredPostsViewModel
 import com.smgamer.ui.screens.home.HomeViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.navigationBar.NavigationBarScreen
@@ -23,13 +24,14 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModels()
-    private val registerViewModel: RegisterViewModel by viewModels()
-    private val homeViewModel: HomeViewModel by viewModels()
-    private val newPostViewModel: NewPostViewModel by viewModels()
-    private val userProfileViewModel: UserProfileViewModel by viewModels()
-    private val editProfileViewModel: EditProfileViewModel by viewModels()
-    private val postDetailViewModel: PostDetailViewModel by viewModels()
+    //private val loginViewModel: LoginViewModel by viewModels()
+    //private val registerViewModel: RegisterViewModel by viewModels()
+    //private val homeViewModel: HomeViewModel by viewModels()
+    //private val newPostViewModel: NewPostViewModel by viewModels()
+    //private val userProfileViewModel: UserProfileViewModel by viewModels()
+    //private val editProfileViewModel: EditProfileViewModel by viewModels()
+    //private val postDetailViewModel: PostDetailViewModel by viewModels()
+   // private val filteredPostsViewModel: FilteredPostsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,13 +52,14 @@ class MainActivity : ComponentActivity() {
                     LocalFontScale provides fontScale
                 ) {
                     NavigationBarScreen(
-                        loginViewModel = loginViewModel,
-                        registerViewModel = registerViewModel,
-                        homeViewModel = homeViewModel,
-                        userProfileViewModel = userProfileViewModel,
-                        editProfileViewModel = editProfileViewModel,
-                        newPostViewModel = newPostViewModel,
-                        postDetailViewModel = postDetailViewModel
+//                        loginViewModel = loginViewModel,
+//                        registerViewModel = registerViewModel,
+//                        homeViewModel = homeViewModel,
+//                        userProfileViewModel = userProfileViewModel,
+//                        editProfileViewModel = editProfileViewModel,
+//                        newPostViewModel = newPostViewModel,
+//                        postDetailViewModel = postDetailViewModel,
+                        //filteredPostsViewModel = filteredPostsViewModel
                     )
                 }
 

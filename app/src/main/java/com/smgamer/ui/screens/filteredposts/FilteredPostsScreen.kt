@@ -1,15 +1,26 @@
 package com.smgamer.ui.screens.filteredposts
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.smgamer.ui.components.PostCard
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingMin
 import com.smgamer.ui.theme.scaledPadding
@@ -17,46 +28,71 @@ import com.smgamer.ui.theme.scaledPadding
 @Composable
 fun FilteredPostsScreen(
     modifier: Modifier,
-    navToPostDetail:()->Unit
+    category:String,
+    filteredPostsViewModel: FilteredPostsViewModel = hiltViewModel(),
+    navToPostDetail:(String)->Unit
 ){
-//    val postsList = listOf(
-//        Post(name = "Juego 1", user = "Persona 1", lastComment = "Muy bueno", likes = 10),
-//        Post(name = "Juego 2", user = "Persona 1", lastComment = "Muy bueno", likes = 8),
-//        Post(name = "Juego 3", user = "Persona 2", lastComment = "Increíble diseño", likes = 25),
-//        Post(name = "Juego 4", user = "Persona 3", lastComment = "Me entretuvo bastante", likes = 5),
-//        Post(name = "Juego 5", user = "Persona 4", lastComment = "Vale la pena probarlo", likes = 13),
-//        Post(name = "Juego 6", user = "Persona 5", lastComment = "Lo recomendaría", likes = 7),
-//        Post(name = "Juego 6", user = "Persona 5", lastComment = "Lo recomendaría", likes = 7),
-//        Post(name = "Juego 6", user = "Persona 5", lastComment = "Lo recomendaría", likes = 7),
-//    )
+    val uiState by filteredPostsViewModel.uiState.collectAsState()
+    val user by filteredPostsViewModel.user
+
+    LaunchedEffect(category) {
+        filteredPostsViewModel.loadPostsByCategory(category)
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         Text(
-            text = "Total de resultados: ",
+            text = "Total de resultados: ${uiState.posts.size}",
             modifier = Modifier.padding(
                 horizontal = scaledPadding(CommonPaddingDefault),
-                vertical = scaledPadding(CommonPaddingMin)
+                vertical = scaledPadding(CommonPaddingDefault)
             )
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingMin)),
-            horizontalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingMin)),
-            contentPadding = PaddingValues(
-                start = scaledPadding(CommonPaddingDefault),
-                end = scaledPadding(CommonPaddingDefault),
-                top = scaledPadding(CommonPaddingDefault),
-                bottom = scaledPadding(CommonPaddingDefault)
-            )
-        ) {
-//            items(postsList) { post ->
-//                PostCard(
-//                    post = post,
-//                    navToPostDetail = navToPostDetail
-//                )
-//            }
+        when {
+            uiState.isLoading -> {
+                Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                Text(
+                    text = uiState.error ?: "Error desconocido",
+                    modifier = Modifier.padding(16.dp),
+                    color = Color.Red
+                )
+            }
+
+            uiState.posts.isEmpty() -> {
+                Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No hay publicaciones en esta categoría.")
+                }
+            }
+
+            else -> user?.let { currentUser ->
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingMin)),
+                    horizontalArrangement = Arrangement.spacedBy(scaledPadding(CommonPaddingMin)),
+                    contentPadding = PaddingValues(
+                        start = scaledPadding(CommonPaddingDefault),
+                        end = scaledPadding(CommonPaddingDefault),
+                        top = scaledPadding(CommonPaddingDefault),
+                        bottom = scaledPadding(CommonPaddingDefault)
+                    )
+                ) {
+                    items(uiState.posts, key = { it.post.id }) { post ->
+                        PostCard(
+                            data = post,
+                            isLiked = post.isLikedBy(currentUser.id),
+                            onLikeClick = { filteredPostsViewModel.toggleLike(post.post.id, currentUser.id) },
+                            navToPostDetail = { postId -> navToPostDetail(postId)},
+                        )
+                    }
+
+                }
+            }
         }
     }
 }

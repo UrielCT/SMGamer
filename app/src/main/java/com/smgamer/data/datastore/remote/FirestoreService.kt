@@ -447,17 +447,92 @@ class FirestoreService @Inject constructor(
 
 
     // --- getPostsByCategoryAndTimestampFlow ---
-    fun getPostsByCategoryAndTimestampFlow(category: String): Flow<List<PostDto>> = callbackFlow {
-        val listener = postsCollection
+//    fun getPostsByCategoryFlow(category: String): Flow<List<PostDto>> = callbackFlow {
+//        val listener = postsCollection
+//            .whereEqualTo("category", category)
+//            .orderBy("timestamp", Query.Direction.DESCENDING)
+//            .addSnapshotListener { snapshot, error ->
+//                if (error != null) { close(error); return@addSnapshotListener }
+//                val posts = snapshot?.documents
+//                    ?.mapNotNull { it.toObject(PostDto::class.java)?.copy(id = it.id) }
+//                    ?: emptyList()
+//                trySend(posts).isSuccess
+//            }
+//        awaitClose { listener.remove() }
+//    }
+
+
+    fun getPostsByCategoryFlow(category: String): Flow<List<PostData>> = callbackFlow {
+        val userCache = mutableMapOf<String, User>()
+        val postDataMap = mutableMapOf<String, PostData>()
+        val activeLikeJobs = mutableMapOf<String, Job>()
+
+        // 🔸 Filtramos por categoría
+        val queryRef = postsCollection
             .whereEqualTo("category", category)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) { close(error); return@addSnapshotListener }
-                val posts = snapshot?.documents?.mapNotNull { it.toObject(PostDto::class.java)?.copy(id = it.id) } ?: emptyList()
-                trySend(posts).isSuccess
+            //.orderBy("timestamp", Query.Direction.DESCENDING)
+
+        val postListener = queryRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
             }
-        awaitClose { listener.remove() }
+
+            val posts = snapshot?.toObjects(Post::class.java) ?: emptyList()
+
+            // Si no hay posts, limpiamos todo
+            if (posts.isEmpty()) {
+                postDataMap.clear()
+                activeLikeJobs.values.forEach { it.cancel() }
+                activeLikeJobs.clear()
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+
+            // Cancelar jobs de posts que ya no existen
+            val currentIds = posts.map { it.id }
+            val removedIds = activeLikeJobs.keys - currentIds.toSet()
+            removedIds.forEach { id ->
+                activeLikeJobs[id]?.cancel()
+                activeLikeJobs.remove(id)
+                postDataMap.remove(id)
+            }
+
+            // Escuchar likes, comentarios y usuario por cada post
+            posts.forEach { post ->
+                if (activeLikeJobs[post.id] == null) {
+                    activeLikeJobs[post.id] = launch {
+                        val user: User? = userCache[post.idUser] ?: getUserById(post.idUser)
+                            ?.toDomain()
+                            ?.also { userCache[post.idUser] = it }
+
+                        combine(
+                            getLikesByPostIdFlow(post.id),
+                            getCommentsByPostFlow(post.id)
+                        ) { likes, comments ->
+                            PostData(
+                                post = post,
+                                user = user,
+                                likes = likes.map { it.toDomain() },
+                                comments = comments.map { it.toDomain() }
+                            )
+                        }.collectLatest { postData ->
+                            postDataMap[post.id] = postData
+                            trySend(
+                                postDataMap.values.sortedByDescending { it.post.timestamp }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        awaitClose {
+            postListener.remove()
+            activeLikeJobs.values.forEach { it.cancel() }
+        }
     }
+
 
     // --- getPostsByUserIdFlow (filter by idUser, ordered desc by timestamp) ---
 //    fun getPostsByUserIdFlow(userId: String): Flow<List<PostDto>> = callbackFlow {

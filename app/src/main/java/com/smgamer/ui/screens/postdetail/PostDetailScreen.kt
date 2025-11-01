@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -82,7 +83,7 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun PostDetailScreen(
     modifier: Modifier = Modifier,
-    postDetailViewModel: PostDetailViewModel,
+    postDetailViewModel: PostDetailViewModel = hiltViewModel(),
     postId: String,
     navBack: () -> Unit,
     navToUserProfile: (String) -> Unit,

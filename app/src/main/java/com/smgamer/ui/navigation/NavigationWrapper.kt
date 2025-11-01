@@ -21,6 +21,7 @@ import com.smgamer.ui.screens.chats.ChatsScreen
 import com.smgamer.ui.screens.editprofile.EditProfileScreen
 import com.smgamer.ui.screens.editprofile.EditProfileViewModel
 import com.smgamer.ui.screens.filteredposts.FilteredPostsScreen
+import com.smgamer.ui.screens.filteredposts.FilteredPostsViewModel
 import com.smgamer.ui.screens.filters.FiltersScreen
 import com.smgamer.ui.screens.home.HomeScreen
 import com.smgamer.ui.screens.home.HomeViewModel
@@ -37,13 +38,14 @@ import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 
 @Composable
 fun  NavigationWrapper(
-    loginViewModel: LoginViewModel,
-    registerViewModel: RegisterViewModel,
-    homeViewModel: HomeViewModel,
-    userProfileViewModel: UserProfileViewModel,
-    editProfileViewModel: EditProfileViewModel,
-    newPostViewModel: NewPostViewModel,
-    postDetailViewModel: PostDetailViewModel,
+//    loginViewModel: LoginViewModel,
+//    registerViewModel: RegisterViewModel,
+//    homeViewModel: HomeViewModel,
+//    userProfileViewModel: UserProfileViewModel,
+//    editProfileViewModel: EditProfileViewModel,
+//    newPostViewModel: NewPostViewModel,
+//    postDetailViewModel: PostDetailViewModel,
+   // filteredPostsViewModel: FilteredPostsViewModel,
     navController: NavHostController,
     innerPadding: PaddingValues,
     modifier: Modifier
@@ -78,7 +80,7 @@ fun  NavigationWrapper(
             composable(Destination.HOME.route) {
                 HomeScreen(
                     modifier = modifier,
-                    homeViewModel = homeViewModel,
+                    //homeViewModel = homeViewModel,
                     navToPostDetail = { postId ->
                         navController.navigate("${Destination.POST_DETAIL.route}/${postId}") {
                             launchSingleTop = true
@@ -91,15 +93,26 @@ fun  NavigationWrapper(
                     }
                 )
             }
+//            composable(Destination.FILTERS.route) {
+//                FiltersScreen(modifier.padding(innerPadding),
+//                    navToFilteredPosts = {
+//                        navController.navigate(Destination.FILTERED_POSTS.route) {
+//                            launchSingleTop = true
+//                        }
+//                    }
+//                )
+
             composable(Destination.FILTERS.route) {
-                FiltersScreen(modifier.padding(innerPadding),
-                    navToFilteredPosts = {
-                        navController.navigate(Destination.FILTERED_POSTS.route) {
+                FiltersScreen(
+                    modifier = modifier.padding(innerPadding),
+                    navToFilteredPosts = { category ->
+                        navController.navigate("${Destination.FILTERED_POSTS.route}/$category") {
                             launchSingleTop = true
                         }
                     }
                 )
             }
+
             composable(Destination.CHATS.route) {
                 ChatsScreen(modifier.padding(innerPadding),
                     navToChatDetail = {
@@ -114,7 +127,7 @@ fun  NavigationWrapper(
             composable(Destination.EDIT_PROFILE.route) {
                 EditProfileScreen(
                     modifier = modifier.padding(innerPadding),
-                    editProfileViewModel = editProfileViewModel,
+                    //editProfileViewModel = editProfileViewModel,
                     navBack = { navController.popBackStack() }
                 )
             }
@@ -122,7 +135,7 @@ fun  NavigationWrapper(
             composable(Destination.NEW_POST.route) {
                 NewPostScreen(
                     modifier = modifier.padding(innerPadding),
-                    newPostViewModel = newPostViewModel,
+                    //newPostViewModel = newPostViewModel,
                     navBack = {
                         navController.popBackStack()
                     })
@@ -162,7 +175,7 @@ fun  NavigationWrapper(
                 UserProfileScreen(
                     modifier = modifier.padding(innerPadding),
                     isProfile = true,
-                    userProfileViewModel = userProfileViewModel,
+                    //userProfileViewModel = userProfileViewModel,
                     navBack = { navController.popBackStack() },
                     navToChatDetail = { navController.navigate(Destination.CHAT_DETAIL.route) },
                     navToEditProfile = { navController.navigate(Destination.EDIT_PROFILE.route) }
@@ -178,7 +191,7 @@ fun  NavigationWrapper(
                 UserProfileScreen(
                     modifier = modifier.padding(innerPadding),
                     isProfile = false,
-                    userProfileViewModel = userProfileViewModel,
+                    //userProfileViewModel = userProfileViewModel,
                     userId = userId,
                     navBack = { navController.popBackStack() },
                     navToChatDetail = { navController.navigate(Destination.CHAT_DETAIL.route) },
@@ -187,59 +200,23 @@ fun  NavigationWrapper(
             }
 
 
-//            composable(Destination.USER_PROFILE.route) {
-//                UserProfileScreen(
-//                    modifier = modifier,
-//                    userProfileViewModel=userProfileViewModel,
-//                    navBack = { navController.popBackStack() },
-//                    navToChatDetail = {
-//                        navController.navigate(Destination.CHAT_DETAIL.route) {
-//                            launchSingleTop = true
-//                        }
-//                    },
-//                    isMyProfile = false,
-//                    isMyUser = false, // esto seria la id del usuario para validar si esla mio o no
-//                    navToEditProfile = {
-//                        navController.navigate(Destination.EDIT_PROFILE.route) {
-//                            launchSingleTop = true
-//                        }
-//                    }
-//                )
-//            }
-
-//            composable(
-//                route = "${Destination.USER_PROFILE.route}/{userId}",
-//                arguments = listOf(navArgument("userId") { type = NavType.StringType })
-//            ) { backStackEntry ->
-//                val userId = backStackEntry.arguments?.getString("userId")
-//                UserProfileScreen(
-//                    modifier = modifier,
-//                    userProfileViewModel = userProfileViewModel,
-//                    userId = userId,
-//                    navBack = { navController.popBackStack() },
-//                    navToChatDetail = {
-//                        navController.navigate(Destination.CHAT_DETAIL.route) {
-//                            launchSingleTop = true
-//                        }
-//                    },
-//                    navToEditProfile = {
-//                        navController.navigate(Destination.EDIT_PROFILE.route) {
-//                            launchSingleTop = true
-//                        }
-//                    }
-//                )
-//            }
-
-
-            composable(Destination.FILTERED_POSTS.route) {
-                FilteredPostsScreen(modifier = modifier.padding(innerPadding),
-                    navToPostDetail = {
-                        navController.navigate(Destination.POST_DETAIL.route) {
+            composable(
+                route = "${Destination.FILTERED_POSTS.route}/{category}",
+                arguments = listOf(navArgument("category") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val category = backStackEntry.arguments?.getString("category") ?: ""
+                FilteredPostsScreen(
+                    modifier = modifier.padding(innerPadding),
+                    category = category,
+                    navToPostDetail = { postId ->
+                        navController.navigate("${Destination.POST_DETAIL.route}/$postId") {
                             launchSingleTop = true
                         }
-                    }
+                    },
+                    //filteredPostsViewModel = filteredPostsViewModel
                 )
             }
+
 
             composable(
                 route = "${Destination.POST_DETAIL.route}/{postId}",
@@ -248,7 +225,7 @@ fun  NavigationWrapper(
                 val postId = backStackEntry.arguments?.getString("postId") ?: ""
                 PostDetailScreen(
                     modifier = modifier.padding(innerPadding),
-                    postDetailViewModel = postDetailViewModel,
+                    //postDetailViewModel = postDetailViewModel,
                     postId = postId,
                     navBack = { navController.popBackStack() },
                     navToUserProfile = { userId ->
@@ -267,7 +244,7 @@ fun  NavigationWrapper(
             composable(Destination.LOGIN.route) {
                 LoginScreen(
                     modifier = modifier.padding(innerPadding),
-                    loginViewModel = loginViewModel,
+                    //loginViewModel = loginViewModel,
                     navToHome = {
 //                        navController.navigate(Destination.Home.route) {
 //                            popUpTo(0) { inclusive = true }
@@ -289,7 +266,7 @@ fun  NavigationWrapper(
             composable(Destination.REGISTER.route) {
                 RegisterScreen(
                     modifier = modifier.padding(innerPadding),
-                    registerViewModel = registerViewModel,
+                    //registerViewModel = registerViewModel,
                     navBack = { navController.popBackStack() },
                     navToHome = {
 //                        navController.navigate(Destination.Home.route) {

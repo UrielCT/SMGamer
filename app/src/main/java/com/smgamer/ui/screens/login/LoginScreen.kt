@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.smgamer.R
 import com.smgamer.ui.components.LogTextField
 import com.smgamer.ui.components.common.rememberGoogleSignInLauncher
@@ -42,7 +43,7 @@ import java.util.regex.Pattern
 
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     navToHome: () -> Unit,
     navToRegister: () -> Unit,
     modifier: Modifier

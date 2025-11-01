@@ -18,7 +18,7 @@ interface PostRepository {
 
     fun getPostByIdFlow(postId:String): Flow<PostData?>
 
-    fun getPostsByCategoryAndTimestampFlow(category: String): Flow<List<Post>>
+    fun getPostsByCategoryFlow(category: String): Flow<List<PostData>>
 
     fun getPostsByUserIdFlow(userId: String): Flow<List<Post>>
 

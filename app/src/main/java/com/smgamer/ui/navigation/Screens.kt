@@ -31,7 +31,7 @@ enum class Destination(
     LOGIN(route = Constants.NAV_LOGIN),
     REGISTER(route = Constants.NAV_REGISTER),
     EDIT_PROFILE(route = Constants.NAV_EDIT_PROFILE),
-    FILTERED_POSTS(route = Constants.NAV_FILTERED_POSTS),
+    FILTERED_POSTS(route = "${Constants.NAV_FILTERED_POSTS}/{category}"),
     POST_DETAIL(route = "${Constants.NAV_POST_DETAIL}/{postId}"),
     USER_PROFILE(route = Constants.NAV_USER_PROFILE),
     NEW_POST(route = Constants.NAV_NEW_POST),

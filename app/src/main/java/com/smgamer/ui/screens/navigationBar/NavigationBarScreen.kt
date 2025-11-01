@@ -47,6 +47,7 @@ import com.smgamer.R
 import com.smgamer.ui.navigation.Destination
 import com.smgamer.ui.navigation.NavigationWrapper
 import com.smgamer.ui.screens.editprofile.EditProfileViewModel
+import com.smgamer.ui.screens.filteredposts.FilteredPostsViewModel
 import com.smgamer.ui.screens.home.HomeViewModel
 import com.smgamer.ui.screens.login.LoginViewModel
 import com.smgamer.ui.screens.newpost.NewPostViewModel
@@ -57,13 +58,14 @@ import com.smgamer.ui.screens.userprofile.UserProfileViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationBarScreen(
-    newPostViewModel: NewPostViewModel,
-    postDetailViewModel: PostDetailViewModel,
-    registerViewModel: RegisterViewModel,
-    homeViewModel: HomeViewModel,
-    userProfileViewModel: UserProfileViewModel,
-    editProfileViewModel: EditProfileViewModel,
-    loginViewModel: LoginViewModel
+//    newPostViewModel: NewPostViewModel,
+//    postDetailViewModel: PostDetailViewModel,
+//    registerViewModel: RegisterViewModel,
+//    homeViewModel: HomeViewModel,
+//    userProfileViewModel: UserProfileViewModel,
+//    editProfileViewModel: EditProfileViewModel,
+//    //filteredPostsViewModel: FilteredPostsViewModel,
+//    loginViewModel: LoginViewModel
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -80,7 +82,8 @@ fun NavigationBarScreen(
 
     val showTopBar = currentRoute in listOf(
         Destination.CHATS.route,
-        Destination.FILTERED_POSTS.route,
+        //Destination.FILTERED_POSTS.route,
+        "${Destination.FILTERED_POSTS.route}/{category}",
         Destination.CHAT_DETAIL.route
     )
 
@@ -93,7 +96,7 @@ fun NavigationBarScreen(
                     title = {
                         if(currentRoute == Destination.CHATS.route){
                             Text(stringResource(Destination.CHATS.labelRes!!) )
-                        }else if(currentRoute == Destination.FILTERED_POSTS.route){
+                        }else if(currentRoute == "${Destination.FILTERED_POSTS.route}/{category}"){
                             Text(stringResource(Destination.FILTERS.labelRes!!))
                         }else if(currentRoute == Destination.CHAT_DETAIL.route){
 
@@ -140,7 +143,7 @@ fun NavigationBarScreen(
                         }
                     },
                     navigationIcon = {
-                        if(currentRoute == Destination.FILTERED_POSTS.route ||
+                        if(currentRoute == "${Destination.FILTERED_POSTS.route}/{category}" ||
                             currentRoute == Destination.CHAT_DETAIL.route){
                             IconButton(onClick = { navController.popBackStack() }
                             ) {
@@ -183,18 +186,18 @@ fun NavigationBarScreen(
 
     ) { innerPadding ->
         NavigationWrapper(
-            loginViewModel = loginViewModel,
-            registerViewModel = registerViewModel,
-            homeViewModel = homeViewModel,
-            userProfileViewModel = userProfileViewModel,
-            editProfileViewModel = editProfileViewModel,
-            newPostViewModel = newPostViewModel,
-            postDetailViewModel = postDetailViewModel,
+//            loginViewModel = loginViewModel,
+//            registerViewModel = registerViewModel,
+//            homeViewModel = homeViewModel,
+//            userProfileViewModel = userProfileViewModel,
+//            editProfileViewModel = editProfileViewModel,
+//            newPostViewModel = newPostViewModel,
+//            postDetailViewModel = postDetailViewModel,
+          //  filteredPostsViewModel = filteredPostsViewModel,
             navController= navController,
             innerPadding = innerPadding,
             modifier = Modifier.fillMaxSize()
         )
-
     }
 }
 

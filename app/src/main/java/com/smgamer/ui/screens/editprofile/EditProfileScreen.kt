@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smgamer.R
@@ -65,7 +66,7 @@ import kotlinx.coroutines.launch
 fun EditProfileScreen(
     modifier: Modifier = Modifier,
     navBack: () -> Unit,
-    editProfileViewModel: EditProfileViewModel
+    editProfileViewModel: EditProfileViewModel= hiltViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
