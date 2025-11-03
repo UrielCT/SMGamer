@@ -8,6 +8,8 @@ data class UserDto(
     val phone: String = "",
     val profileImage: String = "",
     val coverImage: String = "",
+    val isOnline: Boolean = false,
+    val lastConnection:Long = 0,
     val timestamp: Long = System.currentTimeMillis()
 )
 

@@ -44,7 +44,6 @@ class RegisterViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _state.value = RegisterState.Loading
-            //val result = signUpWithGoogleUseCase(credential)
             val result = signUpWithGoogleUseCase(credential)
             result.onSuccess {
                 _state.value = RegisterState.Success(it)

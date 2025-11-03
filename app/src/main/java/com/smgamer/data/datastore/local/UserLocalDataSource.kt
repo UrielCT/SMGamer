@@ -1,7 +1,9 @@
 package com.smgamer.data.datastore.local
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.smgamer.domain.model.User
@@ -20,6 +22,8 @@ class UserLocalDataSource @Inject constructor(
     private val KEY_PHONE = stringPreferencesKey("phone")
     private val KEY_IMAGE = stringPreferencesKey("profileImage")
     private val KEY_COVER = stringPreferencesKey("coverImage")
+    private val KEY_LAST_CONNECTION = longPreferencesKey("lastConnection")
+    private val KEY_IS_ONLINE = booleanPreferencesKey("isOnline")
 
     suspend fun saveUser(user: User) {
         context.dataStore.edit { prefs ->
@@ -29,6 +33,8 @@ class UserLocalDataSource @Inject constructor(
             prefs[KEY_PHONE] = user.phone
             prefs[KEY_IMAGE] = user.profileImage
             prefs[KEY_COVER] = user.coverImage
+            prefs[KEY_LAST_CONNECTION] = user.lastConnection
+            prefs[KEY_IS_ONLINE] = user.isOnline
         }
     }
 
@@ -42,6 +48,8 @@ class UserLocalDataSource @Inject constructor(
             phone = prefs[KEY_PHONE] ?: "",
             profileImage = prefs[KEY_IMAGE] ?: "",
             coverImage = prefs[KEY_COVER] ?: "",
+            lastConnection = prefs[KEY_LAST_CONNECTION] ?: 0,
+            isOnline = prefs[KEY_IS_ONLINE] ?: false,
             timestamp = System.currentTimeMillis()
         )
     }

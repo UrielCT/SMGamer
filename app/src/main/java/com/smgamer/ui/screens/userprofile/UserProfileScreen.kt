@@ -60,7 +60,7 @@ fun UserProfileScreen(
     isProfile: Boolean = false,
     userId: String? = null,
     navBack: () -> Unit,
-    navToChatDetail: () -> Unit,
+    navToChatDetail: (String) -> Unit, // id del otro user
     navToEditProfile: () -> Unit,
     userProfileViewModel: UserProfileViewModel= hiltViewModel()
 ){
@@ -244,7 +244,7 @@ fun UserProfileScreen(
         if(!uiState.isMyUser){
             FloatingActionButton(
                 onClick = {
-                    navToChatDetail()
+                    userId?.let { navToChatDetail(it) }
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

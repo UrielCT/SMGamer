@@ -27,7 +27,8 @@ class FirebaseAuthService @Inject constructor(
         email: String,
         password: String,
         username: String,
-        phone: String
+        phone: String,
+
     ): UserDto {
         try {
             // 🔹 Intentar iniciar sesión
@@ -42,7 +43,12 @@ class FirebaseAuthService @Inject constructor(
     }
 
 
-    suspend fun createUser(email: String, password: String, username: String, phone: String): UserDto {
+    suspend fun createUser(
+        email: String,
+        password: String,
+        username: String,
+        phone: String
+    ): UserDto {
         auth.createUserWithEmailAndPassword(email, password).await()
         val user = auth.currentUser ?: throw Exception("User creation failed")
         return user.toUserDto(username, phone)

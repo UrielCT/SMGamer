@@ -1,6 +1,10 @@
 package com.smgamer.data.repository
 
+import com.smgamer.data.datastore.remote.CommentService
 import com.smgamer.data.datastore.remote.FirestoreService
+import com.smgamer.data.datastore.remote.LikeService
+import com.smgamer.data.datastore.remote.PostService
+import com.smgamer.data.datastore.remote.UserService
 import com.smgamer.data.mappers.toDomain
 import com.smgamer.domain.model.Post
 import com.smgamer.domain.model.PostData
@@ -15,7 +19,10 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
-    private val firestoreService: FirestoreService,
+    private val postService: PostService,
+    private val userService: UserService,
+    private val likeService: LikeService,
+    private val commentService: CommentService,
 ): PostRepository {
 
     override suspend fun createPost(
@@ -26,7 +33,7 @@ class PostRepositoryImpl @Inject constructor(
         images: List<String>,
     ): Result<Post> {
         return try {
-            val postDto = firestoreService.createPost(idUser, title, description, category, images )
+            val postDto = postService.createPost(idUser, title, description, category, images )
             Result.success(postDto.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -34,30 +41,30 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override fun getAllPostsFlow(): Flow<List<PostData>> {
-        return firestoreService.getAllPostsFlow()
+        return postService.getAllPostsFlow()
     }
 
 
     override fun getPostsByTitleFlow(query: String): Flow<List<PostData>> {
-        return firestoreService.getPostsByTitleFlow(query)
+        return postService.getPostsByTitleFlow(query)
     }
 
     override suspend fun deletePost(postId: String) {
-        firestoreService.deletePost(postId)
+        postService.deletePost(postId)
     }
 
     override fun getPostsByCategoryFlow(category: String): Flow<List<PostData>> =
-        firestoreService.getPostsByCategoryFlow(category)
+        postService.getPostsByCategoryFlow(category)
 
 
 
     override fun getPostsByUserIdFlow(userId: String): Flow<List<Post>> =
-        firestoreService.getPostsByUserIdFlow(userId)
+        postService.getPostsByUserIdFlow(userId)
 
 
     override suspend fun getPostById(postId: String): Result<Post?> {
         return try {
-            val dto = firestoreService.getPostById(postId)
+            val dto = postService.getPostById(postId)
             Result.success(dto?.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -66,7 +73,7 @@ class PostRepositoryImpl @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getPostByIdFlow(postId: String): Flow<PostData?> {
-        return firestoreService.getPostByIdFlow(postId)
+        return postService.getPostByIdFlow(postId)
             .flatMapLatest { postDto ->
                 if (postDto == null) {
                     // Si el post no existe, emito null
@@ -76,13 +83,13 @@ class PostRepositoryImpl @Inject constructor(
                     val postDomainFlow = flowOf(postDto.toDomain())
 
                     // Flujos para user, likes y comments (desde FirestoreService)
-                    val userFlow = firestoreService.getUserByIdFlow(postDto.idUser)
+                    val userFlow = userService.getUserByIdFlow(postDto.idUser)
                         .map { it?.toDomain() } // user puede ser null
 
-                    val likesFlow = firestoreService.getLikesByPostIdFlow(postId)
+                    val likesFlow = likeService.getLikesByPostIdFlow(postId)
                         .map { list -> list.map { it.toDomain() } }
 
-                    val commentsFlow = firestoreService.getCommentsByPostFlow(postId)
+                    val commentsFlow = commentService.getCommentsByPostFlow(postId)
                         .map { list -> list.map { it.toDomain() } }
 
                     combine(

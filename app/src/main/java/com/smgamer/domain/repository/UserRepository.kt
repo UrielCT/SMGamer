@@ -2,6 +2,7 @@ package com.smgamer.domain.repository
 
 import com.google.firebase.auth.AuthCredential
 import com.smgamer.domain.model.User
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
     suspend fun signInWithGoogle(credential: AuthCredential): Result<User>
@@ -15,4 +16,10 @@ interface UserRepository {
     suspend fun getUserById(userId: String): User?
     suspend fun logout()
     suspend fun updateUser(user: User)
+
+    fun getUserByIdFlow(userId: String): Flow<User?>
+
+    fun setupRealtimeConnectionTracking()
+    fun setUserOnlineStatus(isOnline: Boolean)
+    fun observeUserOnlineStatus(userId: String, onStatusChange: (Boolean, Long) -> Unit)
 }

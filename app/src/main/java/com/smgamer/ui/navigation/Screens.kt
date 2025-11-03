@@ -35,7 +35,10 @@ enum class Destination(
     POST_DETAIL(route = "${Constants.NAV_POST_DETAIL}/{postId}"),
     USER_PROFILE(route = Constants.NAV_USER_PROFILE),
     NEW_POST(route = Constants.NAV_NEW_POST),
-    CHAT_DETAIL(route = Constants.NAV_CHAT_DETAIL),
+    //CHAT_DETAIL(route = "${Constants.NAV_CHAT_DETAIL}/{chatId}/{senderId}/{receiverId}")
+    CHAT_DETAIL(route = Constants.NAV_CHAT_DETAIL)
+    // enviar solo el id de la otra persona y en el ChatDetail buscar mensajes por mi id y su id
+
 }
 
 

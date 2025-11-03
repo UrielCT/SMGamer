@@ -33,7 +33,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.unit.dp
-import com.smgamer.ui.screens.chatdetail.ChatMessage
+import com.smgamer.domain.model.Message
 import com.smgamer.ui.screens.chatdetail.MessageStatus
 import com.smgamer.ui.theme.CommonFontSizeDefault
 import com.smgamer.ui.theme.CommonFontSizeMicro
@@ -53,26 +53,21 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
-//data class LineLayoutInfo(
-//    val lastLineWidth: Float = 0f,
-//    val lineCount: Int = 1,
-//    val timeWidth: Dp = 0.dp,
-//    val timeHeight: Dp = 0.dp
-//)
-
 @SuppressLint("NewApi")
 @Composable
 fun MessageBubble(
-    message: ChatMessage,
-    showTail: Boolean
+    message: Message,
+    showTail: Boolean,
+    isMine: Boolean,
+    status: Boolean
+    //status: MessageStatus = MessageStatus.DELIVERED
 ) {
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
-    val bubbleColor = if (message.isMine) MaterialTheme.colorScheme.primaryContainer
+    val bubbleColor = if (isMine) MaterialTheme.colorScheme.primaryContainer
     else MaterialTheme.colorScheme.surfaceVariant
 
-    val textColor = if (message.isMine) MaterialTheme.colorScheme.onPrimaryContainer
+    val textColor = if (isMine) MaterialTheme.colorScheme.onPrimaryContainer
     else MaterialTheme.colorScheme.onSurfaceVariant
 
     val density = LocalDensity.current
@@ -108,14 +103,14 @@ fun MessageBubble(
 
 
     val bubbleShape = when {
-        message.isMine && showTail -> RoundedCornerShape(
+        isMine && showTail -> RoundedCornerShape(
             topStart = scaledPadding(CommonPaddingMinDefault),
             topEnd = CommonPaddingNone,
             bottomEnd = scaledPadding(CommonPaddingMinDefault),
             bottomStart = scaledPadding(CommonPaddingMinDefault)
         )
 
-        !message.isMine && showTail -> RoundedCornerShape(
+        !isMine && showTail -> RoundedCornerShape(
             topStart = CommonPaddingNone,
             topEnd = scaledPadding(CommonPaddingMinDefault),
             bottomEnd = scaledPadding(CommonPaddingMinDefault),
@@ -126,8 +121,8 @@ fun MessageBubble(
     }
 
     val bubblePadding = when {
-        message.isMine && !showTail -> PaddingValues(end = scaledPadding(CommonPaddingMin))
-        !message.isMine && !showTail -> PaddingValues(start = scaledPadding(CommonPaddingMin))
+        isMine && !showTail -> PaddingValues(end = scaledPadding(CommonPaddingMin))
+        !isMine && !showTail -> PaddingValues(start = scaledPadding(CommonPaddingMin))
         else -> PaddingValues()
     }
 
@@ -138,7 +133,7 @@ fun MessageBubble(
                 horizontal = scaledPadding(CommonPaddingDefault),
                 vertical = scaledPadding(CommonPaddingTwo)
             ),
-        horizontalArrangement = if (message.isMine) Arrangement.End else Arrangement.Start
+        horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     ) {
 
         Row(
@@ -146,7 +141,7 @@ fun MessageBubble(
             verticalAlignment = Alignment.Top
         ) {
 
-            if (showTail && !message.isMine) {
+            if (showTail && !isMine) {
                 BubbleTail(color = bubbleColor, isMine = false)
             }
 
@@ -154,21 +149,21 @@ fun MessageBubble(
                 modifier = Modifier
                     .background(bubbleColor, bubbleShape)
                     .padding(
-                        start = if (message.isMine) scaledPadding(CommonPaddingMinDefault) else scaledPadding(
+                        start = if (isMine) scaledPadding(CommonPaddingMinDefault) else scaledPadding(
                             CommonPaddingMin
                         ),
-                        end = if (message.isMine) scaledPadding(CommonPaddingMin) else scaledPadding(
+                        end = if (isMine) scaledPadding(CommonPaddingMin) else scaledPadding(
                             CommonPaddingMinDefault
                         ),
                         top = scaledPadding(CommonPaddingMicroMin),
                         bottom = scaledPadding(CommonPaddingMicroMin)
                     )
                     .widthIn(max = maxBubbleWidthDp)
-                    .wrapContentWidth(align = if (message.isMine) Alignment.End else Alignment.Start)
+                    .wrapContentWidth(align = if (isMine) Alignment.End else Alignment.Start)
             ) {
 
                 Text(
-                    text = message.text,
+                    text = message.message,
                     fontSize = scaledFont(CommonFontSizeMiddle),
                     color = textColor,
                     style = LocalTextStyle.current.copy(
@@ -209,26 +204,42 @@ fun MessageBubble(
                         )
                     )
 
-                    if (message.isMine) {
+                    if (isMine) {
                         Spacer(modifier = Modifier.width(scaledPadding(CommonPaddingMicro)))
                         Icon(
-                            imageVector = when (message.status) {
-                                MessageStatus.SENT -> Icons.Default.Check
-                                MessageStatus.DELIVERED -> Icons.Default.DoneAll
-                                MessageStatus.SEEN -> Icons.Default.DoneAll
-                            },
+                            imageVector = Icons.Default.DoneAll,
+
+//                            if (status) {
+//                                Icons.Default.Check
+//                            }else{
+//                                Icons.Default.DoneAll
+//                            },
                             contentDescription = null,
-                            tint = when (message.status) {
-                                MessageStatus.SEEN -> MaterialTheme.colorScheme.primary
-                                else -> MaterialTheme.colorScheme.outline
+                            tint = if (status) {
+                                MaterialTheme.colorScheme.primary
+                            }else{
+                                MaterialTheme.colorScheme.outline
                             },
                             modifier = Modifier.size(scaledPadding(CommonPaddingDefaultMid))
                         )
+//                        Icon(
+//                            imageVector = when (status) {
+//                                MessageStatus.SENT -> Icons.Default.Check
+//                                MessageStatus.DELIVERED -> Icons.Default.DoneAll
+//                                MessageStatus.SEEN -> Icons.Default.DoneAll
+//                            },
+//                            contentDescription = null,
+//                            tint = when (status) {
+//                                MessageStatus.SEEN -> MaterialTheme.colorScheme.primary
+//                                else -> MaterialTheme.colorScheme.outline
+//                            },
+//                            modifier = Modifier.size(scaledPadding(CommonPaddingDefaultMid))
+//                        )
                     }
                 }
             }
 
-            if (showTail && message.isMine) {
+            if (showTail && isMine) {
                 BubbleTail(color = bubbleColor, isMine = true)
             }
         }

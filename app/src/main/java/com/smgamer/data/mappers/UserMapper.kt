@@ -1,12 +1,16 @@
 package com.smgamer.data.mappers
 
 import com.google.firebase.auth.FirebaseUser
+import com.smgamer.data.model.ChatDto
 import com.smgamer.data.model.CommentDto
 import com.smgamer.data.model.LikeDto
+import com.smgamer.data.model.MessageDto
 import com.smgamer.data.model.PostDto
 import com.smgamer.data.model.UserDto
+import com.smgamer.domain.model.Chat
 import com.smgamer.domain.model.Comment
 import com.smgamer.domain.model.Like
+import com.smgamer.domain.model.Message
 import com.smgamer.domain.model.Post
 import com.smgamer.domain.model.User
 import java.util.Date
@@ -19,6 +23,8 @@ fun UserDto.toDomain() = User(
     phone = phone,
     profileImage = profileImage,
     coverImage = coverImage,
+    lastConnection = lastConnection,
+    isOnline = isOnline,
     timestamp = timestamp
 )
 
@@ -30,6 +36,8 @@ fun User.toDto() = UserDto(
     phone = phone,
     profileImage = profileImage,
     coverImage = coverImage,
+    lastConnection = lastConnection,
+    isOnline = isOnline,
     timestamp = timestamp
 )
 
@@ -100,3 +108,42 @@ fun Comment.toDto() = CommentDto(
     timestamp = timestamp
 )
 
+fun ChatDto.toDomain() = Chat(
+    id=id,
+    idUserA=idUserA,
+    idUserB=idUserB,
+    idNotification=idNotification,
+    isWriting=isWriting,
+    ids =ids,
+    timestamp=timestamp
+)
+
+fun Chat.toDto() = ChatDto(
+    id=id,
+    idUserA=idUserA,
+    idUserB=idUserB,
+    idNotification=idNotification,
+    isWriting=isWriting,
+    ids =ids,
+    timestamp=timestamp
+)
+
+fun MessageDto.toDomain() = Message(
+    id=id,
+    idSender =idSender,
+    idReceiver = idReceiver,
+    idChat =idChat,
+    message =message,
+    viewed=viewed,
+    timestamp = timestamp
+)
+
+fun Message.toDto() = MessageDto(
+    id=id,
+    idSender =idSender,
+    idReceiver = idReceiver,
+    idChat =idChat,
+    message =message,
+    viewed=viewed,
+    timestamp = timestamp
+)

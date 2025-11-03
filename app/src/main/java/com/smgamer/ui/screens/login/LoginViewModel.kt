@@ -3,7 +3,6 @@ package com.smgamer.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
-import com.smgamer.domain.usecases.LogOutUseCase
 import com.smgamer.domain.usecases.SignInWithEmailUseCase
 import com.smgamer.domain.usecases.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +15,6 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val signInWithEmailUseCase: SignInWithEmailUseCase,
-    private val logoutUseCase: LogOutUseCase
 ): ViewModel() {
 
     private val _state = MutableStateFlow<LoginState>(LoginState.Idle)
@@ -50,15 +48,4 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    // cerrar sesión
-    fun logout(onSuccess: () -> Unit, onError: (Throwable) -> Unit = {}) {
-        viewModelScope.launch {
-            try {
-                logoutUseCase()
-                onSuccess()
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
 }

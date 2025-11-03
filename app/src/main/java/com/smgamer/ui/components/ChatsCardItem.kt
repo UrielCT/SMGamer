@@ -45,7 +45,7 @@ fun ChatsCardItem(
     name: String,
     lastMessage: String,
     unreadCount: Int,
-    profileImageRes: Int,
+    profileImageRes: String,
     isOnline: Boolean,
     navToChatDetail: () -> Unit
 ) {
@@ -59,20 +59,11 @@ fun ChatsCardItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.size(CommonPaddingLarge_lm)) {
-//            AsyncImage(
-//                model = ImageRequest.Builder(context)
-//                    .data(profileImageRes)
-//                    .crossfade(true)
-//                    .build(),
-//                contentDescription = name,
-//                modifier = Modifier
-//                    .size(CommonPaddingLarge_lm)
-//                    .clip(CircleShape)
-//                    .background(MaterialTheme.colorScheme.surfaceVariant),
-//                contentScale = ContentScale.Crop
-//            )
-            Image(
-                painter = painterResource(id = profileImageRes),
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(profileImageRes)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = name,
                 modifier = Modifier
                     .size(CommonPaddingLarge_lm)
@@ -80,6 +71,15 @@ fun ChatsCardItem(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentScale = ContentScale.Crop
             )
+//            Image(
+//                painter = painterResource(id = profileImageRes),
+//                contentDescription = name,
+//                modifier = Modifier
+//                    .size(CommonPaddingLarge_lm)
+//                    .clip(CircleShape)
+//                    .background(MaterialTheme.colorScheme.surfaceVariant),
+//                contentScale = ContentScale.Crop
+//            )
 
             Box(
                 modifier = Modifier
