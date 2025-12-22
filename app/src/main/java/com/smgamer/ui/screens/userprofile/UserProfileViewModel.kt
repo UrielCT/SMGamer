@@ -1,10 +1,7 @@
 package com.smgamer.ui.screens.userprofile
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smgamer.domain.model.User
 import com.smgamer.domain.usecases.GetCurrentUserUseCase
 import com.smgamer.domain.usecases.GetUserByIdUseCase
 import com.smgamer.domain.usecases.posts.DeletePostUseCase
@@ -27,20 +24,10 @@ class UserProfileViewModel @Inject constructor(
     private val deletePostUseCase: DeletePostUseCase
 ) : ViewModel() {
 
-    private val _user = mutableStateOf<User?>(null)
-    val user: State<User?> = _user
-
-    private val _isLoading = mutableStateOf(true)
-    val isLoading: State<Boolean> = _isLoading
-
-    private val _isMyUser = mutableStateOf(false)
-    val isMyUser: State<Boolean> = _isMyUser
-
     private val _uiState = MutableStateFlow(UserProfileUiState(isLoading = true))
     val uiState: StateFlow<UserProfileUiState> = _uiState
 
     private var postsJob: Job? = null
-
 
     fun loadUserProfile(userId: String? = null) {
         viewModelScope.launch {
@@ -62,7 +49,8 @@ class UserProfileViewModel @Inject constructor(
                     it.copy(
                         user = targetUser,
                         isMyUser = isMyUser,
-                        isLoading = false
+                        isLoading = false,
+                        error = null
                     )
                 }
 
@@ -75,12 +63,18 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
+
     private fun observeUserPosts(userId: String) {
         postsJob?.cancel()
         postsJob = viewModelScope.launch {
             getPostsByUserUseCase(userId)
+//                .onStart {
+//                    _uiState.update { it.copy(isLoading = true, error = null) }
+//                }
                 .catch { e ->
-                    _uiState.update { it.copy(error = e.message, isLoading = false) }
+                    _uiState.update {
+                        it.copy(error = e.message ?: "Error al cargar posts", isLoading = false)
+                    }
                 }
                 .collectLatest { posts ->
                     _uiState.update {
@@ -90,29 +84,18 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-//    fun deletePost(postId: String) {
-//        viewModelScope.launch {
-//            try {
-//                deletePostUseCase(postId)
-//            } catch (e: Exception) {
-//                _uiState.value = _uiState.value.copy(error = e.message)
-//            }
-//        }
-//    }
 
     fun deletePost(postId: String) {
         viewModelScope.launch {
             try {
-                // 1️⃣ Eliminar del repositorio / Firestore
                 deletePostUseCase(postId)
-
-                // 2️⃣ Actualizar lista localmente para reflejarlo de inmediato
-                _uiState.update { currentState ->
-                    val updatedPosts = currentState.posts.filterNot { it.id == postId }
-                    currentState.copy(posts = updatedPosts)
+                _uiState.update { state ->
+                    state.copy(posts = state.posts.filterNot { it.id == postId })
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = e.message)
+                _uiState.update {
+                    it.copy(error = e.message ?: "Error al eliminar post")
+                }
             }
         }
     }

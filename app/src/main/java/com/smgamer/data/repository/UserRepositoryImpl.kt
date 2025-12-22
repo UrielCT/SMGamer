@@ -1,14 +1,8 @@
 package com.smgamer.data.repository
 
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ServerValue
-import com.google.firebase.database.ValueEventListener
 import com.smgamer.data.datastore.local.UserLocalDataSource
 import com.smgamer.data.datastore.remote.FirebaseAuthService
-import com.smgamer.data.datastore.remote.FirestoreService
 import com.smgamer.data.datastore.remote.UserService
 import com.smgamer.data.mappers.toDomain
 import com.smgamer.data.mappers.toDto

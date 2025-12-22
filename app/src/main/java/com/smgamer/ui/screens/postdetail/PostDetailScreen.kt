@@ -97,9 +97,7 @@ fun PostDetailScreen(
     // Escalas adaptativas
     val paddingScale = screenHeight / 891f
 
-    val images = uiState.postData?.post?.images ?: listOf(
-        R.drawable.cover_image, R.drawable.cover_image, R.drawable.cover_image
-    )
+    val images = uiState.postData?.post?.images ?: emptyList()
 
     var showCommentDialog by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }

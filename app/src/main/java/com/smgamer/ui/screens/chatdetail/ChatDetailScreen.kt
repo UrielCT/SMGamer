@@ -2,8 +2,6 @@ package com.smgamer.ui.screens.chatdetail
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,10 +45,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.smgamer.R
@@ -63,14 +58,13 @@ import com.smgamer.ui.theme.CommonPaddingLarge_med
 import com.smgamer.ui.theme.CommonPaddingMicroMin
 import com.smgamer.ui.theme.CommonPaddingMiddle
 import com.smgamer.ui.theme.CommonPaddingMin
-import com.smgamer.ui.theme.Surface
 import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
 import kotlinx.coroutines.launch
 
-enum class MessageStatus {
-    SENT, DELIVERED, SEEN
-}
+//enum class MessageStatus {
+//    SENT, DELIVERED, SEEN
+//}
 
 @SuppressLint("NewApi", "FrequentlyChangedStateReadInComposition")
 @Composable
@@ -117,7 +111,7 @@ fun ChatDetailScreen(
             .background(MaterialTheme.colorScheme.surface)
             .imePadding()
     ) {
-        // 🔹 TOP BAR
+
         ChatDetailTopBar(uiState.otherUser, onBack = { navBack() })
 
         LazyColumn(

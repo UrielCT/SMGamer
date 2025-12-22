@@ -25,9 +25,9 @@ fun FiltersScreen(
     navToFilteredPosts: (String) -> Unit
 ) {
     val filtersList: List<Filter> = listOf(
-        Filter(name = "PLAYSTATION", imageVector = R.drawable.icon_ps4),
-        Filter(name = "XBOX", imageVector = R.drawable.icon_xbox),
-        Filter(name = "NINTENDO", imageVector = R.drawable.icon_nintendo),
+        Filter(name = "PlayStation", imageVector = R.drawable.icon_ps4),
+        Filter(name = "Xbox", imageVector = R.drawable.icon_xbox),
+        Filter(name = "Nintendo", imageVector = R.drawable.icon_nintendo),
         Filter(name = "PC", imageVector = R.drawable.icon_pc)
     )
 

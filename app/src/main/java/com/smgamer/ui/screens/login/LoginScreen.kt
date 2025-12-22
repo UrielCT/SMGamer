@@ -72,10 +72,10 @@ fun LoginScreen(
 
             loginViewModel.signInWithEmailAndPassword(email, password, navToHome)
 
-            Log.d("login","email: $email")
-            Log.d("login","password: $password")
+            //Log.d("login","email: $email")
+            //Log.d("login","password: $password")
         }else{
-            Log.d("login","el email o la contraseña son incorrectos")
+            //Log.d("login","el email o la contraseña son incorrectos")
         }
     }
 

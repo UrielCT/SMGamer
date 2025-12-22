@@ -2,14 +2,14 @@ package com.smgamer.ui.screens.editprofile
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smgamer.domain.model.User
 import com.smgamer.domain.usecases.GetCurrentUserUseCase
 import com.smgamer.domain.usecases.UpdateUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,11 +19,8 @@ class EditProfileViewModel @Inject constructor(
     private val updateUserProfileUseCase: UpdateUserProfileUseCase,
 ) : ViewModel() {
 
-    private val _user = mutableStateOf<User?>(null)
-    val user: State<User?> = _user
-
-    private val _isLoading = mutableStateOf(true)
-    val isLoading: State<Boolean> = _isLoading
+    private val _uiState = MutableStateFlow(EditProfileUiState(isLoading = true))
+    val uiState: StateFlow<EditProfileUiState> = _uiState
 
     init {
         loadUserProfile()
@@ -31,12 +28,17 @@ class EditProfileViewModel @Inject constructor(
 
     private fun loadUserProfile() {
         viewModelScope.launch {
-            _isLoading.value = true
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
             try {
-                val currentUser = getCurrentUserUseCase()
-                _user.value = currentUser
-            } finally {
-                _isLoading.value = false
+                val user = getCurrentUserUseCase()
+                _uiState.update {
+                    it.copy(user = user, isLoading = false)
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = e.message ?: "Error al cargar el perfil", isLoading = false)
+                }
             }
         }
     }
@@ -48,22 +50,31 @@ class EditProfileViewModel @Inject constructor(
         phone: String,
         profileUri: Uri?,
         coverUri: Uri?,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
     ) {
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
             try {
-                _isLoading.value = true
-                val currentUser = _user.value ?: return@launch
-                val updated = updateUserProfileUseCase(
-                    context, currentUser, name, email, phone, profileUri, coverUri
+                val currentUser = _uiState.value.user ?: return@launch
+
+                val updatedUser = updateUserProfileUseCase(
+                    context = context,
+                    currentUser = currentUser,
+                    name = name,
+                    email = email,
+                    phone = phone,
+                    profileUri = profileUri,
+                    coverUri = coverUri
                 )
-                _user.value = updated
-                onSuccess()
+
+                _uiState.update {
+                    it.copy(user = updatedUser, isLoading = false)
+                }
+
             } catch (e: Exception) {
-                onError(e.message ?: "Error al actualizar perfil")
-            } finally {
-                _isLoading.value = false
+                _uiState.update {
+                    it.copy(error = e.message ?: "Error al actualizar perfil", isLoading = false)
+                }
             }
         }
     }

@@ -14,10 +14,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("NAME_SHADOWING")
 @HiltViewModel
 class NewPostViewModel @Inject constructor(
     private val createPostUseCase: CreatePostUseCase,
@@ -25,8 +27,8 @@ class NewPostViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase
 ) : ViewModel()  {
 
-    private val _isLoading = mutableStateOf(false)
-    val isLoading: State<Boolean> = _isLoading
+    private val _uiState = MutableStateFlow(NewPostUiState())
+    val uiState: StateFlow<NewPostUiState> = _uiState
 
     private val _currentUser = mutableStateOf<User?>(null)
     val currentUser: State<User?> = _currentUser
@@ -56,7 +58,7 @@ class NewPostViewModel @Inject constructor(
         val idUser = _currentUser.value?.id ?: return onError("Usuario no autenticado")
 
         viewModelScope.launch {
-            _isLoading.value = true
+            _uiState.update { it.copy(isLoading = true, error = null, isSuccess = false) }
             try {
                 // 🧠 Subir imágenes en paralelo
                 val uploadedUrls = coroutineScope {
@@ -69,13 +71,14 @@ class NewPostViewModel @Inject constructor(
 
                 if (uploadedUrls.isEmpty()) {
                     onError("No se pudieron subir las imágenes")
-                    _isLoading.value = false
+                    //_isLoading.value = false
                     return@launch
                 }
 
                 // 🧾 Crear el post en Firestore
                 val result = createPostUseCase(idUser, title, description, category, uploadedUrls)
                 result.onSuccess {
+                    _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                     onSuccess()
                 }.onFailure {
                     onError(it.message ?: "Error al crear el post")
@@ -83,8 +86,12 @@ class NewPostViewModel @Inject constructor(
             } catch (e: Exception) {
                 onError(e.message ?: "Error al subir imágenes")
             } finally {
-                _isLoading.value = false
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    private fun showError(message: String) {
+        _uiState.update { it.copy(isLoading = false, error = message, isSuccess = false) }
     }
 }

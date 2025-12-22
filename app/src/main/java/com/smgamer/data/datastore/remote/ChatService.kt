@@ -1,6 +1,5 @@
 package com.smgamer.data.datastore.remote
 
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.smgamer.data.model.ChatDto
 import kotlinx.coroutines.channels.awaitClose
@@ -16,7 +15,6 @@ class ChatService @Inject constructor(
 ) {
 
     private val chatsCollection = firestore.collection("Chats")
-
 
     suspend fun createChat(chatDto: ChatDto) {
         chatsCollection.document(chatDto.id).set(chatDto).await()
@@ -40,17 +38,6 @@ class ChatService @Inject constructor(
         awaitClose { listener.remove() }
     }
 
-//    fun getChatsByUserFlow(userId: String): Flow<List<ChatDto>> = callbackFlow {
-//        val listener = chatsCollection
-//            .whereArrayContains("ids", userId)
-//            .orderBy("timestamp", Query.Direction.DESCENDING)
-//            .addSnapshotListener { snapshot, error ->
-//                if (error != null) { close(error); return@addSnapshotListener }
-//                val list = snapshot?.toObjects(ChatDto::class.java)?.map { it.copy(id = it.id) } ?: emptyList()
-//                trySend(list).isSuccess
-//            }
-//        awaitClose { listener.remove() }
-//    }
 
     fun getChatsByUserFlow(userId: String): Flow<List<ChatDto>> = callbackFlow {
         val listener = chatsCollection

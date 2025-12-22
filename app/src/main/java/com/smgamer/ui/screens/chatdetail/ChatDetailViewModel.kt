@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smgamer.domain.model.Message
 import com.smgamer.domain.usecases.GetCurrentUserUseCase
-import com.smgamer.domain.usecases.GetUserByIdUseCase
 import com.smgamer.domain.usecases.chats.CreateOrGetChatUseCase
 import com.smgamer.domain.usecases.chats.GetChatFlowUseCase
 import com.smgamer.domain.usecases.messages.GetMessagesByChatUseCase
@@ -25,9 +24,7 @@ class ChatDetailViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val createOrGetChatUseCase: CreateOrGetChatUseCase,
     private val getChatFlowUseCase: GetChatFlowUseCase,
-    //private val getUserByIdUseCase: GetUserByIdUseCase,
     private val getUserFlowUseCase: GetUserFlowUseCase,
-
     private val getMessagesByChatUseCase: GetMessagesByChatUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val updateMessageViewedUseCase: UpdateMessageViewedUseCase,
@@ -99,7 +96,7 @@ class ChatDetailViewModel @Inject constructor(
         if (text.isBlank()) return
 
         val message = Message(
-            id = "", // will be created by realtime push
+            id = "",
             idSender = me,
             idReceiver = _uiState.value.otherUser?.id ?: "",
             idChat = chatId,
@@ -119,34 +116,34 @@ class ChatDetailViewModel @Inject constructor(
         viewModelScope.launch { updateMessageViewedUseCase(chatId, messageId) }
     }
 
-
-    fun loadMessages(chatId: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            getMessagesByChatUseCase(chatId).collect { messages ->
-                _uiState.value = _uiState.value.copy(messages = messages, isLoading = false)
-            }
-        }
-    }
-
-    fun sendMessage(chatId: String, senderId: String, receiverId: String) {
-        val text = _uiState.value.inputText.trim()
-        if (text.isBlank()) return
-        val message = Message(
-            id = "", // will be set by service
-            idChat = chatId,
-            idSender = senderId,
-            idReceiver = receiverId,
-            message = text,
-            viewed = false,
-            timestamp = System.currentTimeMillis()
-        )
-        viewModelScope.launch {
-            sendMessageUseCase(message)
-            // clear input
-            _uiState.value = _uiState.value.copy(inputText = "")
-        }
-    }
+//
+//    fun loadMessages(chatId: String) {
+//        viewModelScope.launch {
+//            _uiState.value = _uiState.value.copy(isLoading = true)
+//            getMessagesByChatUseCase(chatId).collect { messages ->
+//                _uiState.value = _uiState.value.copy(messages = messages, isLoading = false)
+//            }
+//        }
+//    }
+//
+//    fun sendMessage(chatId: String, senderId: String, receiverId: String) {
+//        val text = _uiState.value.inputText.trim()
+//        if (text.isBlank()) return
+//        val message = Message(
+//            id = "", // will be set by service
+//            idChat = chatId,
+//            idSender = senderId,
+//            idReceiver = receiverId,
+//            message = text,
+//            viewed = false,
+//            timestamp = System.currentTimeMillis()
+//        )
+//        viewModelScope.launch {
+//            sendMessageUseCase(message)
+//            // clear input
+//            _uiState.value = _uiState.value.copy(inputText = "")
+//        }
+//    }
 
 //    fun markViewed(chatId: String, messageId: String) {
 //        viewModelScope.launch {

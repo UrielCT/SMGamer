@@ -1,6 +1,5 @@
 package com.smgamer.data.datastore.remote
 
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.smgamer.data.model.CommentDto
 import kotlinx.coroutines.channels.awaitClose

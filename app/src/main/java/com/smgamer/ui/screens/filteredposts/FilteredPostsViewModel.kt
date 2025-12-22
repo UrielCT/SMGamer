@@ -1,10 +1,7 @@
 package com.smgamer.ui.screens.filteredposts
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smgamer.domain.model.User
 import com.smgamer.domain.usecases.GetCurrentUserUseCase
 import com.smgamer.domain.usecases.likes.LikePostUseCase
 import com.smgamer.domain.usecases.likes.UnlikePostUseCase
@@ -32,9 +29,6 @@ class FilteredPostsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(FilteredPostsUiState())
     val uiState: StateFlow<FilteredPostsUiState> = _uiState
 
-    private val _user = mutableStateOf<User?>(null)
-    val user: State<User?> = _user
-
     private var currentJob: Job? = null
 
     init {
@@ -44,7 +38,8 @@ class FilteredPostsViewModel @Inject constructor(
     private fun loadUserProfile() {
         viewModelScope.launch {
             try {
-                _user.value = getCurrentUserUseCase()
+                val user = getCurrentUserUseCase()
+                _uiState.update { it.copy(user = user) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -52,25 +47,20 @@ class FilteredPostsViewModel @Inject constructor(
     }
 
     fun loadPostsByCategory(category: String) {
-        // Cancela si ya hay una suscripción activa
+        // Cancela el flujo anterior (si hay uno activo)
         currentJob?.cancel()
 
         currentJob = getPostsByCategoryUseCase(category)
             .onStart {
-                _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+                _uiState.update { it.copy(isLoading = true, error = null) }
             }
             .onEach { posts ->
-                _uiState.value = _uiState.value.copy(
-                    posts = posts,
-                    isLoading = false,
-                    error = null
-                )
+                _uiState.update { it.copy(posts = posts, isLoading = false, error = null) }
             }
             .catch { e ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Error desconocido"
-                )
+                _uiState.update {
+                    it.copy(isLoading = false, error = e.message ?: "Error desconocido")
+                }
             }
             .launchIn(viewModelScope)
     }

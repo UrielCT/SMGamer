@@ -168,9 +168,9 @@ class UserService @Inject constructor(
         return listener
     }
 
-    fun removeListener(userId: String, listener: ValueEventListener) {
-        realtimeDatabase.reference.child("users_status").child(userId)
-            .removeEventListener(listener)
-    }
+//    fun removeListener(userId: String, listener: ValueEventListener) {
+//        realtimeDatabase.reference.child("users_status").child(userId)
+//            .removeEventListener(listener)
+//    }
 
 }

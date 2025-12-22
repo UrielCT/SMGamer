@@ -1,6 +1,5 @@
 package com.smgamer.data.repository
 
-import com.smgamer.data.datastore.remote.FirestoreService
 import com.smgamer.data.datastore.remote.LikeService
 import com.smgamer.domain.repository.LikeRepository
 import kotlinx.coroutines.flow.first

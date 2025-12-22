@@ -1,6 +1,5 @@
 package com.smgamer.data.repository
 
-import com.smgamer.data.datastore.remote.FirestoreService
 import com.smgamer.data.datastore.remote.MessageService
 import com.smgamer.data.mappers.toDomain
 import com.smgamer.data.mappers.toDto

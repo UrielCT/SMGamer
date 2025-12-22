@@ -42,7 +42,6 @@ class FirebaseAuthService @Inject constructor(
         return user.toUserDto(username, phone)
     }
 
-
     suspend fun createUser(
         email: String,
         password: String,
@@ -56,9 +55,7 @@ class FirebaseAuthService @Inject constructor(
 
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
-
     fun logout() { auth.signOut() }
-
 }
 
 private fun FirebaseUser.toUserDto(username: String = displayName ?: "", phone: String = "") = UserDto(

@@ -31,10 +31,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +60,6 @@ import com.smgamer.ui.theme.scaledFont
 import com.smgamer.ui.theme.scaledPadding
 import com.smgamer.ui.utils.rememberCameraHandler
 import com.smgamer.ui.utils.rememberGalleryHandler
-import kotlinx.coroutines.launch
 
 @Composable
 fun EditProfileScreen(
@@ -69,31 +68,25 @@ fun EditProfileScreen(
     editProfileViewModel: EditProfileViewModel= hiltViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val uiState by editProfileViewModel.uiState.collectAsState()
 
-    val user by editProfileViewModel.user
-    val isLoading by editProfileViewModel.isLoading
+    val user = uiState.user
+    val isLoading = uiState.isLoading
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-
     var coverUri by remember { mutableStateOf<Uri?>(null) }
     var profileUri by remember { mutableStateOf<Uri?>(null) }
-
     var isCoverSelected by remember { mutableStateOf(true) }
-
     var showDialog by remember { mutableStateOf(false) }
 
-    // sincronizamos al cargar
     LaunchedEffect(user) {
         name = user?.username ?: ""
         email = user?.email ?: ""
         phone = user?.phone ?: ""
     }
 
-
-    // ✅ Handlers reutilizables
     val openCamera = rememberCameraHandler(context) { uri ->
         if (isCoverSelected) coverUri = uri else profileUri = uri
     }
@@ -102,29 +95,18 @@ fun EditProfileScreen(
         uris.firstOrNull()?.let { if (isCoverSelected) coverUri = it else profileUri = it }
     }
 
-    // Función para subir imágenes (puede ser la que ya tenés)
-    // agregar nuevos campos del usuario
-    fun updateUserData(){
-        scope.launch {
-            editProfileViewModel.updateUserProfile(
-                context = context,
-                name = name,
-                email = email,
-                phone = phone,
-                profileUri = profileUri,
-                coverUri = coverUri,
-                onSuccess = {
-                    Toast.makeText(context, "Perfil actualizado", Toast.LENGTH_SHORT).show()
-                    profileUri = null
-                    coverUri = null
-                },
-                onError = {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                }
-            )
-        }
-    }
 
+    fun updateUserData() {
+        editProfileViewModel.updateUserProfile(
+            context = context,
+            name = name,
+            email = email,
+            phone = phone,
+            profileUri = profileUri,
+            coverUri = coverUri
+        )
+        Toast.makeText(context, "Perfil actualizado", Toast.LENGTH_SHORT).show()
+    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -295,5 +277,9 @@ fun EditProfileScreen(
         ) {
             CircularProgressIndicator()
         }
+    }
+
+    uiState.error?.let {
+        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
     }
 }

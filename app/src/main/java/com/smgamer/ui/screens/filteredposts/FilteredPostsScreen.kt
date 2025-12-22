@@ -33,7 +33,6 @@ fun FilteredPostsScreen(
     navToPostDetail:(String)->Unit
 ){
     val uiState by filteredPostsViewModel.uiState.collectAsState()
-    val user by filteredPostsViewModel.user
 
     LaunchedEffect(category) {
         filteredPostsViewModel.loadPostsByCategory(category)
@@ -69,7 +68,7 @@ fun FilteredPostsScreen(
                 }
             }
 
-            else -> user?.let { currentUser ->
+            else -> uiState.user?.let { currentUser ->
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),

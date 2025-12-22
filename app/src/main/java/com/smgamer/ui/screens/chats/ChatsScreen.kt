@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.smgamer.R
 import com.smgamer.ui.components.ChatsCardItem
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingMin
@@ -31,7 +30,7 @@ fun ChatsScreen(
     navToChatDetail: (String) -> Unit
 ) {
     val uiState by chatsViewModel.uiState.collectAsState()
-    val currentUserId = chatsViewModel.getCurrentUserId()
+    //val currentUserId = chatsViewModel.getCurrentUserId()
 
     Box(modifier = Modifier.fillMaxSize()) {
         when {
@@ -56,7 +55,6 @@ fun ChatsScreen(
                     verticalArrangement = Arrangement.spacedBy(CommonPaddingMin)
                 ) {
                     items(uiState.chats, key = { it.chat.id }) { chat ->
-                        //val otherId = chat.chat.ids.firstOrNull { it != currentUserId } ?: return@items
                         val other = chat.otherUser
                         val name = other?.username ?: "Usuario desconocido"
                         val image = other?.profileImage ?: ""
@@ -64,12 +62,6 @@ fun ChatsScreen(
                         val lastMessage = chat.lastMessage?.message ?: "Sin mensajes aún"
                         val unreadCount = chat.unreadCount
                         ChatsCardItem(
-//                            name = "Chat con $otherId",
-//                            lastMessage = "Último mensaje ...",
-//                            unreadCount = 0,
-//                            profileImageRes = R.drawable.ic_person,
-//                            isOnline = false,
-//                            navToChatDetail = { navToChatDetail(otherId) }
                             name = name,
                             lastMessage = lastMessage,
                             unreadCount = unreadCount,

@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.unit.dp
 import com.smgamer.domain.model.Message
-import com.smgamer.ui.screens.chatdetail.MessageStatus
 import com.smgamer.ui.theme.CommonFontSizeDefault
 import com.smgamer.ui.theme.CommonFontSizeMicro
 import com.smgamer.ui.theme.CommonFontSizeMiddle

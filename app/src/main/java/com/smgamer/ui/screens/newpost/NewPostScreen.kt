@@ -40,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,8 +83,8 @@ fun NewPostScreen(
     navBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val uiState by newPostViewModel.uiState.collectAsState()
 
-    val isLoading by newPostViewModel.isLoading
 
     val categories = listOf(
         "PC" to R.drawable.icon_pc,
@@ -105,6 +106,7 @@ fun NewPostScreen(
     val density = LocalDensity.current
     val imeVisible = WindowInsets.ime.getBottom(density) > 0
     var hasFocus by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(imeVisible) {
         if (!imeVisible) focusManager.clearFocus()
@@ -312,6 +314,7 @@ fun NewPostScreen(
 
     }
 
+
     // 💬 Diálogo para elegir fuente
     if (showDialog) {
         ChooseImageDialog(
@@ -339,7 +342,7 @@ fun NewPostScreen(
         )
     }
 
-    if (isLoading) {
+    if (uiState.isLoading) {
         Box(
             Modifier
                 .fillMaxSize()

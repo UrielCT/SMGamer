@@ -1,10 +1,7 @@
 package com.smgamer.ui.screens.postdetail
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smgamer.domain.model.User
 import com.smgamer.domain.usecases.GetCurrentUserUseCase
 import com.smgamer.domain.usecases.comments.CreateCommentUseCase
 import com.smgamer.domain.usecases.comments.GetCommentsByPostUseCase
@@ -15,8 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,46 +28,49 @@ class PostDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PostDetailUiState(isLoading = true))
     val uiState: StateFlow<PostDetailUiState> = _uiState.asStateFlow()
 
-    private val _currentUser = mutableStateOf<User?>(null)
-    val currentUser: State<User?> = _currentUser
+    private var postJob: Job? = null
+    private var commentsJob: Job? = null
 
     init {
         loadCurrentUser()
     }
 
-    private fun loadCurrentUser() {
-        viewModelScope.launch {
-            _currentUser.value = getCurrentUserUseCase()
+    private fun loadCurrentUser() = viewModelScope.launch {
+        try {
+            val user = getCurrentUserUseCase()
+            _uiState.update { it.copy(user = user, error = null) }
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(error = e.message ?: "Error al cargar el perfil", isLoading = false)
+            }
         }
     }
 
 
-    private var postJob: Job? = null
-    private var commentsJob: Job? = null
-
-
     fun loadPost(postId: String) {
         postJob?.cancel()
-        postJob = getPostByIdFlowUseCase(postId)
-            .onStart { _uiState.update { it.copy(isLoading = true, error = null) } }
-            .catch { e -> _uiState.update { it.copy(isLoading = false, error = e.message ?: "Error") } }
-            .onEach { postData ->
-                _uiState.update { it.copy(isLoading = false, postData = postData) }
+        postJob = viewModelScope.launch {
+            combine(
+                getPostByIdFlowUseCase(postId),
+                getCommentsWithUsersUseCase(postId)
+            ) { postData, comments ->
+                postData to comments
             }
-            .launchIn(viewModelScope)
-
-        // Cargar comentarios enriquecidos
-        commentsJob?.cancel()
-        commentsJob = getCommentsWithUsersUseCase(postId)
-            .onStart { /* opcional: seteo de loading de comments */ }
-            .catch { e ->
-                // puedes almacenar error en estado si querés
-                _uiState.update { it.copy(error = e.message ?: "Error en comentarios") }
-            }
-            .onEach { commentsWithUsers ->
-                _uiState.update { it.copy(commentsWithUsers = commentsWithUsers) }
-            }
-            .launchIn(viewModelScope)
+                .onStart { _uiState.update { it.copy(isLoading = true, error = null) } }
+                .catch { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.message ?: "Error desconocido") }
+                }
+                .collect { (postData, comments) ->
+                    _uiState.update {
+                        it.copy(
+                            postData = postData,
+                            commentsWithUsers = comments,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                }
+        }
     }
 
 
@@ -81,7 +80,7 @@ class PostDetailViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val idUser = _currentUser.value?.id ?: return onError("Usuario no autenticado")
+        val idUser = _uiState.value.user?.id ?: return onError("Usuario no autenticado")
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -102,6 +101,7 @@ class PostDetailViewModel @Inject constructor(
 
 
     }
+
 
     override fun onCleared() {
         super.onCleared()

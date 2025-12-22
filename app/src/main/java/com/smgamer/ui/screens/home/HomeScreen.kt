@@ -51,7 +51,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smgamer.ui.components.PostCard
 import com.smgamer.ui.theme.CommonPaddingDefault
 import com.smgamer.ui.theme.CommonPaddingMin
@@ -67,9 +66,7 @@ fun HomeScreen(
     navToLogin: () -> Unit
 ){
     val context = LocalContext.current
-    val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val user by homeViewModel.user
-    val searchQuery by homeViewModel.searchQuery.collectAsState()
+    val uiState by homeViewModel.uiState.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
     var isSearching by rememberSaveable { mutableStateOf(false) }
@@ -88,10 +85,10 @@ fun HomeScreen(
                     ) { searching ->
                         if (searching) {
                             SearchBarWithFocus(
-                                searchQuery = searchQuery,
-                                onSearchQueryChange = { homeViewModel.updateSearchQuery(it) },
+                                searchQuery = uiState.inputText,
+                                onSearchQueryChange = { homeViewModel.onInputChange(it) },
                                 onCloseSearch = {
-                                    homeViewModel.updateSearchQuery("")
+                                    homeViewModel.onInputChange("")
                                     isSearching = false
                                     focusManager.clearFocus()
                                     keyboardController?.hide()
@@ -105,7 +102,7 @@ fun HomeScreen(
                 actions = {
                     if (isSearching) {
                         IconButton(onClick = {
-                            homeViewModel.updateSearchQuery("")
+                            homeViewModel.onInputChange("")
                             isSearching = false
                             focusManager.clearFocus()
                             keyboardController?.hide()
@@ -135,7 +132,8 @@ fun HomeScreen(
                                         homeViewModel.logout(
                                             onSuccess = { navToLogin() },
                                             onError = {
-                                                Toast.makeText(context, "Error al cerrar sesión", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Error al cerrar sesión",
+                                                    Toast.LENGTH_SHORT).show()
 
                                             }
                                         )
@@ -165,11 +163,12 @@ fun HomeScreen(
 
                     Log.d("error","${uiState.error}")
                 }
-                uiState.postsWithUsers.isEmpty() -> Text(
+                uiState.posts.isEmpty() -> Text(
                     text = "No hay posts disponibles",
                     modifier = Modifier.align(Alignment.Center)
                 )
-                else -> user?.let { currentUser ->
+
+                else -> uiState.user?.let { currentUser ->
 
                     LazyColumn(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -177,7 +176,7 @@ fun HomeScreen(
                             bottom = 80.dp
                         )
                     ) {
-                        items(uiState.postsWithUsers, key = { it.post.id }) { post ->
+                        items(uiState.posts, key = { it.post.id }) { post ->
                             PostCard(
                                 data = post,
                                 isLiked = post.isLikedBy(currentUser.id),

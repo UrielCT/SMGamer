@@ -1,8 +1,13 @@
 package com.smgamer.di
 
 import com.smgamer.data.datastore.local.UserLocalDataSource
+import com.smgamer.data.datastore.remote.ChatService
+import com.smgamer.data.datastore.remote.CommentService
 import com.smgamer.data.datastore.remote.FirebaseAuthService
-import com.smgamer.data.datastore.remote.FirestoreService
+import com.smgamer.data.datastore.remote.LikeService
+import com.smgamer.data.datastore.remote.MessageService
+import com.smgamer.data.datastore.remote.PostService
+import com.smgamer.data.datastore.remote.UserService
 import com.smgamer.data.datastore.remote.cloudinary.CloudinaryService
 import com.smgamer.data.repository.ChatRepositoryImpl
 import com.smgamer.data.repository.CloudinaryRepositoryImpl
@@ -32,40 +37,62 @@ object RepositoryModule {
     @Singleton
     fun provideUserRepository(
         authService: FirebaseAuthService,
-        firestoreService: FirestoreService,
-        userLocalDataSource: UserLocalDataSource
-    ): UserRepository = UserRepositoryImpl(authService, firestoreService, userLocalDataSource)
+        userLocalDataSource: UserLocalDataSource,
+        userService: UserService
+    ): UserRepository = UserRepositoryImpl(
+        authService,
+        localDataSource = userLocalDataSource,
+        userService = userService,
+    )
 
 
     @Provides
     @Singleton
     fun providePostRepository(
-        firestoreService: FirestoreService,
-    ): PostRepository = PostRepositoryImpl(firestoreService)
+        postService: PostService,
+        userService: UserService,
+        likeService: LikeService,
+        commentService: CommentService
+    ): PostRepository = PostRepositoryImpl(
+        postService = postService,
+        userService = userService,
+        likeService = likeService,
+        commentService = commentService
+    )
 
     @Provides
     @Singleton
     fun provideLikeRepository(
-        firestoreService: FirestoreService,
-    ): LikeRepository = LikeRepositoryImpl(firestoreService)
+        likeService: LikeService
+    ): LikeRepository = LikeRepositoryImpl(
+        likeService = likeService
+    )
 
     @Provides
     @Singleton
     fun provideCommentRepository(
-        firestoreService: FirestoreService,
-    ): CommentRepository = CommentRepositoryImpl(firestoreService)
+        commentService: CommentService,
+        userService: UserService
+    ): CommentRepository = CommentRepositoryImpl(
+        commentService = commentService,
+        userService = userService
+    )
 
     @Provides
     @Singleton
     fun provideChatRepository(
-        firestoreService: FirestoreService,
-    ): ChatRepository = ChatRepositoryImpl(firestoreService)
+        chatService: ChatService
+    ): ChatRepository = ChatRepositoryImpl(
+        chatService = chatService
+    )
 
     @Provides
     @Singleton
     fun provideMessageRepository(
-        firestoreService: FirestoreService,
-    ): MessageRepository = MessageRepositoryImpl(firestoreService)
+        messageService: MessageService
+    ): MessageRepository = MessageRepositoryImpl(
+        messageService = messageService
+    )
 
 
 
